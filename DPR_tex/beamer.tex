@@ -21,6 +21,31 @@
 
 \tikzstyle{actor} = [draw, ellipse, minimum height=1.5em, minimum width=3em, align=center]
 \tikzstyle{usecase} = [draw, ellipse, minimum height=2.5em, text centered]
+\setbeamertemplate{caption}[numbered]
+\renewcommand{\listfigurename}{Table des figures}
+\makeatletter
+\@ifundefined{tf@lof}{\newwrite\tf@lof}{}
+\immediate\openout\tf@lof=\jobname.lof\relax
+\newcommand{\storedfigurelist}{}
+\newcommand{\figurelistentry}[3]{%
+  \g@addto@macro\storedfigurelist{\noindent \textbf{Figure #1.} #2 \dotfill #3\par}%
+}
+\newcommand{\recordfigureentry}[1]{%
+  \protected@write\@auxout{}{\string\figurelistentry{\thefigure}{#1}{\thepage}}%
+}
+\newcommand{\dynamiclistoffigures}{%
+  \begingroup
+  \parindent=0pt
+  \parskip=0.35em
+  \footnotesize
+  \ifx\storedfigurelist\@empty
+    \textit{Aucune figure répertoriée pour le moment.}%
+  \else
+    \storedfigurelist
+  \fi
+  \endgroup
+}
+\makeatother
 
 \newcommand{\slidepurpose}[2]{%
 \vspace*{-0.23cm}
@@ -35,6 +60,20 @@
 \vspace{0.03cm}
 }
 \newcommand{\defitem}[2]{\textbf{#1} : #2\par\vspace{0.32em}}
+\newcommand{\solutionfigure}[2]{%
+\begin{center}
+\fcolorbox{blue!60!black}{gray!08}{%
+\begin{minipage}[c][0.37\textheight][c]{0.94\linewidth}
+\centering
+\includegraphics[width=0.9\linewidth,height=0.28\textheight,keepaspectratio]{#1}
+\end{minipage}}
+\vspace{0.06cm}
+{\captionsetup{type=figure,font=tiny,justification=centering}
+\captionof{figure}{#2}%
+\addcontentsline{lof}{figure}{\protect\numberline{\thefigure}{#2}}%
+\recordfigureentry{#2}}
+\end{center}
+}
 
 \title[Rapport Projet] 
 {Présentation PFA: Détection de pneumonie\\sur radiographie}
@@ -75,6 +114,12 @@
 \frametitle{Table des Matières}
 \slidepurpose{Présenter la structure complète du rapport et l'ordre des étapes}{Navigation / cadrage global}
 \tableofcontents
+\end{frame}
+
+\begin{frame}[t]
+\frametitle{Table des figures}
+\slidepurpose{Référencer automatiquement toutes les figures du document}{Navigation / repérage documentaire}
+\dynamiclistoffigures
 \end{frame}
 
 \section{Acronymes et terminologie}
@@ -990,229 +1035,346 @@ Sensibilité à la couche choisie, au prétraitement et au bruit.\\
 \section{Solution proposée}
 \subsection{Architecture et conception}
 
-\begin{frame}{Solution proposée — \textit{MedFusionNet} (concept)}
-\slidepurpose{Présenter l'architecture cible qui sera effectivement développée}{Conception de la solution}
-\vspace*{-0.2cm}
-\begin{columns}[T,onlytextwidth]
-\begin{column}{0.58\textwidth}
-\centering
-\resizebox{\linewidth}{!}{%
-\begin{tikzpicture}[
-    >=Latex,
-    font=\scriptsize,
-    box/.style={draw, rounded corners=3pt, align=center, thick, minimum width=2.2cm, minimum height=0.9cm}
-]
-\node[box, fill=blue!10] (in) {Radiographie\\$X\in\mathbb{R}^{H\times W}$};
-\node[box, fill=green!15, below left=0.7cm and 0.3cm of in] (cnn) {Backbone CNN\\(textures locales)};
-\node[box, fill=violet!15, below right=0.7cm and 0.3cm of in] (swin) {Swin\\(contexte global)};
-\node[box, fill=orange!20, below=0.9cm of in] (fusion) {Fusion guidée\\(gating + concat)};
-\node[box, fill=yellow!20, below left=0.7cm and 0.4cm of fusion] (cls) {Tête\\classification};
-\node[box, fill=red!15, below right=0.7cm and 0.4cm of fusion] (loc) {Tête\\localisation};
-\node[box, fill=gray!15, below=0.7cm of fusion] (unc) {Confiance\\(incertitude)};
-
-\draw[->, thick] (in) -- (cnn);
-\draw[->, thick] (in) -- (swin);
-\draw[->, thick] (cnn) -- (fusion);
-\draw[->, thick] (swin) -- (fusion);
-\draw[->, thick] (fusion) -- (cls);
-\draw[->, thick] (fusion) -- (loc);
-\draw[->, thick] (fusion) -- (unc);
-\end{tikzpicture}
-}
-\end{column}
-\begin{column}{0.42\textwidth}
-{\scriptsize
-\setlength{\fboxsep}{4pt}
-\setlength{\fboxrule}{0.8pt}
-\fcolorbox{green!60!black}{green!10}{%
-\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
-\textbf{Idée clé}\\
-Combiner \textbf{textures locales} (CNN) et \textbf{contexte global} (Swin) pour éviter les faux positifs liés aux artefacts ou aux régions isolées.
-}}
-\vspace{0.12cm}
-\fcolorbox{blue!70!black}{blue!10}{%
-\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
-\textbf{Nouveauté proposée}\\
-Fusion \textbf{guidée} par un mécanisme de gating qui apprend \textbf{quand} faire confiance aux détails locaux vs au contexte global.
-}}
-}
-\end{column}
-\end{columns}
-\end{frame}
-
-\begin{frame}{Solution proposée — Formulation mathématique}
-\slidepurpose{Formaliser mathématiquement les blocs principaux et les sorties du modele proposé}{Modélisation mathématique}
-\vspace*{-0.2cm}
+\begin{frame}[t]{Solution proposée — Étape 0 : vue d'ensemble}
+\slidepurpose{Présenter la logique globale du modèle avant le détail des étapes}{Conception de la solution}
+\vspace*{-0.18cm}
 \begin{columns}[T,onlytextwidth]
 \begin{column}{0.56\textwidth}
-{\scriptsize
-\setlength{\fboxsep}{4pt}
-\setlength{\fboxrule}{0.8pt}
-\fcolorbox{orange!80!black}{yellow!15}{%
-\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
-\textbf{Fusion guidée}\\
-Features CNN : $F_c\in\mathbb{R}^{H'\times W'\times C_c}$\\
-Features Swin : $F_s\in\mathbb{R}^{H'\times W'\times C_s}$\\
-Gating : $g=\sigma(W_g[\mathrm{GAP}(F_c),\mathrm{GAP}(F_s)])$\\
-\resizebox{\linewidth}{!}{$F = g\odot F_c + (1-g)\odot F_s$}\\
-Classification : $p(y|X)=\sigma(w^\top \mathrm{GAP}(F))$
-}}
-}
+\scriptsize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Principe et formule globale}
+MedFusionNet combine deux lectures d'une même radiographie :
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item une branche \textbf{CNN} pour les indices locaux : contours, textures, petites opacités ;
+\item une branche \textbf{Swin} pour le contexte global : symétrie thoracique, bilatéralité, cohérence anatomique ;
+\item une \textbf{fusion guidée} qui pondère automatiquement les deux branches.
+\end{itemize}
+\textbf{Chaîne mathématique.}
+\[
+\begin{aligned}
+\tilde X &= T(X)\\
+F_c &= \Phi_c(\tilde X), \qquad F_s = \Phi_s(\tilde X)
+\end{aligned}
+\]
+\[
+\begin{aligned}
+g &= \sigma\!\big(W_g[\mathrm{GAP}(F_c),\mathrm{GAP}(F_s)] + b_g\big)\\
+F &= g\odot F_c + (1-g)\odot F_s
+\end{aligned}
+\]
+La sortie finale vérifie \(\Psi(F)=(p,L^c,u)\) : score $p$, heatmap $L^c$, incertitude $u$.
+\end{block}
 \end{column}
 \begin{column}{0.44\textwidth}
-{\scriptsize
-\setlength{\fboxsep}{4pt}
-\setlength{\fboxrule}{0.8pt}
-\fcolorbox{red!70!black}{red!10}{%
-\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
-\textbf{Localisation + confiance}\\
-Carte explicative :\\
-\resizebox{\linewidth}{!}{$L^c=\mathrm{ReLU}\!\left(\sum_k \alpha_k^c A^k\right)$}\\
-Incertitude prédictive :\\
-\resizebox{\linewidth}{!}{$u=\mathrm{Var}\_{t}(p_t)\quad \text{(MC-Dropout)}$}\\
-Sortie finale : $(p,\,L^c,\,u)$
-}}
-}
+\solutionfigure{solution_step_00_overview.png}{Vue d'ensemble du pipeline complet}
 \end{column}
 \end{columns}
 \end{frame}
 
-\begin{frame}{Solution proposée — Pipeline complet (étape par étape)}
-\slidepurpose{Dérouler la chaîne complète d'exécution du modèle de l'entrée jusqu'aux sorties}{Conception détaillée}
-\vspace*{-0.2cm}
-\begin{columns}[T,onlytextwidth]
-\begin{column}{0.55\textwidth}
-\centering
-\resizebox{\linewidth}{!}{%
-\begin{tikzpicture}[
-    >=Latex,
-    font=\scriptsize,
-    box/.style={draw, rounded corners=3pt, align=center, thick, minimum width=2.0cm, minimum height=0.8cm}
-]
-\node[box, fill=gray!10] (x) {$X$\\Image};
-\node[box, fill=blue!10, right=0.5cm of x] (prep) {$\tilde X=T(X)$\\Prétrait.};
-\node[box, fill=green!15, right=0.5cm of prep] (cnn) {$F_c=\Phi_c(\tilde X)$\\CNN};
-\node[box, fill=violet!15, right=0.5cm of cnn] (swin) {$F_s=\Phi_s(\tilde X)$\\Swin};
-\node[box, fill=orange!20, right=0.5cm of swin] (gate) {$g=\sigma(W_g[\bar F_c,\bar F_s])$\\Gating};
-\node[box, fill=yellow!20, right=0.5cm of gate] (fusion) {$F=g\odot F_c+(1-g)\odot F_s$};
-\node[box, fill=red!15, below=0.7cm of fusion] (loc) {$L^c$\\Localisation};
-\node[box, fill=blue!15, above=0.7cm of fusion] (cls) {$p(y|X)$\\Classification};
-\node[box, fill=gray!20, right=0.6cm of fusion] (unc) {$u$\\Incertitude};
+\subsection{Pipeline détaillé}
 
-\draw[->, thick] (x) -- (prep);
-\draw[->, thick] (prep) -- (cnn);
-\draw[->, thick] (prep) -- (swin);
-\draw[->, thick] (cnn) -- (gate);
-\draw[->, thick] (swin) -- (gate);
-\draw[->, thick] (gate) -- (fusion);
-\draw[->, thick] (fusion) -- (cls);
-\draw[->, thick] (fusion) -- (loc);
-\draw[->, thick] (fusion) -- (unc);
-\end{tikzpicture}
-}
+\begin{frame}[t]{Solution proposée — Étape 1 : échantillon d'entrée}
+\slidepurpose{Définir la donnée d'entrée et ce qu'elle contient avant tout calcul}{Conception détaillée}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\scriptsize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Image et variabilité}
+Une radiographie thoracique est modélisée par :
+\[
+X\in\mathbb{R}^{H\times W}
+\]
+\noindent avec une étiquette binaire :
+\[
+\begin{cases}
+y=1 & \text{pneumonie}\\
+y=0 & \text{normal ou autre classe négative}
+\end{cases}
+\]
+\textbf{Pourquoi l'entrée est difficile.}
+L'image brute contient à la fois le signal clinique et des facteurs parasites :
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item variations d'intensité et de contraste selon l'appareil ;
+\item bruit, annotations, câbles et autres artefacts ;
+\item cadrage, résolution et structures normales parfois trompeuses.
+\end{itemize}
+\textbf{Exemple :} deux clichés de même classe peuvent avoir un contraste ou un centrage très différents ; le modèle doit ignorer cette variabilité non pathologique.
+\end{block}
 \end{column}
-\begin{column}{0.45\textwidth}
-{\scriptsize
-\setlength{\fboxsep}{4pt}
-\setlength{\fboxrule}{0.8pt}
-\fcolorbox{blue!70!black}{blue!10}{%
-\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
-\textbf{Étapes mathématiques}\\
-1) Prétraitement : $\tilde X=T(X)$ (normalisation, redimensionnement).\\
-2) Extraction locale : $F_c=\Phi_c(\tilde X)$.\\
-3) Contexte global : $F_s=\Phi_s(\tilde X)$.\\
-4) Gating : $g=\sigma(W_g[\mathrm{GAP}(F_c),\mathrm{GAP}(F_s)])$.\\
-5) Fusion : $F=g\odot F_c+(1-g)\odot F_s$.\\
-6) Classification : $p(y|X)=\sigma(w^\top \mathrm{GAP}(F))$.\\
-7) Localisation : $L^c=\mathrm{ReLU}(\sum_k \alpha_k^c A^k)$.\\
-8) Incertitude : $u=\mathrm{Var}_t(p_t)$ (MC-Dropout).
-}}
-\vspace{0.12cm}
-\fcolorbox{green!60!black}{green!10}{%
-\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
-\textbf{Apprentissage}\\
-\resizebox{\linewidth}{!}{$\mathcal{L}=\mathcal{L}_{cls}+\lambda_1\mathcal{L}_{loc}+\lambda_2\mathcal{L}_{cons}+\lambda_3\mathcal{L}_{cal}$}\\
-Optimise précision, robustesse et calibration.
-}}
-}
+\begin{column}{0.44\textwidth}
+\solutionfigure{solution_step_01_input_sample.png}{Échantillon brut provenant du dataset}
 \end{column}
 \end{columns}
 \end{frame}
 
-\begin{frame}{Solution proposée — Apprentissage et robustesse}
-\slidepurpose{Définir la fonction objectif, la robustesse et les garde-fous d'entraînement}{Développement / entraînement}
-\vspace*{-0.2cm}
+\begin{frame}[t]{Solution proposée — Étape 2 : prétraitement}
+\slidepurpose{Standardiser l'image avant son entrée dans les deux branches du modèle}{Développement / préparation des données}
+\vspace*{-0.18cm}
 \begin{columns}[T,onlytextwidth]
-\begin{column}{0.58\textwidth}
-{\scriptsize
-\setlength{\fboxsep}{4pt}
-\setlength{\fboxrule}{0.8pt}
-\fcolorbox{blue!70!black}{blue!10}{%
-\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
-\textbf{Objectif global}\\
-\resizebox{\linewidth}{!}{$\mathcal{L}=\mathcal{L}_{cls}+\lambda_1\mathcal{L}_{loc}+\lambda_2\mathcal{L}_{cons}+\lambda_3\mathcal{L}_{cal}$}\\
-$\mathcal{L}_{cls}$ : BCE ou Focal (déséquilibre classes).\\
-$\mathcal{L}_{loc}$ : cohérence entre $L^c$ et zones plausibles (pseudo-masques).\\
-$\mathcal{L}_{cons}$ : invariance aux augmentations (robustesse).\\
-$\mathcal{L}_{cal}$ : calibration (température / ECE).
-}}
-}
+\begin{column}{0.56\textwidth}
+\scriptsize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Transformation}
+Le prétraitement applique une chaîne de standardisation :
+\[
+\tilde X=T(X)=A\big(R(N(X))\big)
+\]
+\noindent où $N$ normalise les intensités, $R$ redimensionne et $A$ peut améliorer localement le contraste.
+\end{block}
+\begin{block}{Ce que la donnée devient}
+\[
+\text{normalisation :}\qquad X_{norm}=\frac{X-\mu}{\sigma}
+\]
+\[
+\begin{aligned}
+\text{redimensionnement :}\qquad
+X&\in\mathbb{R}^{H\times W}\\
+&\longrightarrow \tilde X\in\mathbb{R}^{H_0\times W_0}
+\end{aligned}
+\]
+\textbf{Exemple :} $1024\times1024 \rightarrow 384\times384$. Cette étape réduit le coût mémoire, homogénéise les entrées et diminue le risque que le modèle prenne une différence d'acquisition pour une pneumonie.
+\end{block}
 \end{column}
-\begin{column}{0.42\textwidth}
-{\scriptsize
-\setlength{\fboxsep}{4pt}
-\setlength{\fboxrule}{0.8pt}
-\fcolorbox{green!60!black}{green!10}{%
-\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
-\textbf{Pourquoi c'est utile}\\
-Réduit les faux positifs dus aux artefacts.\\
-Renforce la généralisation inter-hopitaux.\\
-Donne un score + une carte + une confiance.
-}}
-\vspace{0.12cm}
-\fcolorbox{red!70!black}{red!10}{%
-\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
-\textbf{Limites résiduelles}\\
-Dépendance à la qualité des données.\\
-Risque de biais systématiques.\\
-Doit être validé cliniquement.
-}}
-}
+\begin{column}{0.44\textwidth}
+\solutionfigure{solution_step_02_preprocessing.png}{Image après normalisation et redimensionnement}
 \end{column}
 \end{columns}
 \end{frame}
 
-\begin{frame}{Solution proposée — Impact clinique attendu}
-\slidepurpose{Montrer à quoi sert la solution proposée dans un usage réel de lecture radiologique}{Validation métier / déploiement}
-\vspace*{-0.2cm}
+\begin{frame}[t]{Solution proposée — Étape 3 : branche CNN locale}
+\slidepurpose{Extraire les motifs fins et localisés par une lecture convolutive}{Modélisation de la branche locale}
+\vspace*{-0.18cm}
 \begin{columns}[T,onlytextwidth]
-\begin{column}{0.55\textwidth}
-{\scriptsize
-\setlength{\fboxsep}{4pt}
-\setlength{\fboxrule}{0.8pt}
-\fcolorbox{green!60!black}{green!10}{%
-\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
-\textbf{Bénéfices}\\
-Triage rapide : prioriser les examens à haut risque.\\
-Explicabilité intégrée : aide la lecture et la relecture.\\
-Confiance mesurée : alerte en cas d'incertitude élevée.\\
-Adapté aux contraintes de déploiement réel.
-}}
-}
+\begin{column}{0.56\textwidth}
+\scriptsize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Lecture locale par CNN}
+La branche locale produit :
+\[
+F_c=\Phi_c(\tilde X)\in\mathbb{R}^{H'\times W'\times C_c}
+\]
+\noindent Une convolution applique un filtre sur un voisinage restreint :
+\[
+F^{(\ell)}_{i,j,c'}=\sum_{u,v,c}W^{(\ell)}_{u,v,c,c'}\,F^{(\ell-1)}_{i+u,j+v,c}+b^{(\ell)}_{c'}
+\]
+\textbf{Ce que la branche voit réellement.}
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item bords pleuraux, côtes, contours pulmonaires ;
+\item textures diffuses ou focales ;
+\item petites consolidations et opacités locales ;
+\item transitions fines entre tissu sain et tissu suspect.
+\end{itemize}
+\textbf{Exemple :} une opacité basale discrète peut être amplifiée par la comparaison locale entre intensités voisines.
+\end{block}
 \end{column}
-\begin{column}{0.45\textwidth}
-{\scriptsize
-\setlength{\fboxsep}{4pt}
-\setlength{\fboxrule}{0.8pt}
-\fcolorbox{blue!70!black}{blue!10}{%
-\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
-\textbf{Ce que la solution fait}\\
-Elle combine deux vues du même signal :\\
-- \textbf{local} (signes fins, bords, textures)\\
-- \textbf{global} (distribution pulmonaire, symétrie)\\
-Puis elle décide avec un \textbf{contrôle de confiance}.
-}}
-}
+\begin{column}{0.44\textwidth}
+\solutionfigure{solution_step_03_cnn_local.png}{Représentation locale extraite par la branche CNN}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Solution proposée — Étape 4 : branche Swin globale}
+\slidepurpose{Extraire une représentation de contexte capable de relier des régions éloignées}{Modélisation de la branche globale}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\scriptsize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Lecture globale par Swin}
+L'image prétraitée est découpée en patches puis projetée :
+\[
+z_i = E\,x_i + e_i^{pos}
+\]
+\noindent La branche globale calcule ensuite :
+\[
+F_s=\Phi_s(\tilde X)\in\mathbb{R}^{H'\times W'\times C_s}
+\]
+\[
+Q=XW_Q,\quad K=XW_K,\quad V=XW_V
+\]
+\[
+\mathrm{Attention}(Q,K,V)=\mathrm{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V
+\]
+Dans Swin, cette attention est calculée par fenêtres, puis les fenêtres sont décalées pour reconnecter les régions voisines.
+\textbf{Ce que la branche globale apporte.}
+Elle relie des zones éloignées : apex, bases, hémithorax droit/gauche, médiastin. Si une anomalie n'a de sens que par sa \textbf{distribution spatiale}, Swin la capture mieux qu'un CNN purement local.
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\solutionfigure{solution_step_04_swin_global.png}{Représentation globale extraite par la branche Swin}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Solution proposée — Étape 5 : fusion guidée}
+\slidepurpose{Combiner les indices locaux et globaux sans imposer un poids fixe à chaque branche}{Conception du coeur de fusion}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\scriptsize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Porte de fusion et interprétation}
+On résume d'abord chaque branche par un vecteur global :
+\[
+\bar F_c=\mathrm{GAP}(F_c),\qquad \bar F_s=\mathrm{GAP}(F_s)
+\]
+\noindent Puis on apprend un coefficient de fusion :
+\[
+g=\sigma\!\left(W_g[\bar F_c,\bar F_s]+b_g\right)
+\]
+\[
+F = g\odot F_c + (1-g)\odot F_s
+\]
+Si $g\approx 1$, le modèle privilégie l'indice local ; si $g\approx 0$, il privilégie le contexte global.
+\textbf{Exemples.}
+\textbf{Exemple 1 :} foyer net et compact $\Rightarrow g\approx 0.8$.\\
+\textbf{Exemple 2 :} atteinte diffuse ou bilatérale $\Rightarrow g\approx 0.3$.\\[0.15em]
+La fusion n'est donc pas une moyenne fixe : elle s'adapte à la structure réelle de l'image.
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\solutionfigure{solution_step_05_gated_fusion.png}{Fusion adaptative entre la branche locale et la branche globale}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Solution proposée — Étape 6 : classification}
+\slidepurpose{Transformer la représentation fusionnée en probabilité de pneumonie}{Tête de décision}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\scriptsize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Score de classe}
+La représentation fusionnée est condensée en un vecteur :
+\[
+z=\mathrm{GAP}(F)
+\]
+\noindent puis convertie en probabilité :
+\[
+p(y=1|X)=\sigma(w^\top z+b)
+\]
+\end{block}
+\begin{block}{Décision pratique}
+Avec un seuil $\tau$ :
+\[
+\hat y =
+\begin{cases}
+1 & \text{si } p(y=1|X)\ge \tau\\
+0 & \text{sinon}
+\end{cases}
+\]
+\textbf{Exemple :} si $p=0.91$ et $\tau=0.5$, la prédiction est positive avec une forte marge. Si $p=0.54$, la décision reste positive mais devient fragile : elle doit être lue avec la heatmap et l'incertitude.
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\solutionfigure{solution_step_06_classification.png}{Passage de la représentation fusionnée au score de classe}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Solution proposée — Étape 7 : localisation et incertitude}
+\slidepurpose{Produire une explication spatiale et mesurer la fiabilité de la décision}{Sorties interprétables}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\footnotesize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Localisation et incertitude}
+À partir des cartes finales $A^k$ :
+\[
+\alpha_k^c=\frac{1}{Z}\sum_i\sum_j \frac{\partial y^c}{\partial A^k_{ij}}
+\]
+\[
+L^c=\mathrm{ReLU}\!\left(\sum_k \alpha_k^c A^k\right)
+\]
+La heatmap montre \textbf{où} le modèle a trouvé des indices pour la classe prédite.
+\textbf{Incertitude.}
+En répétant plusieurs passes avec dropout actif :
+\[
+u=\mathrm{Var}_t(p_t)
+\]
+\textbf{Exemple :} si $p_t=\{0.87,0.88,0.89\}$, la variance est faible ; si $p_t=\{0.42,0.81,0.57\}$, la décision est instable et doit être relue.
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\solutionfigure{solution_step_07_localization_uncertainty.png}{Heatmap explicative et estimation d'incertitude}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Solution proposée — Étape 8 : apprentissage}
+\slidepurpose{Définir exactement ce qui est optimisé pendant l'entraînement}{Développement / entraînement}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\footnotesize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Fonction objectif}
+\[
+\mathcal{L}=
+\mathcal{L}_{cls}
+\;+\;
+\lambda_1\mathcal{L}_{loc}
+\;+\;
+\lambda_2\mathcal{L}_{cons}
+\;+\;
+\lambda_3\mathcal{L}_{cal}
+\]
+\end{block}
+\begin{block}{Sens de chaque terme}
+\defitem{$\mathcal{L}_{cls}$}{apprendre la bonne classe.}
+\defitem{$\mathcal{L}_{loc}$}{contraindre la heatmap à rester cliniquement plausible.}
+\defitem{$\mathcal{L}_{cons}$}{garder une prédiction stable sous augmentation.}
+\defitem{$\mathcal{L}_{cal}$}{mieux aligner confiance prédite et fréquence réelle d'erreur.}
+\textbf{Exemple :} sur un dataset déséquilibré, $\mathcal{L}_{cls}$ peut être une Focal Loss afin de mieux traiter les cas rares ou difficiles.
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\solutionfigure{solution_step_08_training_objective.png}{Schéma de la perte totale et de ses composantes}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Solution proposée — Étape 9 : sortie clinique}
+\slidepurpose{Montrer comment les sorties du modèle deviennent une aide concrète pour le workflow médical}{Validation métier / déploiement}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\footnotesize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Sortie exploitable pour le clinicien}
+Pour une image $X$, le modèle renvoie :
+\[
+\big(p(y=1|X),\,L^c,\,u\big)
+\]
+soit un score de pneumonie, une heatmap explicative et une estimation d'incertitude.
+\textbf{Comment cela aide le clinicien.}
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item score élevé + faible incertitude : cas à prioriser ;
+\item score modéré + incertitude élevée : revue humaine prioritaire ;
+\item score faible + faible incertitude : cas probablement normal.
+\end{itemize}
+\textbf{Limite :} une heatmap plausible reste un support de lecture, pas une preuve diagnostique.
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\solutionfigure{solution_step_09_clinical_output.png}{Sortie finale utilisable par le clinicien}
 \end{column}
 \end{columns}
 \end{frame}
