@@ -1,0 +1,26 @@
+# MedFusionNet — Requirements
+# =============================
+# Architecture hybride CNN + Swin Transformer pour la détection de pneumonie
+
+# ── Framework Deep Learning ─────────────────────────────────────────────────
+torch>=2.0.0                # Framework principal
+torchvision>=0.15.0         # DenseNet-121, transforms
+timm>=0.9.0                 # Swin Transformer (swin_tiny_patch4_window12_384)
+
+# ── Traitement d'images ─────────────────────────────────────────────────────
+Pillow>=9.0.0               # Chargement et manipulation d'images
+opencv-python-headless>=4.8.0, <4.9.0 # CLAHE, traitement OpenCV (Headless)
+
+# ── Calcul scientifique ─────────────────────────────────────────────────────
+numpy>=1.24.0
+scipy>=1.10.0               # Fonctions statistiques
+
+# ── Métriques & Évaluation ──────────────────────────────────────────────────
+scikit-learn>=1.2.0         # AUC-ROC, F1, accuracy
+
+# ── Visualisation ────────────────────────────────────────────────────────────
+matplotlib>=3.7.0           # Plots, Grad-CAM overlay
+
+# ── Logging & Utilitaires ────────────────────────────────────────────────────
+tqdm>=4.65.0                # Barres de progression
+pandas>=2.0.0               # Analyse des métriques CSV

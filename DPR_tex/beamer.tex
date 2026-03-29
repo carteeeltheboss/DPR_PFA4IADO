@@ -13,10 +13,13 @@
 \usetheme{Boadilla}
 \usecolortheme{default}
 \usepackage{lmodern}
+
+
 \usepackage{array}
 \usepackage{pgfgantt}
 \usepackage{pgf-umlsd}
 \usepackage{listings}
+\usepackage{adjustbox}
 \hfuzz=3pt
 
 \tikzstyle{actor} = [draw, ellipse, minimum height=1.5em, minimum width=3em, align=center]
@@ -62,11 +65,25 @@
 \newcommand{\defitem}[2]{\textbf{#1} : #2\par\vspace{0.32em}}
 \newcommand{\solutionfigure}[2]{%
 \begin{center}
-\fcolorbox{blue!60!black}{gray!08}{%
-\begin{minipage}[c][0.37\textheight][c]{0.94\linewidth}
+\begin{minipage}[c][0.72\textheight][c]{\linewidth}
 \centering
-\includegraphics[width=0.9\linewidth,height=0.28\textheight,keepaspectratio]{#1}
-\end{minipage}}
+\includegraphics[width=0.98\linewidth,height=0.68\textheight,keepaspectratio]{#1}
+\end{minipage}
+\vspace{0.06cm}
+{\captionsetup{type=figure,font=tiny,justification=centering}
+\captionof{figure}{#2}%
+\addcontentsline{lof}{figure}{\protect\numberline{\thefigure}{#2}}%
+\recordfigureentry{#2}}
+\end{center}
+}
+\newcommand{\tikzsolutionfigure}[2]{%
+\begin{center}
+\begin{minipage}[c][0.65\textheight][c]{\linewidth}
+\centering
+\begin{adjustbox}{max width=0.96\linewidth, max height=0.64\textheight}
+#1
+\end{adjustbox}
+\end{minipage}
 \vspace{0.06cm}
 {\captionsetup{type=figure,font=tiny,justification=centering}
 \captionof{figure}{#2}%
@@ -93,8 +110,12 @@
 
 \date[MAR 2026] 
 {EMSI Les Orangers, Mars 2026}
-\titlegraphic{\includegraphics[height=0.7cm]{logo.png}}
-
+%\titlegraphic{\includegraphics[height=0.7cm]{logo.png}}
+\titlegraphic{
+    \begin{textblock*}{2cm}(8cm, -7.4cm) 
+        \includegraphics[height=0.7cm]{logo} 
+    \end{textblock*}
+}
 \AtBeginSection[]
 {
   \begin{frame}
@@ -1068,7 +1089,20 @@ La sortie finale vérifie \(\Psi(F)=(p,L^c,u)\) : score $p$, heatmap $L^c$, ince
 \end{block}
 \end{column}
 \begin{column}{0.44\textwidth}
-\solutionfigure{solution_step_00_overview.png}{Vue d'ensemble du pipeline complet}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, minimum width=2.8cm, minimum height=0.6cm}]
+\node[box, fill=gray!10] (img) {\textbf{Image Thoracique}};
+\node[box, fill=blue!10, below=0.6cm of img, xshift=-1.5cm] (cnn) {Branche CNN\\(Indices locaux)};
+\node[box, fill=green!10, below=0.6cm of img, xshift=1.5cm] (swin) {Branche Swin\\(Contexte global)};
+\node[box, fill=yellow!15, below=1.8cm of img] (fusion) {Fusion Guidée\\$g\odot F_c + (1-g)\odot F_s$};
+\node[box, fill=red!10, below=0.6cm of fusion] (out) {\textbf{Sortie Clinique}\\$p, L^c, u$};
+\draw[->, thick] (img) -| (cnn);
+\draw[->, thick] (img) -| (swin);
+\draw[->, thick] (cnn) |- (fusion);
+\draw[->, thick] (swin) |- (fusion);
+\draw[->, thick] (fusion) -- (out);
+\end{tikzpicture}%
+}{Vue d'ensemble du pipeline complet}
 \end{column}
 \end{columns}
 \end{frame}
@@ -1107,7 +1141,22 @@ L'image brute contient à la fois le signal clinique et des facteurs parasites :
 \end{block}
 \end{column}
 \begin{column}{0.44\textwidth}
-\solutionfigure{solution_step_01_input_sample.png}{Échantillon brut provenant du dataset}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[font=\scriptsize]
+\draw[draw=none, fill=black!80, rounded corners=5pt] (0,0) rectangle (2.5,3.5);
+\draw[draw=none, fill=gray!40] (0.4, 0.4) .. controls (0.2, 1.8) and (0.8, 3) .. (1.1, 3.1) .. controls (1.3, 2.6) and (1.0, 0.8) .. (0.6, 0.4) -- cycle;
+\draw[draw=none, fill=gray!40] (2.1, 0.4) .. controls (2.3, 1.8) and (1.7, 3) .. (1.4, 3.1) .. controls (1.2, 2.6) and (1.5, 0.8) .. (1.9, 0.4) -- cycle;
+\node[text=white, font=\tiny] at (0.3, 3.2) {TAG};
+\draw[white, thick] (2.3,0.2) -- (2.0, 0.9);
+\draw[white, thick] (2.25,0.2) -- (1.95, 0.9);
+\node[draw, fill=white, rounded corners, inner sep=2pt, font=\tiny, align=center] (bruit) at (-0.5, 3.6) {Bruit /\\Artefacts};
+\draw[->, thick, red] (bruit) -- (0.3, 3.3);
+\node[draw, fill=white, rounded corners, inner sep=2pt, font=\tiny, align=center] (cable) at (3.2, 1) {Câbles};
+\draw[->, thick, red] (cable.west) -- (2.2, 0.6);
+\node[draw, fill=white, rounded corners, inner sep=2pt, font=\tiny, align=center] (contrast) at (1.25, -0.6) {Contraste\\variable};
+\draw[->, thick, red] (contrast) -- (1.25, 0.1);
+\end{tikzpicture}%
+}{Échantillon brut provenant du dataset}
 \end{column}
 \end{columns}
 \end{frame}
@@ -1142,7 +1191,17 @@ X&\in\mathbb{R}^{H\times W}\\
 \end{block}
 \end{column}
 \begin{column}{0.44\textwidth}
-\solutionfigure{solution_step_02_preprocessing.png}{Image après normalisation et redimensionnement}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, thick, rounded corners, fill=white, align=center, minimum width=2.5cm, minimum height=0.8cm}]
+\node[box, fill=gray!20] (brut) {$X_{brut}$\\($1024 \times 1024$)};
+\node[box, fill=blue!10, below=1cm of brut] (norm) {Normalisation\\$\frac{X - \mu}{\sigma}$};
+\node[box, fill=green!10, below=1cm of norm] (resize) {Redimensionnement};
+\node[box, fill=orange!10, below=1cm of resize] (final) {$\tilde{X}$\\($384 \times 384$)};
+\draw[->, thick] (brut) -- (norm);
+\draw[->, thick] (norm) -- (resize);
+\draw[->, thick] (resize) -- (final);
+\end{tikzpicture}%
+}{Image après normalisation et redimensionnement}
 \end{column}
 \end{columns}
 \end{frame}
@@ -1176,7 +1235,22 @@ F^{(\ell)}_{i,j,c'}=\sum_{u,v,c}W^{(\ell)}_{u,v,c,c'}\,F^{(\ell-1)}_{i+u,j+v,c}+
 \end{block}
 \end{column}
 \begin{column}{0.44\textwidth}
-\solutionfigure{solution_step_03_cnn_local.png}{Représentation locale extraite par la branche CNN}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize]
+\draw[step=0.6cm, gray, very thin] (0,0) grid (3,3);
+\draw[thick, fill=blue!10, opacity=0.8] (1.2,1.2) rectangle (2.4,2.4);
+\node[font=\footnotesize, align=center] at (1.5, 3.3) {Image / Feature Map};
+\begin{scope}[yshift=-3cm, xshift=0.5cm]
+\draw[step=0.6cm, gray, very thin] (0,0) grid (2,2);
+\draw[thick, fill=red!10, opacity=0.8] (0.6,0.6) rectangle (1.2,1.2);
+\node[font=\footnotesize, align=center] at (1, -0.4) {Couche suivante};
+\end{scope}
+\draw[->, thick, dashed, draw=blue!80] (1.2, 1.2) -- (1.1, -1.2);
+\draw[->, thick, dashed, draw=blue!80] (2.4, 1.2) -- (1.7, -1.2);
+\fill[red] (1.8, 1.8) circle (0.05);
+\node[draw=none, fill=none, font=\tiny] at (1.5, -3.8) {Champ récepteur local ($k \times k$)};
+\end{tikzpicture}%
+}{Représentation locale extraite par la branche CNN}
 \end{column}
 \end{columns}
 \end{frame}
@@ -1210,7 +1284,19 @@ Elle relie des zones éloignées : apex, bases, hémithorax droit/gauche, média
 \end{block}
 \end{column}
 \begin{column}{0.44\textwidth}
-\solutionfigure{solution_step_04_swin_global.png}{Représentation globale extraite par la branche Swin}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[font=\scriptsize]
+\draw[step=0.7cm, gray, thick] (0,0) grid (2.8, 2.8);
+\foreach \x/\y in {0.35/0.35, 0.35/2.45, 2.45/0.35, 2.45/2.45, 1.05/1.05, 1.75/1.75} {
+    \fill[blue!40] (\x,\y) circle (0.15);
+}
+\draw[<->, thick, red] (0.35, 0.35) to[bend right=45] (2.45, 0.35);
+\draw[<->, thick, red] (0.35, 0.35) to[bend left=30] (0.35, 2.45);
+\draw[<->, thick, red] (1.05, 1.05) to[bend left=20] (2.45, 2.45);
+\node[draw=none, fill=none, font=\scriptsize, align=center] at (1.4, -0.6) {\textbf{Patches d'image}};
+\node[draw=none, fill=none, font=\scriptsize, text=red, align=center] at (1.4, 3.4) {\textbf{Attention Globale}\\\textbf{(Longue distance)}};
+\end{tikzpicture}%
+}{Représentation globale extraite par la branche Swin}
 \end{column}
 \end{columns}
 \end{frame}
@@ -1243,7 +1329,24 @@ La fusion n'est donc pas une moyenne fixe : elle s'adapte à la structure réell
 \end{block}
 \end{column}
 \begin{column}{0.44\textwidth}
-\solutionfigure{solution_step_05_gated_fusion.png}{Fusion adaptative entre la branche locale et la branche globale}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, minimum width=1.5cm, minimum height=0.6cm}]
+\node[box, fill=blue!10] (fc) {$F_c$ (CNN)};
+\node[box, fill=green!10, right=1.2cm of fc] (fs) {$F_s$ (Swin)};
+\node[box, fill=gray!10, align=center, minimum width=2.5cm, below=1cm of $(fc)!0.5!(fs)$] (gate) {Porte $g = \sigma(\dots)$};
+\node[draw, circle, fill=yellow!20, below=2.5cm of fc] (mul_c) {$\odot$};
+\node[draw, circle, fill=yellow!20, below=2.5cm of fs] (mul_s) {$\odot$};
+\node[box, fill=purple!10, below=1cm of $(mul_c)!0.5!(mul_s)$] (f) {$F$ (Fusion)};
+\draw[->, thick] (fc) -- (mul_c);
+\draw[->, thick] (fs) -- (mul_s);
+\draw[->, thick, dashed] (fc) -- (gate);
+\draw[->, thick, dashed] (fs) -- (gate);
+\draw[->, thick] (gate) -- node[left, font=\tiny] {$g$} (mul_c);
+\draw[->, thick] (gate) -- node[right, font=\tiny] {$1-g$} (mul_s);
+\draw[->, thick] (mul_c) |- (f);
+\draw[->, thick] (mul_s) |- (f);
+\end{tikzpicture}%
+}{Fusion adaptative entre la branche locale et la branche globale}
 \end{column}
 \end{columns}
 \end{frame}
@@ -1279,7 +1382,21 @@ Avec un seuil $\tau$ :
 \end{block}
 \end{column}
 \begin{column}{0.44\textwidth}
-\solutionfigure{solution_step_06_classification.png}{Passage de la représentation fusionnée au score de classe}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, minimum width=2.5cm, minimum height=0.6cm}]
+\node[box, fill=purple!10] (f) {$F$};
+\node[box, fill=blue!10, below=0.6cm of f] (gap) {GAP $\rightarrow z$};
+\node[box, fill=green!10, below=0.6cm of gap] (fc) {FC: $w^\top z + b$};
+\node[box, fill=yellow!10, below=0.6cm of fc] (sig) {Sigmoid $\sigma(\cdot)$};
+\node[box, fill=red!10, below left=0.8cm and -0.2cm of sig] (out1) {$\hat{y}=1$};
+\node[box, fill=gray!10, below right=0.8cm and -0.2cm of sig] (out0) {$\hat{y}=0$};
+\draw[->, thick] (f) -- (gap);
+\draw[->, thick] (gap) -- (fc);
+\draw[->, thick] (fc) -- (sig);
+\draw[->, thick, red] (sig) -| node[above left, font=\tiny] {$p \ge \tau$} (out1);
+\draw[->, thick, gray] (sig) -| node[above right, font=\tiny] {$p < \tau$} (out0);
+\end{tikzpicture}%
+}{Passage de la représentation fusionnée au score de classe}
 \end{column}
 \end{columns}
 \end{frame}
@@ -1310,7 +1427,22 @@ u=\mathrm{Var}_t(p_t)
 \end{block}
 \end{column}
 \begin{column}{0.44\textwidth}
-\solutionfigure{solution_step_07_localization_uncertainty.png}{Heatmap explicative et estimation d'incertitude}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[font=\scriptsize]
+\node[draw, thick, rounded corners, minimum width=3cm, minimum height=2.5cm, fill=black!80] (bg) at (0, 2) {};
+\draw[fill=gray!40] (-0.8, 1.2) .. controls (-1.1, 2) and (-0.5, 3) .. (-0.2, 3) .. controls (0, 2.5) and (-0.3, 1.5) .. (-0.6, 1.2) -- cycle;
+\draw[fill=gray!40] (0.8, 1.2) .. controls (1.1, 2) and (0.5, 3) .. (0.2, 3) .. controls (0, 2.5) and (0.3, 1.5) .. (0.6, 1.2) -- cycle;
+\fill[red, opacity=0.4] (0.6, 1.8) circle (0.4);
+\fill[orange, opacity=0.6] (0.6, 1.8) circle (0.25);
+\fill[yellow, opacity=0.8] (0.6, 1.8) circle (0.15);
+\node[text=white, font=\tiny, align=center] at (0, 3.5) {\textbf{Grad-CAM $L^c$}};
+\draw[->, thick] (-1.5, -0.5) -- (1.5, -0.5) node[right] {$p_t$};
+\draw[->, thick] (-1.5, -0.5) -- (-1.5, 1) node[above] {Freq};
+\draw[thick, blue] plot[smooth] coordinates {(-1.0, -0.4) (-0.5, -0.2) (0, 0.8) (0.5, -0.2) (1.0, -0.4)};
+\draw[dashed] (0, 0.8) -- (0, -0.5) node[below] {\tiny Moyenne};
+\draw[<->, red] (-0.3, 0.3) -- (0.3, 0.3) node[midway, above=-0.05cm] {\tiny Variance $u$};
+\end{tikzpicture}%
+}{Heatmap explicative et estimation d'incertitude}
 \end{column}
 \end{columns}
 \end{frame}
@@ -1344,7 +1476,21 @@ u=\mathrm{Var}_t(p_t)
 \end{block}
 \end{column}
 \begin{column}{0.44\textwidth}
-\solutionfigure{solution_step_08_training_objective.png}{Schéma de la perte totale et de ses composantes}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, minimum width=1.8cm, minimum height=0.6cm}]
+\node[box, fill=blue!10] (cls) {$\mathcal{L}_{cls}$};
+\node[box, fill=green!10, right=0.3cm of cls] (loc) {$\mathcal{L}_{loc}$};
+\node[box, fill=yellow!10, below=1cm of cls] (cons) {$\mathcal{L}_{cons}$};
+\node[box, fill=orange!10, below=1cm of loc] (cal) {$\mathcal{L}_{cal}$};
+\node[draw, circle, fill=gray!20] at ($(cls)!0.5!(cal)$) (sum) {$\sum$};
+\node[box, fill=red!15, below=0.6cm of sum] (total) {\textbf{Perte Totale $\mathcal{L}$}};
+\draw[->, thick] (cls) -- node[left, font=\tiny] {$1$} (sum);
+\draw[->, thick] (loc) -- node[right, font=\tiny] {$\lambda_1$} (sum);
+\draw[->, thick] (cons) -- node[left, font=\tiny] {$\lambda_2$} (sum);
+\draw[->, thick] (cal) -- node[right, font=\tiny] {$\lambda_3$} (sum);
+\draw[->, thick] (sum) -- (total);
+\end{tikzpicture}%
+}{Schéma de la perte totale et de ses composantes}
 \end{column}
 \end{columns}
 \end{frame}
@@ -1374,7 +1520,206 @@ soit un score de pneumonie, une heatmap explicative et une estimation d'incertit
 \end{block}
 \end{column}
 \begin{column}{0.44\textwidth}
-\solutionfigure{solution_step_09_clinical_output.png}{Sortie finale utilisable par le clinicien}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, text width=2.5cm}]
+\node[box, fill=blue!05] (pred) {\textbf{Prédiction}\\$p=0.91 \quad u=\text{Faible}$};
+\node[box, fill=red!10, below left=0.6cm and -0.8cm of pred] (high) {\textbf{Priorité Haute}\\(Score $\uparrow$)};
+\node[box, fill=green!10, below right=0.6cm and -0.8cm of pred] (low) {\textbf{Prob. Normal}\\(Score $\downarrow$)};
+\node[box, fill=orange!10, below=2cm of pred] (rev) {\textbf{Revue}\\(Incertitude $\uparrow$)};
+\draw[->, thick, draw=red] (pred) -| (high);
+\draw[->, thick, draw=green] (pred) -| (low);
+\draw[->, thick, draw=orange] (pred) -- (rev);
+\end{tikzpicture}%
+}{Sortie finale utilisable par le clinicien}
+\end{column}
+\end{columns}
+\end{frame}
+
+\subsection{Implémentation et Outils techniques}
+
+\begin{frame}[t]{Implémentation — Dataset Chest X-Ray}
+\slidepurpose{Justifier la sélection et les caractéristiques des données d'apprentissage}{Préparation des données}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\scriptsize
+\setlength{\abovedisplayskip}{2pt}
+\setlength{\belowdisplayskip}{2pt}
+\begin{block}{Spécifications \& Accès aux données}
+Dataset Kaggle de Paul Mooney (5\,856 images).
+\begin{itemize}
+\setlength{\itemsep}{0.05em}
+\item \textbf{Classes} : \textit{NORMAL} vs \textit{PNEUMONIA}.
+\item \textbf{Défi} : Déséquilibre fort (plus de cas malades).
+\item \textbf{Choix} : Utilisation de la \textit{Focal Loss} pour corriger le biais de majorité et focaliser sur les cas difficiles.
+\end{itemize}
+\vspace{0.3cm}
+\centering
+\begin{tikzpicture}[font=\tiny]
+\node[inner sep=0pt] (qr) {\href{https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia}{\includegraphics[width=3cm]{kaggle_qr.png}}};
+\node[right=0.2cm of qr, text width=4.5cm, align=left] {
+\href{https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia}{\textbf{\color{blue}Lien Kaggle :} \\ \scriptsize (Scanner pour accéder \\ au dataset)}
+};
+\end{tikzpicture}
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[font=\scriptsize, align=center]
+\node[draw, rounded corners, thick, fill=gray!10, minimum width=3cm, minimum height=0.5cm] (dataset) {\textbf{Chest X-Ray Dataset}};
+\node[draw, rounded corners, fill=blue!10, below left=0.4cm and -0.7cm of dataset] (train) {Train (5\,216)};
+\node[draw, rounded corners, fill=green!10, below=0.4cm of dataset] (val) {Val (16)};
+\node[draw, rounded corners, fill=orange!10, below right=0.4cm and -0.7cm of dataset] (test) {Test (624)};
+\draw[->, thick] (dataset.south) -| (train.north);
+\draw[->, thick] (dataset.south) -- (val.north);
+\draw[->, thick] (dataset.south) -| (test.north);
+\node[draw, dashed, rounded corners, fill=red!05, text width=2.4cm, below=1.4cm of dataset] (issues) {\textbf{Défis}\\Déséquilibre / Bruit};
+\draw[->, thick, dashed] (train.south) |- (issues.west);
+\end{tikzpicture}%
+}{Répartition et flux des données d'imagerie}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Implémentation — Choix Technologiques}
+\slidepurpose{Exposer et justifier la stack matérielle et logicielle du projet}{Configuration de l'environnement}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\footnotesize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Framework \& Langage}
+Code source intégral en \textbf{Python 3}.
+L'orchestration du Deep Learning repose sur l'écosystème \textbf{PyTorch}.
+\end{block}
+\begin{block}{Environnement et Accélération}
+Face aux contraintes matérielles de machine locale (crash mémoire liés aux larges matrices \textit{Swin}), le modèle a migré sur \textbf{Google Colab} :
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item Accès direct aux GPU (T4 ou A100).
+\item Injection de l'AMP (\textit{Automatic Mixed Precision}) pour basculer en \texttt{float16} et réduire drastiquement la consommation VRAM.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, minimum width=2.8cm, minimum height=0.6cm}]
+\node[box, fill=yellow!10] (py) {\textbf{Python 3.10+}};
+\node[box, fill=orange!15, below=0.5cm of py] (pt) {\textbf{PyTorch}\\Deep Learning Engine};
+\node[box, fill=blue!10, below=0.5cm of pt] (colab) {\textbf{Google Colab}\\Cloud VM Jupyter};
+\node[box, fill=green!10, below left=0.5cm and -1.2cm of colab] (gpu) {\textbf{NVIDIA GPU}\\(T4 / A100)};
+\node[box, fill=red!10, below right=0.5cm and -1.2cm of colab] (amp) {\textbf{Mixed Precis.}\\(AMP 16-bit)};
+\draw[->, thick] (py) -- (pt);
+\draw[->, thick] (pt) -- (colab);
+\draw[->, thick] (colab) -| (gpu);
+\draw[->, thick] (colab) -| (amp);
+\end{tikzpicture}%
+}{Pile Technologique du système MedFusionNet}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Implémentation — Architecture du Projet}
+\slidepurpose{Montrer la robustesse de l'arborescence et la modularité des composants}{Gestion de Projet}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\footnotesize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Séparation des responsabilités}
+Notre socle algorithmique sépare rigoureusement la donnée, la logique métier, l'entraînement et l'inférence. Cette compartimentation favorise une évolutivité sans bugs spatiaux :
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item Dossiers \texttt{checkpoints/} isolant les poids sauvegardés des écrasements.
+\item Fichiers modulaires \texttt{.py} clairs et réutilisables.
+\item Carnet \texttt{MedFusionNet\_Colab.ipynb} agissant comme un orchestrateur important l'environnement ciblé du Cloud vers nos scripts natifs.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, node distance=0.4cm and 0.5cm]
+\node[fill=blue!10, rounded corners, draw] (root) {\textbf{MedFusionNet/}};
+\node[fill=yellow!10, rounded corners, draw, below right=0.2cm and 0.5cm of root] (data) {data/};
+\node[fill=yellow!10, rounded corners, draw, below=0.1cm of data] (check) {checkpoints/};
+\node[fill=yellow!10, rounded corners, draw, below=0.1cm of check] (logs) {logs/};
+\node[fill=red!05, rounded corners, draw, below=0.1cm of logs] (pyf) {*.py (Modules)};
+\node[fill=green!10, rounded corners, draw, below=0.1cm of pyf] (ipynb) {*.ipynb};
+\draw[->, thick] (root.south) |- (data.west);
+\draw[->, thick] (root.south) |- (check.west);
+\draw[->, thick] (root.south) |- (logs.west);
+\draw[->, thick] (root.south) |- (pyf.west);
+\draw[->, thick] (root.south) |- (ipynb.west);
+\end{tikzpicture}%
+}{Arborescence du répertoire de travail (Git)}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Implémentation — Les Modules de Code (API)}
+\slidepurpose{Documenter les scripts métiers Python principaux et leurs relations}{Architecture Logicielle}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\footnotesize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Cœur Algorithmique}
+\defitem{preprocessing.py \& dataset.py}{Pipeline de normalisation (CLAHE) et orchestration PyTorch \textit{DataLoaders} fournissant des batchs au GPU en parallèle.}
+\defitem{model.py \& losses.py}{Définition déclarative de la double branche (CNN + Swin + Gate) et des équations de la fonction \textit{Objective} (Focal Loss, ...).}
+\defitem{inference.py}{API finale (\texttt{MedFusionInference}) destinée au clinicien : génère le score, calcule l'incertitude via MC-Dropout en 20 passes rapides, puis tisse la masque explicative (Heatmap).}
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, minimum width=2.5cm, minimum height=0.6cm}]
+\node[box, fill=orange!10] (data) {\texttt{dataset.py}\\($Tensor ~ X, y$)};
+\node[box, fill=blue!10, below=0.8cm of data] (model) {\texttt{model.py}\\(Process $X \rightarrow \hat{y}$)};
+\node[box, fill=yellow!10, below=0.8cm of model] (loss) {\texttt{losses.py}\\(Évalue l'erreur $\mathcal{L}$)};
+\node[box, fill=green!10, below=0.8cm of loss] (infer) {\textbf{\texttt{inference.py}}\\(Production)};
+\draw[->, thick, dashed] (data) -- (model);
+\draw[<->, thick, dashed] (model) -- (loss);
+\draw[->, thick] (model.east) -| ++(0.5,-1.6) |- (infer.east);
+\end{tikzpicture}%
+}{Interaction logique entre les fichiers source principaux}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Implémentation — Exécution et Hyperparamètres}
+\slidepurpose{Justifier les variables d'ajustement du code lors de l'apprentissage}{Lancement de l'Entraînement}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\footnotesize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Lancement via \texttt{train.py}}
+L'exécution de l'entraînement a été finement calibrée sur l'environnement Colab :
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item \texttt{-\,-epochs 50} : Temps de chauffe suffisant pour stabiliser le réseau Transformer.
+\item \texttt{-\,-batch\_size 16} : Contrainte optimale GPU allégeant la VRAM tout en maintenant le batch normalization fonctionnel.
+\item \texttt{-\,-lr 1e-4} \& \textbf{AdamW} : Taux d'apprentissage modéré afin d'éviter l'oubli catastrophique du pré-entraînement CNN.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, minimum width=2.8cm}]
+\node[box, fill=black!80, text=white] (train) {\texttt{python train.py}};
+\node[box, fill=gray!20, below=0.5cm of train] (epoch) {Opt: \textbf{AdamW}\\Epochs: \textbf{50} | BZ: \textbf{16}};
+\node[box, fill=gray!20, below=0.3cm of epoch] (amp) {Mixed Prec: ENABLED};
+\node[box, fill=purple!10, below=0.5cm of amp] (out) {\texttt{best.pth} (Modèle final)};
+\node[box, fill=green!10, below=0.3cm of out] (metrics) {Métriques CSV\\($Recall, Accuracy$)};
+\draw[->, thick] (train) -- (epoch);
+\draw[->, thick] (epoch) -- (amp);
+\draw[->, thick] (amp) -- (out);
+\draw[->, thick] (out) -- (metrics);
+\end{tikzpicture}%
+}{Flux d'exécution de l'entraînement et enregistrements}
 \end{column}
 \end{columns}
 \end{frame}

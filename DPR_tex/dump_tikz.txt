@@ -1,0 +1,142 @@
+\newcommand{\tikzsolutionfigure}[2]{%
+\begin{center}
+\begin{minipage}[c][0.72\textheight][c]{\linewidth}
+\centering
+\resizebox{0.95\linewidth}{!}{#1}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, minimum width=2.5cm, minimum height=0.8cm}]
+\node[box, fill=gray!10] (img) {Image Thoracique};
+\node[box, fill=blue!10, below left=0.8cm and -0.4cm of img] (cnn) {Branche CNN\\(Indices locaux)};
+\node[box, fill=green!10, below right=0.8cm and -0.4cm of img] (swin) {Branche Swin\\(Contexte global)};
+\node[box, fill=yellow!15, below right=0.8cm and -0.4cm of cnn] (fusion) {Fusion Guidée\\$g\odot F_c + (1-g)\odot F_s$};
+\node[box, fill=red!10, below=0.8cm of fusion] (out) {Sortie Clinique\\$p, L^c, u$};
+\draw[->, thick] (img) -| (cnn);
+\draw[->, thick] (img) -| (swin);
+\draw[->, thick] (cnn) |- (fusion);
+\draw[->, thick] (swin) |- (fusion);
+\draw[->, thick] (fusion) -- (out);
+\end{tikzpicture}%
+}{Vue d'ensemble du pipeline complet}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[font=\scriptsize]
+\draw[fill=black!80, rounded corners=5pt] (0,0) rectangle (3,4);
+\draw[fill=gray!40] (0.5, 0.5) .. controls (0.2, 2) and (1, 3.5) .. (1.3, 3.5) .. controls (1.5, 3.0) and (1.2, 1) .. (0.7, 0.5) -- cycle;
+\draw[fill=gray!40] (2.5, 0.5) .. controls (2.8, 2) and (2, 3.5) .. (1.7, 3.5) .. controls (1.5, 3.0) and (1.8, 1) .. (2.3, 0.5) -- cycle;
+\node[text=white, font=\tiny] at (0.3, 3.7) {TAG};
+\draw[white, thick] (2.8,0.2) -- (2.5, 1);
+\draw[white, thick] (2.75,0.2) -- (2.45, 1);
+\node[draw, fill=white, rounded corners, inner sep=2pt, font=\tiny, align=center] (bruit) at (-1, 3) {Bruit /\\Artefacts};
+\draw[->, thick, red] (bruit) -- (0.3,3.7);
+\node[draw, fill=white, rounded corners, inner sep=2pt, font=\tiny, align=center] (cable) at (4, 1) {Câbles};
+\draw[->, thick, red] (cable) -- (2.6,0.6);
+\node[draw, fill=white, rounded corners, inner sep=2pt, font=\tiny, align=center] (contrast) at (1.5, -0.8) {Contraste variable};
+\draw[->, thick, red] (contrast) -- (1.5,0.2);
+\end{tikzpicture}%
+}{Échantillon brut provenant du dataset}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, thick, rounded corners, fill=white, align=center, minimum width=2.5cm, minimum height=0.8cm}]
+\node[box, fill=gray!20] (brut) {$X_{brut}$\\($1024 \times 1024$)};
+\node[box, fill=blue!10, below=1cm of brut] (norm) {Normalisation\\$\frac{X - \mu}{\sigma}$};
+\tikzsolutionfigure{%
+\begin{tikzpicture}[font=\scriptsize]
+\draw[step=0.5cm, gray, very thin] (0,0) grid (3,3);
+\draw[step=0.5cm, gray, very thin, shift={(3.5, 0.5)}] (0,0) grid (2,2);
+\draw[thick, fill=blue!10, opacity=0.8] (1,1) rectangle (2,2);
+\draw[thick, fill=red!10, opacity=0.8, shift={(3.5, 0.5)}] (0.5,0.5) rectangle (1,1);
+\draw[->, thick, dashed, draw=blue!80] (2, 2) -- (3.5, 2.5);
+\draw[->, thick, dashed, draw=blue!80] (2, 1) -- (3.5, 0.5);
+\node[font=\tiny, align=center] at (1.5, 3.3) {Image / Feature Map};
+\node[font=\tiny, align=center] at (4.5, 2.8) {Couche\\suivante};
+\fill[red] (1.3, 1.4) circle (0.05);
+\fill[red] (1.7, 1.6) circle (0.05);
+\node[fill=white, inner sep=1pt, font=\tiny] at (1.5, -0.3) {Champ récepteur local ($k \times k$)};
+\end{tikzpicture}%
+}{Représentation locale extraite par la branche CNN}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[font=\scriptsize]
+\draw[step=0.8cm, gray, thick] (0,0) grid (3.2, 3.2);
+\foreach \x/\y in {0.4/0.4, 0.4/2.8, 2.8/0.4, 2.8/2.8, 1.2/1.2, 2.0/2.0} {
+    \fill[blue!40] (\x,\y) circle (0.2);
+}
+\draw[<->, thick, red] (0.4, 0.4) to[bend right=45] (2.8, 0.4);
+\draw[<->, thick, red] (0.4, 0.4) to[bend left=30] (0.4, 2.8);
+\draw[<->, thick, red] (1.2, 1.2) to[bend left=20] (2.8, 2.8);
+\node[fill=white, inner sep=2pt, font=\tiny, align=center] at (1.6, -0.5) {Patches d'image};
+\node[fill=white, inner sep=2pt, font=\tiny, text=red, align=center] at (1.6, 3.6) {Attention Globale (Longue distance)};
+\end{tikzpicture}%
+}{Représentation globale extraite par la branche Swin}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, minimum width=1.5cm, minimum height=0.6cm}]
+\node[box, fill=blue!10] (fc) {$F_c$ (CNN)};
+\node[box, fill=green!10, below=1.5cm of fc] (fs) {$F_s$ (Swin)};
+\node[draw, circle, fill=yellow!20, right=1.5cm of fc] (mul_c) {$\odot$};
+\node[draw, circle, fill=yellow!20, right=1.5cm of fs] (mul_s) {$\odot$};
+\node[box, right=2cm of mul_c] (f) {$F$};
+\node[box, fill=gray!10, align=center, minimum width=2.5cm] at ($(mul_c)!0.5!(mul_s)$) (gate) {Porte $g = \sigma(\dots)$};
+\draw[->, thick] (fc) -- (mul_c);
+\draw[->, thick] (fs) -- (mul_s);
+\draw[->, thick] (gate) -- node[left, font=\tiny] {$g$} (mul_c);
+\draw[->, thick] (gate) -- node[left, font=\tiny] {$1-g$} (mul_s);
+\draw[->, thick] (mul_c) -| (f);
+\draw[->, thick] (mul_s) -| (f);
+\draw[->, thick, dashed] (fc.south) -- (gate.north);
+\draw[->, thick, dashed] (fs.north) -- (gate.south);
+\end{tikzpicture}%
+}{Fusion adaptative entre la branche locale et la branche globale}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, minimum width=2cm, minimum height=0.6cm}]
+\node[box, fill=purple!10] (f) {$F$};
+\node[box, fill=blue!10, below=0.6cm of f] (gap) {GAP $\rightarrow z$};
+\node[box, fill=green!10, below=0.6cm of gap] (fc) {FC: $w^\top z + b$};
+\node[box, fill=yellow!10, below=0.6cm of fc] (sig) {Sigmoid $\sigma(\cdot)$};
+\node[draw, circle, fill=white, thick, below left=0.8cm and -0.2cm of sig] (out1) {$\hat{y}=1$};
+\node[draw, circle, fill=white, thick, below right=0.8cm and -0.2cm of sig] (out0) {$\hat{y}=0$};
+\draw[->, thick] (f) -- (gap);
+\draw[->, thick] (gap) -- (fc);
+\draw[->, thick] (fc) -- (sig);
+\draw[->, thick, red] (sig) -- node[left, font=\tiny, xshift=-0.1cm] {$p \ge \tau$} (out1);
+\draw[->, thick, blue] (sig) -- node[right, font=\tiny, xshift=0.1cm] {$p < \tau$} (out0);
+\end{tikzpicture}%
+}{Passage de la représentation fusionnée au score de classe}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[font=\scriptsize]
+\node[draw, thick, rounded corners, minimum width=3cm, minimum height=2.5cm, fill=black!80] (bg) at (0, 2) {};
+\draw[fill=gray!40] (-0.8, 1.2) .. controls (-1.1, 2) and (-0.5, 3) .. (-0.2, 3) .. controls (0, 2.5) and (-0.3, 1.5) .. (-0.6, 1.2) -- cycle;
+\draw[fill=gray!40] (0.8, 1.2) .. controls (1.1, 2) and (0.5, 3) .. (0.2, 3) .. controls (0, 2.5) and (0.3, 1.5) .. (0.6, 1.2) -- cycle;
+\fill[red, opacity=0.4] (0.6, 1.8) circle (0.4);
+\fill[orange, opacity=0.6] (0.6, 1.8) circle (0.25);
+\fill[yellow, opacity=0.8] (0.6, 1.8) circle (0.15);
+\node[text=white, font=\tiny, align=center] at (0, 3.5) {Grad-CAM $L^c$};
+\draw[->, thick] (-1.5, -0.5) -- (1.5, -0.5) node[right] {$p_t$};
+\draw[->, thick] (-1.5, -0.5) -- (-1.5, 1) node[above] {Freq};
+\draw[thick, blue] plot[smooth] coordinates {(-1.0, -0.4) (-0.5, -0.2) (0, 0.8) (0.5, -0.2) (1.0, -0.4)};
+\draw[dashed] (0, 0.8) -- (0, -0.5) node[below] {\tiny Moyenne};
+\draw[<->, red] (-0.3, 0.3) -- (0.3, 0.3) node[midway, above=-0.05cm] {\tiny Variance $u$};
+\end{tikzpicture}%
+}{Heatmap explicative et estimation d'incertitude}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, minimum width=1.5cm, minimum height=0.6cm}]
+\node[box, fill=blue!10] (cls) {$\mathcal{L}_{cls}$};
+\node[box, fill=green!10, below=0.3cm of cls] (loc) {$\mathcal{L}_{loc}$};
+\node[box, fill=yellow!10, below=0.3cm of loc] (cons) {$\mathcal{L}_{cons}$};
+\node[box, fill=orange!10, below=0.3cm of cons] (cal) {$\mathcal{L}_{cal}$};
+\node[draw, circle, fill=gray!20, right=2cm of loc, yshift=-0.45cm] (sum) {$\sum$};
+\node[box, fill=red!15, right=1.2cm of sum] (total) {Perte Totale $\mathcal{L}$};
+\draw[->, thick] (cls.east) -- node[above, font=\tiny] {$1$} (sum.north west);
+\draw[->, thick] (loc.east) -- node[above, font=\tiny] {$\lambda_1$} (sum.west);
+\draw[->, thick] (cons.east) -- node[below, font=\tiny] {$\lambda_2$} (sum.south west);
+\draw[->, thick] (cal.east) -- node[below, font=\tiny] {$\lambda_3$} (sum.south);
+\draw[->, thick] (sum.east) -- (total.west);
+\end{tikzpicture}%
+}{Schéma de la perte totale et de ses composantes}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center}]
+\node[box, fill=blue!05, minimum width=3cm, minimum height=1cm] (pred) {\textbf{Prédiction du Modèle}\\$p=0.91 \quad u=\text{Faible}$};
+\node[box, fill=red!10, below right=0.8cm and -0.5cm of pred] (high) {\textbf{Priorité Haute}\\(Score $\uparrow$, Incert $\downarrow$)};
+\node[box, fill=orange!10, below=1cm of pred] (rev) {\textbf{Revue Manuelle}\\(Incertitude $\uparrow$)};
+\node[box, fill=green!10, below left=0.8cm and -0.5cm of pred] (low) {\textbf{Prob. Normal}\\(Score $\downarrow$, Incert $\downarrow$)};
+\draw[->, thick, draw=red] (pred) -- (high);
+\draw[->, thick, draw=orange] (pred) -- (rev);
+\draw[->, thick, draw=green] (pred) -- (low);
+\end{tikzpicture}%
+}{Sortie finale utilisable par le clinicien}
