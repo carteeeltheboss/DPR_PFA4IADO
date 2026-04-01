@@ -24,6 +24,30 @@
 
 \tikzstyle{actor} = [draw, ellipse, minimum height=1.5em, minimum width=3em, align=center]
 \tikzstyle{usecase} = [draw, ellipse, minimum height=2.5em, text centered]
+
+% --- PRÉAMBULE TIKZ PERT ---
+\tikzset{
+    pert_node/.style n args={3}{
+        ellipse, draw, 
+        line width=1.5pt, % Bordure épaisse
+        minimum width=3.5cm, 
+        minimum height=2.2cm, 
+        fill=white,
+        align=center, 
+        inner sep=2pt, 
+        font=\small\bfseries, % GRAS ET PLUS GRAND
+        execute at begin node={
+            \renewcommand{\arraystretch}{1.4}
+            \begin{tabular}{c|c}
+                \multicolumn{2}{c}{\textbf{\large #1}} \\ \hline % ID en plus grand
+                \rule{0pt}{4mm} \textbf{EST: #2} & \textbf{LST: #3}
+            \end{tabular}
+        }
+    },
+    critical/.style={draw=red, line width=3pt, fill=red!10}, % Bordure rouge très épaisse
+    arrow/.style={-{Latex[length=3mm]}, line width=1.5pt, gray!80},
+    critarrow/.style={-{Latex[length=5mm]}, line width=3pt, red} % Flèches critiques massives
+}
 \setbeamertemplate{caption}[numbered]
 \renewcommand{\listfigurename}{Table des figures}
 \makeatletter
@@ -296,6 +320,107 @@ Chaque slide technique indique explicitement :
         \item \textbf{Flexibilité :} Adaptation aux contraintes des données médicales.
         \item \textbf{Itérations :} Optimisation progressive des hyperparamètres.
     \end{itemize}
+\end{frame}
+
+\begin{frame}{Gestion de Projet --- Tableau des Tâches (PFA)}
+    \slidepurpose{Détailler la liste des tâches, leurs durées et leurs dépendances}{Organisation / planification}
+    \textbf{Ce tableau récapitule la séquence logique nécessaire à la réalisation du pipeline hybride.}
+    \centering
+    \small
+    \begin{tabular}{|c|l|c|c|}
+        \hline
+        \textbf{ID} & \textbf{Nom de la Tâche} & \textbf{Durée (j)} & \textbf{Précédent(s)} \\ \hline
+        \textbf{A} & Cadrage et Problématique & 3 & --- \\ \hline
+        \textbf{B} & Analyse SOTA CNN (DenseNet) & 4 & A \\ \hline
+        \textbf{C} & Analyse SOTA Swin Transformer & 4 & A \\ \hline
+        \textbf{D} & Étude de l'Explicabilité (XAI) & 2 & B, C \\ \hline
+        \textbf{E} & Prétraitement $T(X)$ et Normalisation & 5 & A \\ \hline
+        \textbf{F} & Développement Branche Locale (CNN) & 6 & B, E \\ \hline
+        \textbf{G} & Développement Branche Globale (Swin) & 7 & C, E \\ \hline
+        \textbf{H} & Intégration Gated Fusion Module & 5 & F, G \\ \hline
+        \textbf{I} & Sortie Clinique $\Psi$ (Score/Incertitude) & 4 & H \\ \hline
+        \textbf{J} & Configuration Environnement GPU/Colab & 2 & A \\ \hline
+        \textbf{K} & Entraînement et Optimisation (Focal Loss) & 10 & I, J \\ \hline
+        \textbf{L} & Évaluation Finale et Métriques & 3 & K \\ \hline
+        \textbf{M} & Finalisation Rapport et Slides & 5 & L \\ \hline
+    \end{tabular}
+\end{frame}
+
+% --- FRAME PERT : EXPLICATION ---
+\begin{frame}{Méthodologie --- Analyse du Réseau de PERT}
+    \slidepurpose{Planifier l'enchaînement des tâches et identifier les chemins critiques}{Organisation / planification}
+    \begin{block}{Concept et Objectifs}
+        Le réseau de PERT permet de modéliser l'enchaînement logique des tâches du projet MedFusionNet et d'identifier le \textbf{chemin critique} .
+    \end{block}
+
+    \begin{columns}[T]
+        \begin{column}{0.48\textwidth}
+            \textbf{Calcul des dates :}
+            \begin{itemize}
+                \item \textbf{EST :} Date au plus tôt pour débuter .
+                \item \textbf{LST :} Date limite sans retarder le projet.
+            \end{itemize}
+        \end{column}
+        \begin{column}{0.48\textwidth}
+            \textbf{Logique du projet :}
+            \begin{itemize}
+                \item \textbf{Parallélisme :} SOTA et setup GPU simultanés .
+                \item \textbf{Convergence :} Fusion (H) après CNN (F) et Swin (G) .
+            \end{itemize}
+        \end{column}
+    \end{columns}
+
+    \vspace{0.4cm}
+    \centering
+    \textcolor{red}{\textbf{\Large Chemin Critique :}} \textbf{A $\rightarrow$ E $\rightarrow$ G $\rightarrow$ H $\rightarrow$ I $\rightarrow$ K $\rightarrow$ L $\rightarrow$ M} \\
+    \textbf{\Large Durée totale du projet : 42 jours} .
+\end{frame}
+
+% --- FRAME PERT : LE SCHÉMA ---
+\begin{frame}{Méthodologie --- Schéma du Réseau de PERT}
+    \slidepurpose{Visualisation graphique du planning et des dépendances entre tâches}{Organisation / planification}
+    \centering
+    \resizebox{0.98\textwidth}{!}{
+        \begin{tikzpicture}[node distance=2.5cm and 3.5cm] % Espacement très large
+
+            % --- NOEUDS ---
+            \node[pert_node={A}{0}{0}, critical] (A) {};
+            \node[pert_node={E}{3}{3}, right=of A, critical] (E) {};
+            \node[pert_node={G}{8}{8}, right=of E, xshift=1.5cm, critical] (G) {};
+            \node[pert_node={H}{15}{15}, right=of G, critical] (H) {};
+            \node[pert_node={I}{20}{20}, right=of H, critical] (I) {};
+            \node[pert_node={K}{24}{24}, right=of I, critical] (K) {};
+            \node[pert_node={L}{34}{34}, right=of K, critical] (L) {};
+            \node[pert_node={M}{37}{37}, right=of L, critical] (M) {};
+
+            \node[pert_node={B}{3}{5}, above right=of A] (B) {};
+            \node[pert_node={C}{3}{4}, below right=of A] (C) {};
+            \node[pert_node={J}{3}{22}, below=of C] (J) {};
+            \node[pert_node={F}{8}{9}, right=of B] (F) {};
+            \node[pert_node={D}{7}{40}, above=of F] (D) {};
+
+            % --- LIAISONS ---
+            \draw[critarrow] (A) -- (E);
+            \draw[critarrow] (E) -- (G);
+            \draw[critarrow] (G) -- (H);
+            \draw[critarrow] (H) -- (I);
+            \draw[critarrow] (I) -- (K);
+            \draw[critarrow] (K) -- (L);
+            \draw[critarrow] (L) -- (M);
+
+            \draw[arrow] (A) -- (B);
+            \draw[arrow] (A) -- (C);
+            \draw[arrow] (A) |- (J);
+            \draw[arrow] (B) -- (D);
+            \draw[arrow] (C) -- (D);
+            \draw[arrow] (B) -- (F);
+            \draw[arrow] (E) -- (F);
+            \draw[arrow] (C) -- (G);
+            \draw[arrow] (F) -- (H);
+            \draw[arrow] (J) -| (K);
+
+        \end{tikzpicture}
+    }
 \end{frame}
 
 \section{Analyse SOTA}
