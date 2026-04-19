@@ -1,5 +1,10 @@
 # DPR_PFA4IADO / MedFusionNet
 
+[![Python](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-ee4c2c.svg)](https://pytorch.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Hugging Face](https://img.shields.io/badge/Hugging%20Face-Model%20Hub-yellow?logo=huggingface)](https://huggingface.co/carteeeltheboss/DPR_PFA4IADO)
+
 MedFusionNet is a chest X-ray pneumonia detection project built around a hybrid deep-learning model and two practical entry points:
 
 - `DPR_MedFusionNet/` for local Python and CLI inference
