@@ -36,11 +36,25 @@ DPR_MedFusionNet/checkpoints/
 DPR_MedFusionNet/logs/
 DPR_MedFusionNet/outputs/
 DPR_MedFusionNet/__pycache__/
+DPR_WebService/runtime/
+DPR_WebService/__pycache__/
 runs/
 DPR_MedFusionNet/runs/*
 !DPR_MedFusionNet/runs/.gitkeep
 
 # Python General
 *.pyc
+*.pyo
+*.pyd
 __pycache__/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.eggs/
+*.egg-info/
 .env
+.env.*
+.venv/
+venv/

@@ -1,0 +1,185 @@
+{% extends "base.html" %}
+
+{% block title %}Benchmark | MedFusionNet{% endblock %}
+
+{% block content %}
+<section class="layout-grid">
+  <article class="card">
+    <div class="card-heading">
+      <div>
+        <p class="eyebrow">Evaluation</p>
+        <h2>Benchmark the current checkpoint</h2>
+      </div>
+    </div>
+    <p class="muted">
+      This runs the active checkpoint across the full `DPR_MedFusionNet/data/test` split and
+      computes metrics, ROC, precision-recall, confusion matrix, and score distributions.
+    </p>
+    <form action="{{ url_for('run_benchmark_view') }}" method="post" class="stack-form">
+      <button type="submit" class="primary-button">Run full benchmark</button>
+    </form>
+  </article>
+
+  <article class="card">
+    <div class="card-heading">
+      <div>
+        <p class="eyebrow">Current model</p>
+        <h2>Checkpoint summary</h2>
+      </div>
+    </div>
+    <dl class="summary-list">
+      <div>
+        <dt>Checkpoint</dt>
+        <dd>{{ model_summary.checkpoint_path }}</dd>
+      </div>
+      <div>
+        <dt>Device</dt>
+        <dd>{{ model_summary.device }}</dd>
+      </div>
+      <div>
+        <dt>Epoch</dt>
+        <dd>{{ model_summary.checkpoint_epoch if model_summary.checkpoint_epoch is not none else "N/A" }}</dd>
+      </div>
+      <div>
+        <dt>Checkpoint AUC</dt>
+        <dd>{{ "%.3f"|format(model_summary.checkpoint_auc) if model_summary.checkpoint_auc is not none else "N/A" }}</dd>
+      </div>
+    </dl>
+  </article>
+</section>
+
+{% if benchmark %}
+<section class="card">
+  <div class="card-heading">
+    <div>
+      <p class="eyebrow">Benchmark report</p>
+      <h2>{{ benchmark.dataset_size }} test images</h2>
+    </div>
+    <div class="source-tag">
+      <span>Runtime</span>
+      <strong>{{ "%.1f"|format(benchmark.duration_seconds) }}s</strong>
+    </div>
+  </div>
+
+  <div class="metric-grid">
+    <div class="metric-card accent">
+      <span>Accuracy</span>
+      <strong>{{ "%.2f"|format(benchmark.metrics.accuracy * 100) }}%</strong>
+    </div>
+    <div class="metric-card">
+      <span>AUC-ROC</span>
+      <strong>{{ "%.3f"|format(benchmark.metrics.auc_roc) }}</strong>
+    </div>
+    <div class="metric-card">
+      <span>Average precision</span>
+      <strong>{{ "%.3f"|format(benchmark.metrics.avg_precision) }}</strong>
+    </div>
+    <div class="metric-card">
+      <span>PNEUMONIA F1</span>
+      <strong>{{ "%.3f"|format(benchmark.metrics.f1_pneumonia) }}</strong>
+    </div>
+    <div class="metric-card">
+      <span>Sensitivity</span>
+      <strong>{{ "%.3f"|format(benchmark.metrics.sensitivity) }}</strong>
+    </div>
+    <div class="metric-card">
+      <span>Specificity</span>
+      <strong>{{ "%.3f"|format(benchmark.metrics.specificity) }}</strong>
+    </div>
+  </div>
+
+  <div class="chart-grid">
+    <figure class="chart-card">
+      <img src="{{ benchmark.charts.confusion_matrix }}" alt="Confusion matrix" class="chart-image" decoding="async">
+      <figcaption>Confusion matrix</figcaption>
+    </figure>
+    <figure class="chart-card">
+      <img src="{{ benchmark.charts.roc_curve }}" alt="ROC curve" class="chart-image" decoding="async">
+      <figcaption>ROC curve</figcaption>
+    </figure>
+    <figure class="chart-card">
+      <img src="{{ benchmark.charts.precision_recall }}" alt="Precision-recall curve" class="chart-image" decoding="async">
+      <figcaption>Precision-recall curve</figcaption>
+    </figure>
+    <figure class="chart-card">
+      <img src="{{ benchmark.charts.score_distribution }}" alt="Score distribution" class="chart-image" decoding="async">
+      <figcaption>Score distribution</figcaption>
+    </figure>
+  </div>
+
+  <div class="split-layout">
+    <div class="card-subsection">
+      <h3>Per-class metrics</h3>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Class</th>
+            <th>Precision</th>
+            <th>Recall</th>
+            <th>F1</th>
+            <th>Support</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in benchmark.per_class %}
+          <tr>
+            <td>{{ row.label }}</td>
+            <td>{{ "%.3f"|format(row.precision) }}</td>
+            <td>{{ "%.3f"|format(row.recall) }}</td>
+            <td>{{ "%.3f"|format(row.f1) }}</td>
+            <td>{{ row.support }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card-subsection">
+      <h3>Error counts</h3>
+      <dl class="summary-list compact">
+        <div>
+          <dt>False positives</dt>
+          <dd>{{ benchmark.metrics.false_positive_count }}</dd>
+        </div>
+        <div>
+          <dt>False negatives</dt>
+          <dd>{{ benchmark.metrics.false_negative_count }}</dd>
+        </div>
+        <div>
+          <dt>True positives</dt>
+          <dd>{{ benchmark.metrics.true_positive_count }}</dd>
+        </div>
+        <div>
+          <dt>True negatives</dt>
+          <dd>{{ benchmark.metrics.true_negative_count }}</dd>
+        </div>
+      </dl>
+    </div>
+  </div>
+
+  <div class="card-subsection">
+    <h3>Most confident misclassifications</h3>
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>True</th>
+          <th>Predicted</th>
+          <th>PNEUMONIA prob</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for row in benchmark.misclassified %}
+        <tr>
+          <td>{{ row.relative_path }}</td>
+          <td>{{ row.true_class }}</td>
+          <td>{{ row.pred_class }}</td>
+          <td>{{ "%.3f"|format(row.pneumonia_probability) }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

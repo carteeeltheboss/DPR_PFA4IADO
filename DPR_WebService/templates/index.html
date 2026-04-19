@@ -1,0 +1,159 @@
+{% extends "base.html" %}
+
+{% block title %}Inference | MedFusionNet{% endblock %}
+
+{% block content %}
+<section class="layout-grid">
+  <article class="card">
+    <div class="card-heading">
+      <div>
+        <p class="eyebrow">Model control</p>
+        <h2>Load checkpoint</h2>
+      </div>
+    </div>
+    <form action="{{ url_for('load_model') }}" method="post" class="stack-form">
+      <label for="checkpoint_path">Checkpoint</label>
+      <select id="checkpoint_path" name="checkpoint_path">
+        {% for checkpoint in available_checkpoints %}
+        <option value="{{ checkpoint.value }}" {% if checkpoint.label == model_summary.checkpoint_path %}selected{% endif %}>
+          {{ checkpoint.label }}
+        </option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="primary-button">Load model</button>
+    </form>
+  </article>
+
+  <article class="card">
+    <div class="card-heading">
+      <div>
+        <p class="eyebrow">Upload flow</p>
+        <h2>Run inference on your own image</h2>
+      </div>
+    </div>
+    <form action="{{ url_for('predict') }}" method="post" enctype="multipart/form-data" class="stack-form">
+      <label for="image_file">Chest X-ray image</label>
+      <input id="image_file" type="file" name="image_file" accept=".png,.jpg,.jpeg">
+      <button type="submit" class="primary-button">Analyze uploaded image</button>
+    </form>
+  </article>
+</section>
+
+<section class="layout-grid">
+  <article class="card">
+    <div class="card-heading">
+      <div>
+        <p class="eyebrow">Sample browser</p>
+        <h2>Choose an existing test image</h2>
+      </div>
+    </div>
+    <form action="{{ url_for('predict') }}" method="post" class="stack-form">
+      <label for="sample_path">Available samples</label>
+      <select id="sample_path" name="sample_path">
+        <option value="">Select a sample image</option>
+        {% for sample in all_samples %}
+        <option value="{{ sample.relative_path }}">{{ sample.display_name }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit" class="secondary-button">Analyze sample image</button>
+    </form>
+  </article>
+
+  <article class="card">
+    <div class="card-heading">
+      <div>
+        <p class="eyebrow">Quick picks</p>
+        <h2>Featured sample gallery</h2>
+      </div>
+      <form action="{{ url_for('shuffle_samples') }}" method="post" class="inline-action">
+        <button type="submit" class="secondary-button compact-button">Shuffle</button>
+      </form>
+    </div>
+    <div class="sample-grid">
+      {% for sample in featured_samples %}
+      <form action="{{ url_for('predict') }}" method="post" class="sample-card">
+        <input type="hidden" name="sample_path" value="{{ sample.relative_path }}">
+        <div class="sample-thumb-frame">
+          <img
+            src="{{ url_for('sample_image', relative_path=sample.relative_path) }}"
+            alt="{{ sample.display_name }}"
+            class="sample-thumb"
+            loading="lazy"
+            decoding="async"
+          >
+        </div>
+        <div class="sample-meta">
+          <span class="sample-label">{{ sample.label }}</span>
+          <strong>{{ sample.display_name }}</strong>
+        </div>
+        <button type="submit" class="sample-button">Use sample</button>
+      </form>
+      {% endfor %}
+    </div>
+  </article>
+</section>
+
+{% if prediction %}
+<section class="card result-card">
+  <div class="card-heading">
+    <div>
+      <p class="eyebrow">Inference result</p>
+      <h2>{{ prediction.prediction }}</h2>
+    </div>
+    <div class="source-tag">
+      <span>{{ prediction.source_label }}</span>
+      <strong>{{ prediction.source_value }}</strong>
+    </div>
+  </div>
+
+  <div class="metric-grid">
+    <div class="metric-card accent">
+      <span>Predicted class confidence</span>
+      <strong>{{ "%.2f"|format(prediction.pred_probability * 100) }}%</strong>
+    </div>
+    <div class="metric-card">
+      <span>PNEUMONIA probability</span>
+      <strong>{{ "%.2f"|format(prediction.pneumonia_probability * 100) }}%</strong>
+    </div>
+    <div class="metric-card">
+      <span>Checkpoint epoch</span>
+      <strong>{{ prediction.checkpoint_epoch if prediction.checkpoint_epoch is not none else "N/A" }}</strong>
+    </div>
+    <div class="metric-card">
+      <span>Checkpoint AUC</span>
+      <strong>{{ "%.3f"|format(prediction.checkpoint_auc) if prediction.checkpoint_auc is not none else "N/A" }}</strong>
+    </div>
+  </div>
+
+  <div class="probability-panel">
+    <h3>Class probabilities</h3>
+    {% for row in prediction.probabilities %}
+    <div class="probability-row">
+      <div class="probability-header">
+        <span>{{ row.label }}</span>
+        <strong>{{ "%.2f"|format(row.score * 100) }}%</strong>
+      </div>
+      <div class="probability-bar">
+        <div class="probability-fill" style="width: {{ "%.3f"|format(row.score * 100) }}%;"></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="image-grid">
+    <figure class="image-card">
+      <img src="{{ prediction.original_image }}" alt="Original image" class="result-image" decoding="async">
+      <figcaption>Original image</figcaption>
+    </figure>
+    <figure class="image-card">
+      <img src="{{ prediction.heatmap_image }}" alt="Grad-CAM heatmap" class="result-image" decoding="async">
+      <figcaption>Grad-CAM heatmap</figcaption>
+    </figure>
+    <figure class="image-card">
+      <img src="{{ prediction.overlay_image }}" alt="Grad-CAM overlay" class="result-image" decoding="async">
+      <figcaption>Overlay</figcaption>
+    </figure>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}MedFusionNet Web Service{% endblock %}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero-copy">
+          <p class="eyebrow">DPR Web Service</p>
+          <h1>MedFusionNet Admin</h1>
+          <p class="hero-text">
+            Local inference and benchmarking console for the active checkpoint.
+          </p>
+        </div>
+        <div class="status-panel">
+          <span class="panel-label">Active model</span>
+          <strong>{{ model_summary.checkpoint_path }}</strong>
+          <span>Device: {{ model_summary.device }}</span>
+          {% if model_summary.checkpoint_epoch is not none %}
+          <span>Epoch: {{ model_summary.checkpoint_epoch }}</span>
+          {% endif %}
+          {% if model_summary.checkpoint_auc is not none %}
+          <span>Checkpoint AUC: {{ "%.3f"|format(model_summary.checkpoint_auc) }}</span>
+          {% endif %}
+        </div>
+      </header>
+
+      <nav class="tab-nav">
+        <a href="{{ url_for('index') }}" class="tab-link {% if request.endpoint == 'index' or request.endpoint == 'predict' or request.endpoint == 'load_model' %}active{% endif %}">
+          Inference
+        </a>
+        <a href="{{ url_for('benchmark') }}" class="tab-link {% if request.endpoint == 'benchmark' or request.endpoint == 'run_benchmark_view' %}active{% endif %}">
+          Benchmark
+        </a>
+      </nav>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          <section class="flash-stack">
+            {% for category, message in messages %}
+              <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+          </section>
+        {% endif %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </div>
+  </body>
+</html>
