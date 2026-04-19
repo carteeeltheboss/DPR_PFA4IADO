@@ -1851,25 +1851,178 @@ L'exécution de l'entraînement a été finement calibrée sur l'environnement C
 
 \section{Résultats et Finalisation}
 
-\begin{frame}{Résultats obtenus}
-\slidepurpose{Présenter les indicateurs de performance et leur interprétation métier}{Évaluation finale}
-    \begin{columns}
-        \begin{column}{0.5\textwidth}
-            \begin{block}{Métriques de Performance}
-                \begin{itemize}
-                    \item \textbf{Précision (Accuracy) :} $\approx$ 92\%
-                    \item \textbf{Sensibilité (Recall) :} 94\%
-                    \item \textbf{AUC-ROC :} 0.96
-                \end{itemize}
-            \end{block}
-        \end{column}
-        \begin{column}{0.5\textwidth}
-            \begin{itemize}
-                \item Réduction significative des faux négatifs.
-                \item Génération de \textbf{Grad-CAM} fonctionnelle pour valider les zones d'intérêt.
-            \end{itemize}
-        \end{column}
-    \end{columns}
+\begin{frame}{Résultats obtenus — synthèse quantitative}
+\slidepurpose{Donner les performances finales du modèle sur le jeu de test et les interpréter}{Évaluation finale}
+\footnotesize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.53\textwidth}
+\begin{block}{Protocole d'évaluation}
+\begin{itemize}
+\item \textbf{Jeu de test final :} 624 radiographies.
+\item \textbf{Répartition :} 234 cas \texttt{NORMAL} et 390 cas \texttt{PNEUMONIA}.
+\item \textbf{Checkpoint évalué :} \texttt{Model\_19Apr26.pth}.
+\end{itemize}
+\end{block}
+\begin{block}{Indicateurs globaux}
+\begin{itemize}
+\item \textbf{Accuracy :} 92.79\%
+\item \textbf{AUC-ROC :} 0.976
+\item \textbf{Average Precision :} 0.984
+\item \textbf{Erreurs totales :} 45 images sur 624 seulement
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.45\textwidth}
+\begin{block}{Classe \texttt{PNEUMONIA}}
+\begin{itemize}
+\item \textbf{Recall / Sensibilité :} 96.92\%
+\item \textbf{Precision :} 91.97\%
+\item \textbf{F1-score :} 94.38\%
+\end{itemize}
+\end{block}
+\begin{block}{Classe \texttt{NORMAL}}
+\begin{itemize}
+\item \textbf{Recall / Spécificité :} 85.90\%
+\item \textbf{Precision :} 94.37\%
+\item \textbf{F1-score :} 89.93\%
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Résultats obtenus — matrice de confusion et lecture métier}
+\slidepurpose{Expliquer précisément où le modèle se trompe et pourquoi ces erreurs comptent}{Analyse détaillée des sorties}
+\footnotesize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.46\textwidth}
+\begin{block}{Matrice de confusion}
+\centering
+\renewcommand{\arraystretch}{1.25}
+\resizebox{0.98\linewidth}{!}{%
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Vrai / Prédit} & \textbf{NORMAL} & \textbf{PNEUMONIA} \\
+\hline
+\textbf{NORMAL} & 201 & 33 \\
+\hline
+\textbf{PNEUMONIA} & 12 & 378 \\
+\hline
+\end{tabular}
+}
+\end{block}
+\begin{block}{Bilan chiffré}
+\begin{itemize}
+\item \textbf{Vrais positifs :} 378
+\item \textbf{Vrais négatifs :} 201
+\item \textbf{Faux positifs :} 33
+\item \textbf{Faux négatifs :} 12
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.50\textwidth}
+\begin{block}{Interprétation}
+\begin{itemize}
+\item Sur \textbf{390} cas de pneumonie, le système en détecte \textbf{378}.
+\item Le taux de cas pneumonie manqués est de \textbf{12 / 390 = 3.08\%}.
+\item Sur \textbf{234} images normales, \textbf{33} sont surclassées à tort en pneumonie.
+\item Le modèle est donc \textbf{volontairement plus sensible que spécifique} : il déclenche plus facilement une alerte plutôt que de laisser passer une pneumonie.
+\item En contexte de triage, ce compromis reste \textbf{cohérent médicalement}.
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Résultats obtenus — benchmark visuel sur le jeu de test}
+\slidepurpose{Montrer visuellement la qualité de séparation du modèle à l'échelle du test complet}{Benchmark final}
+\scriptsize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.68\textwidth}
+\includegraphics[width=\linewidth,height=0.74\textheight,keepaspectratio]{benchmark_testset.png}
+\end{column}
+\begin{column}{0.29\textwidth}
+\begin{block}{Ce que montrent les courbes}
+\begin{itemize}
+\item \textbf{ROC :} courbe très proche du coin supérieur gauche.
+\item \textbf{PR :} AP = \textbf{0.984}, donc très bon classement des cas pneumonie.
+\item Les scores sont \textbf{bien séparés} ; peu d'ambiguïté autour du seuil 0.5.
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Résultats obtenus — comportement durant l'entraînement}
+\slidepurpose{Lire les courbes d'apprentissage et signaler les limites de validation}{Analyse du run conservé}
+\scriptsize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.70\textwidth}
+\includegraphics[width=\linewidth,height=0.71\textheight,keepaspectratio]{benchmark_training.png}
+\end{column}
+\begin{column}{0.27\textwidth}
+\begin{block}{Lecture des courbes}
+\begin{itemize}
+\item La \textbf{train loss} baisse régulièrement : le modèle apprend effectivement.
+\item La \textbf{val loss} oscille davantage : la validation est plus instable.
+\item Les métriques montent vite, mais la validation ne contient que \textbf{16 images}.
+\item La conclusion finale doit donc s'appuyer sur le \textbf{test set à 624 images}.
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Résultats obtenus — validation qualitative par Grad-CAM}
+\slidepurpose{Montrer comment l'explicabilité visuelle aide à valider le comportement du modèle}{Interprétabilité}
+\footnotesize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.66\textwidth}
+\includegraphics[width=\linewidth,height=0.73\textheight,keepaspectratio]{gradcam_results.png}
+\end{column}
+\begin{column}{0.31\textwidth}
+\begin{block}{Ce que l'on observe}
+\begin{itemize}
+\item Les activations se concentrent surtout sur les \textbf{champs pulmonaires} et sur des zones cohérentes avec des opacités.
+\item Le modèle ne semble pas décider uniquement à partir des bords ou du fond de l'image.
+\item Grad-CAM aide à expliquer \textbf{où} le réseau regarde, mais reste un \textbf{outil qualitatif}.
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Finalisation du projet}
+\slidepurpose{Résumer les livrables concrets du projet et la suite logique}{Clôture / mise en production locale}
+\scriptsize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.49\textwidth}
+\begin{block}{Livrables finalisés}
+\begin{itemize}
+\item \textbf{Modèle final entraîné} et checkpoint exporté.
+\item \textbf{Runtime Python} modulaire avec CLI et API locale.
+\item \textbf{Interface web Flask} pour charger une image, lancer l'inférence et voir le Grad-CAM.
+\item \textbf{Benchmark local} avec ROC, PR, matrice de confusion et distribution des scores.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.47\textwidth}
+\begin{block}{Conclusion technique}
+\begin{itemize}
+\item Le système est \textbf{fonctionnel de bout en bout}.
+\item Les performances sont \textbf{suffisamment fortes} pour démontrer la viabilité de l'approche hybride Swin + DenseNet.
+\item Le compromis retenu favorise la \textbf{détection des cas positifs}, ce qui est cohérent avec l'objectif médical.
+\end{itemize}
+\end{block}
+\begin{block}{Améliorations futures}
+\begin{itemize}
+\item augmenter la taille du jeu de validation
+\item renforcer la spécificité
+\item tester sur un dataset externe et améliorer la calibration
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
 \end{frame}
 
 \begin{frame}{Mots clés}
