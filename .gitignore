@@ -1,5 +1,6 @@
 # macOS
 .DS_Store
+.ipynb_checkpoints/
 
 # LaTeX / Beamer build artifacts
 *.aux
@@ -26,6 +27,7 @@ auto
 
 # Infrastructure / Cloud
 gcp/
+runs-*.zip
 
 # MedFusionNet - Training and Environment
 DPR_MedFusionNet/venv/
@@ -34,6 +36,9 @@ DPR_MedFusionNet/checkpoints/
 DPR_MedFusionNet/logs/
 DPR_MedFusionNet/outputs/
 DPR_MedFusionNet/__pycache__/
+runs/
+DPR_MedFusionNet/runs/*
+!DPR_MedFusionNet/runs/.gitkeep
 
 # Python General
 *.pyc
