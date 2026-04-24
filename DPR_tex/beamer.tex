@@ -323,104 +323,319 @@ Chaque slide technique indique explicitement :
 \end{frame}
 
 \begin{frame}{Gestion de Projet --- Tableau des Tâches (PFA)}
-    \slidepurpose{Détailler la liste des tâches, leurs durées et leurs dépendances}{Organisation / planification}
-    \textbf{Ce tableau récapitule la séquence logique nécessaire à la réalisation du pipeline hybride.}
+    \slidepurpose{Détailler les tâches, leur charge et le type exact de liaison temporelle}{Organisation / planification}
+    \textbf{Le tableau ci-dessous affine la planification en ajoutant les décalages et les relations PERT.}
     \centering
-    \small
-    \begin{tabular}{|c|l|c|c|}
+    \scriptsize
+    \renewcommand{\arraystretch}{1.1}
+    \begin{adjustbox}{max width=0.98\textwidth}
+    \begin{tabular}{|c|p{5.6cm}|c|p{4.8cm}|}
         \hline
-        \textbf{ID} & \textbf{Nom de la Tâche} & \textbf{Durée (j)} & \textbf{Précédent(s)} \\ \hline
-        \textbf{A} & Cadrage et Problématique & 3 & --- \\ \hline
-        \textbf{B} & Analyse SOTA CNN (DenseNet) & 4 & A \\ \hline
-        \textbf{C} & Analyse SOTA Swin Transformer & 4 & A \\ \hline
-        \textbf{D} & Étude de l'Explicabilité (XAI) & 2 & B, C \\ \hline
-        \textbf{E} & Prétraitement $T(X)$ et Normalisation & 5 & A \\ \hline
-        \textbf{F} & Développement Branche Locale (CNN) & 6 & B, E \\ \hline
-        \textbf{G} & Développement Branche Globale (Swin) & 7 & C, E \\ \hline
-        \textbf{H} & Intégration Gated Fusion Module & 5 & F, G \\ \hline
-        \textbf{I} & Sortie Clinique $\Psi$ (Score/Incertitude) & 4 & H \\ \hline
-        \textbf{J} & Configuration Environnement GPU/Colab & 2 & A \\ \hline
-        \textbf{K} & Entraînement et Optimisation (Focal Loss) & 10 & I, J \\ \hline
-        \textbf{L} & Évaluation Finale et Métriques & 3 & K \\ \hline
-        \textbf{M} & Finalisation Rapport et Slides & 5 & L \\ \hline
+        \textbf{ID} & \textbf{Nom de la Tâche} & \textbf{Durée} & \textbf{Antécédent(s) + liaison} \\ \hline
+        \textbf{A} & Cadrage et problématique clinique & 3 j & --- \\ \hline
+        \textbf{B} & Analyse SOTA CNN (DenseNet / CheXNet) & 4 j & A (0FD) \\ \hline
+        \textbf{C} & Analyse SOTA Swin Transformer / ViT & 4 j & A (0FD) \\ \hline
+        \textbf{D} & Étude d'explicabilité XAI et lecture Grad-CAM & 2 j & B (1DD), C (0FF) \\ \hline
+        \textbf{E} & Prétraitement $T(X)$, resize et normalisation & 5 j & A (0FD) \\ \hline
+        \textbf{F} & Développement de la branche locale CNN & 6 j & B (0FD), E (0FD) \\ \hline
+        \textbf{G} & Développement de la branche globale Swin & 7 j & C (0FD), E (0FD) \\ \hline
+        \textbf{H} & Intégration du module de gated fusion & 5 j & F (0FD), G (0FD) \\ \hline
+        \textbf{I} & Sortie clinique $\Psi$ : score + incertitude & 4 j & H (0FD) \\ \hline
+        \textbf{J} & Configuration GPU / Colab / environnement & 2 j & A (1DD) \\ \hline
+        \textbf{K} & Entraînement, calibration et optimisation & 10 j & I (0FD), J (0FD) \\ \hline
+        \textbf{L} & Évaluation finale, benchmark et métriques & 3 j & K (0FD) \\ \hline
+        \textbf{M} & Finalisation rapport, slides et démonstration & 5 j & L (0FD), D (0FD) \\ \hline
     \end{tabular}
+    \end{adjustbox}
+
+    \vspace{0.15cm}
+    \tiny
+    \begin{block}{Lecture de la notation}
+        \textbf{Exemple :} \texttt{0FD} signifie \emph{Fin-Début sans décalage}, \texttt{1DD} signifie \emph{Début-Début avec 1 jour de décalage}. 
+        La notation générale est : \textbf{[décalage] + [type de liaison]}.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Gestion de Projet --- Typologie des Dépendances PERT}
+    \slidepurpose{Préciser les quatre types de relations temporelles utilisés dans un ordonnancement PERT}{Organisation / planification}
+    \scriptsize
+    \setlength{\columnsep}{0.7cm}
+    \begin{columns}[T,onlytextwidth]
+        \begin{column}{0.465\textwidth}
+            \begin{block}{FD --- Fin à Début}
+                La tâche successeure démarre après la fin de la tâche précédente.\\
+                \textbf{Exemple projet :} A $\rightarrow$ B = \texttt{0FD}.
+            \end{block}
+            \vspace{0.18cm}
+            \begin{block}{DD --- Début à Début}
+                La tâche successeure peut commencer après le début du précédent, avec un éventuel décalage.\\
+                \textbf{Exemple projet :} A $\rightarrow$ J = \texttt{1DD}.
+            \end{block}
+        \end{column}
+        \begin{column}{0.465\textwidth}
+            \begin{block}{FF --- Fin à Fin}
+                La fin de la tâche successeure est contrainte par la fin d'une autre tâche.\\
+                \textbf{Exemple projet :} C $\rightarrow$ D = \texttt{0FF}.
+            \end{block}
+            \vspace{0.18cm}
+            \begin{block}{DF --- Début à Fin}
+                Relation plus rare : la fin d'une tâche dépend du début d'une autre.\\
+                \textbf{Exemple de notation :} \texttt{2DF}. Elle est documentée dans la méthode, mais non structurante ici.
+            \end{block}
+        \end{column}
+    \end{columns}
+
+    \vspace{0.12cm}
+    \begin{alertblock}{Lecture managériale}
+        Dans MedFusionNet, la planification repose surtout sur des relations \textbf{FD} pour sécuriser les jalons de validation, avec des liaisons \textbf{DD} et \textbf{FF} pour modéliser les travaux menés en parallèle sans perdre la cohérence globale.
+    \end{alertblock}
 \end{frame}
 
 % --- FRAME PERT : EXPLICATION ---
 \begin{frame}{Méthodologie --- Analyse du Réseau de PERT}
-    \slidepurpose{Planifier l'enchaînement des tâches et identifier les chemins critiques}{Organisation / planification}
-    \begin{block}{Concept et Objectifs}
-        Le réseau de PERT permet de modéliser l'enchaînement logique des tâches du projet MedFusionNet et d'identifier le \textbf{chemin critique} .
-    \end{block}
-
-    \begin{columns}[T]
-        \begin{column}{0.48\textwidth}
-            \textbf{Calcul des dates :}
-            \begin{itemize}
-                \item \textbf{EST :} Date au plus tôt pour débuter .
-                \item \textbf{LST :} Date limite sans retarder le projet.
-            \end{itemize}
+    \slidepurpose{Interpréter les dates, les marges et les zones critiques du planning}{Organisation / planification}
+    \scriptsize
+    \setlength{\columnsep}{0.75cm}
+    \begin{columns}[T,onlytextwidth]
+        \begin{column}{0.465\textwidth}
+            \begin{block}{Principes de lecture}
+                \begin{itemize}
+                    \item Le réseau PERT calcule des dates au plus tôt et au plus tard pour chaque activité.
+                    \item L'écart entre ces deux positions donne la flexibilité réelle de la tâche.
+                    \item Une activité sans marge devient immédiatement sensible à tout retard.
+                    \item Les relations \textbf{FD}, \textbf{DD} et \textbf{FF} modifient directement les dates admissibles.
+                \end{itemize}
+            \end{block}
         \end{column}
-        \begin{column}{0.48\textwidth}
-            \textbf{Logique du projet :}
-            \begin{itemize}
-                \item \textbf{Parallélisme :} SOTA et setup GPU simultanés .
-                \item \textbf{Convergence :} Fusion (H) après CNN (F) et Swin (G) .
-            \end{itemize}
+        \begin{column}{0.465\textwidth}
+            \begin{block}{Lecture des dépendances}
+                \begin{itemize}
+                    \item \textbf{B} et \textbf{C} sont lancées en parallèle après \textbf{A}.
+                    \item \textbf{J} démarre en \textbf{1DD} pour préparer l'infrastructure sans attendre la fin complète du cadrage.
+                    \item \textbf{D} démarre tôt, mais se ferme en même temps que \textbf{C} via la contrainte \textbf{0FF}.
+                \end{itemize}
+            \end{block}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Méthodologie --- Lecture du Chemin Critique}
+    \slidepurpose{Mettre en avant les tâches à marge nulle et les points de pilotage du projet}{Organisation / planification}
+    \tiny
+    \setlength{\columnsep}{0.8cm}
+    \begin{columns}[T,onlytextwidth]
+        \begin{column}{0.46\textwidth}
+            \begin{block}{Interprétation projet}
+                \begin{itemize}
+                    \item \textbf{H} concentre la convergence des deux branches \textbf{F} et \textbf{G}.
+                    \item \textbf{K} attend simultanément la sortie clinique \textbf{I} et l'environnement \textbf{J}.
+                    \item \textbf{D} et \textbf{J} restent importantes, mais elles ne pilotent pas la date finale.
+                \end{itemize}
+            \end{block}
+        \end{column}
+        \begin{column}{0.46\textwidth}
+            \begin{block}{Lecture managériale}
+                \begin{itemize}
+                    \item Les n{\oe}uds critiques pilotent directement la livraison finale.
+                    \item Les tâches quasi critiques, comme \textbf{C} et \textbf{F}, doivent rester sous surveillance.
+                    \item Les activités très flexibles, comme \textbf{D} et \textbf{J}, absorbent les aléas sans casser le planning.
+                \end{itemize}
+            \end{block}
+            \vspace{0.16cm}
+            \begin{alertblock}{Conséquence managériale}
+                Priorité de pilotage : toute dérive sur une tâche à marge nulle décale immédiatement la démonstration finale.
+            \end{alertblock}
         \end{column}
     \end{columns}
 
-    \vspace{0.4cm}
+    \vspace{0.18cm}
+    \begin{alertblock}{Chemin critique}
+        \textbf{A $\rightarrow$ E $\rightarrow$ G $\rightarrow$ H $\rightarrow$ I $\rightarrow$ K $\rightarrow$ L $\rightarrow$ M}
+        \hfill \textbf{Durée totale estimée : 42 jours}
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{Gestion de Projet --- Interprétation Opérationnelle}
+    \slidepurpose{Transformer le planning théorique en lecture de pilotage concrète pour le projet}{Organisation / planification}
+    \scriptsize
+    \setlength{\columnsep}{0.8cm}
+    \begin{columns}[T,onlytextwidth]
+        \begin{column}{0.46\textwidth}
+            \begin{block}{Hypothèses de conduite}
+                \begin{itemize}
+                    \item Le cadrage \textbf{A} alimente rapidement l'état de l'art et le prétraitement pour éviter un démarrage séquentiel trop long.
+                    \item Les branches \textbf{F} et \textbf{G} sont parallélisées afin de réduire la durée totale avant l'étape de fusion.
+                    \item L'environnement \textbf{J} démarre tôt et l'entraînement \textbf{K} reste le lot le plus long, car il concentre essais, calibration et choix du meilleur checkpoint.
+                \end{itemize}
+            \end{block}
+        \end{column}
+        \begin{column}{0.46\textwidth}
+            \begin{block}{Lecture de risque}
+                \begin{itemize}
+                    \item Le verrou principal est la séquence \textbf{E-G-H-I-K}, car elle relie directement données, architecture et validation du modèle.
+                    \item Un retard sur \textbf{D} ou \textbf{J} reste absorbable grâce aux marges, alors qu'un retard sur \textbf{H} ou \textbf{K} décale toute la démonstration.
+                    \item Les tâches à faible marge, comme \textbf{C} et \textbf{F}, restent à surveiller, tandis que \textbf{L} et \textbf{M} sécurisent la transformation du travail technique en livrables académiques.
+                \end{itemize}
+            \end{block}
+        \end{column}
+    \end{columns}
+
+    \vspace{0.16cm}
+    \begin{alertblock}{Message clé}
+        Le planning montre que la réussite du PFA dépend moins du nombre de tâches que de la bonne maîtrise des quelques étapes critiques qui structurent tout le projet.
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{Gestion de Projet --- Tableau des Marges}
+    \slidepurpose{Quantifier la flexibilité de chaque tâche à travers la marge libre et la marge totale}{Organisation / planification}
     \centering
-    \textcolor{red}{\textbf{\Large Chemin Critique :}} \textbf{A $\rightarrow$ E $\rightarrow$ G $\rightarrow$ H $\rightarrow$ I $\rightarrow$ K $\rightarrow$ L $\rightarrow$ M} \\
-    \textbf{\Large Durée totale du projet : 42 jours} .
+    \scriptsize
+    \renewcommand{\arraystretch}{1.28}
+    \setlength{\tabcolsep}{4.2pt}
+    \begin{adjustbox}{max width=0.98\textwidth}
+    \begin{tabular}{|c|*{13}{c|}}
+        \hline
+        \textbf{ID} & \textbf{A} & \textbf{B} & \textbf{C} & \textbf{D} & \textbf{E} & \textbf{F} & \textbf{G} & \textbf{H} & \textbf{I} & \textbf{J} & \textbf{K} & \textbf{L} & \textbf{M} \\ \hline
+        \textbf{ML} & 0 & 1 & 0 & 30 & 0 & 1 & 0 & 0 & 0 & 21 & 0 & 0 & 0 \\ \hline
+        \textbf{MT} & 0 & 2 & 1 & 30 & 0 & 1 & 0 & 0 & 0 & 21 & 0 & 0 & 0 \\ \hline
+    \end{tabular}
+    \end{adjustbox}
+
+    \vspace{0.2cm}
+    \tiny
+    \textbf{ML} = marge libre ; \textbf{MT} = marge totale. Les tâches critiques vérifient \textbf{ML = MT = 0}, tandis que \textbf{D} et \textbf{J} concentrent l'essentiel de la souplesse du planning.
 \end{frame}
 
 % --- FRAME PERT : LE SCHÉMA ---
 \begin{frame}{Méthodologie --- Schéma du Réseau de PERT}
-    \slidepurpose{Visualisation graphique du planning et des dépendances entre tâches}{Organisation / planification}
+    \slidepurpose{Visualiser le réseau PERT avec les décalages, les convergences et le chemin critique}{Organisation / planification}
+    \tikzsolutionfigure{
+    \begin{tikzpicture}[
+        x=0.95cm,
+        y=0.95cm,
+        task/.style={draw, rounded corners=3pt, minimum width=1.95cm, minimum height=1.1cm, align=center, fill=white, font=\scriptsize},
+        crit/.style={task, draw=red!80!black, very thick, fill=red!8},
+        link/.style={-{Latex[length=2.6mm]}, line width=0.95pt, draw=gray!75},
+        clink/.style={-{Latex[length=3mm]}, line width=2pt, draw=red!80!black},
+        rel/.style={font=\tiny, fill=white, inner sep=1.2pt}
+    ]
+        % Noeuds
+        \node[crit] (A) at (0,0) {\textbf{A}\\3 j};
+        \node[task] (B) at (3.2,2.0) {\textbf{B}\\4 j};
+        \node[task] (C) at (3.2,-2.0) {\textbf{C}\\4 j};
+        \node[crit] (E) at (3.2,0) {\textbf{E}\\5 j};
+        \node[task] (D) at (6.6,3.0) {\textbf{D}\\2 j};
+        \node[task] (F) at (6.6,1.1) {\textbf{F}\\6 j};
+        \node[crit] (G) at (6.6,-1.1) {\textbf{G}\\7 j};
+        \node[task] (J) at (6.6,-3.2) {\textbf{J}\\2 j};
+        \node[crit] (H) at (10.0,0) {\textbf{H}\\5 j};
+        \node[crit] (I) at (13.0,0) {\textbf{I}\\4 j};
+        \node[crit] (K) at (16.0,0) {\textbf{K}\\10 j};
+        \node[crit] (L) at (19.0,0) {\textbf{L}\\3 j};
+        \node[crit] (M) at (22.0,0) {\textbf{M}\\5 j};
+
+        % Liaisons critiques
+        \draw[clink] (A) -- node[rel, above] {\texttt{0FD}} (E);
+        \draw[clink] (E) -- node[rel, below] {\texttt{0FD}} (G);
+        \draw[clink] (G) -- node[rel, below] {\texttt{0FD}} (H);
+        \draw[clink] (H) -- node[rel, above] {\texttt{0FD}} (I);
+        \draw[clink] (I) -- node[rel, above] {\texttt{0FD}} (K);
+        \draw[clink] (K) -- node[rel, above] {\texttt{0FD}} (L);
+        \draw[clink] (L) -- node[rel, above] {\texttt{0FD}} (M);
+
+        % Liaisons secondaires
+        \draw[link] (A) -- node[rel, above] {\texttt{0FD}} (B);
+        \draw[link] (A) -- node[rel, below] {\texttt{0FD}} (C);
+        \draw[link] (A.south east) |- node[rel, pos=0.32, right] {\texttt{1DD}} (J.west);
+        \draw[link] (B) -- node[rel, above] {\texttt{1DD}} (D);
+        \draw[link] (C) -- node[rel, below] {\texttt{0FF}} (D);
+        \draw[link] (B) -- node[rel, above] {\texttt{0FD}} (F);
+        \draw[link] (E) -- node[rel, above left] {\texttt{0FD}} (F);
+        \draw[link] (C) -- node[rel, below] {\texttt{0FD}} (G);
+        \draw[link] (F) -- node[rel, above] {\texttt{0FD}} (H);
+        \draw[link] (J.east) -| node[rel, pos=0.22, below] {\texttt{0FD}} (K.south);
+        \draw[link] (D.east) -| node[rel, pos=0.28, above] {\texttt{0FD}} (M.north);
+
+        % Légende
+        \node[draw, rounded corners=3pt, fill=white, align=left, font=\tiny] at (11.1,-4.6) {
+            \textbf{Lecture du schéma}\\
+            Rouge = chemin critique\\
+            Noeud = identifiant + durée\\
+            \texttt{1DD} = décalage de 1 jour en Début-Début\\
+            \texttt{0FF} = fin synchronisée sans décalage
+        };
+    \end{tikzpicture}
+    }{Réseau PERT de MedFusionNet avec liaisons temporelles annotées et chemin critique mis en évidence.}
+\end{frame}
+
+\begin{frame}{Gestion de Projet --- Diagramme de Gantt}
+    \slidepurpose{Projeter le planning sur un calendrier opérationnel tout en respectant les liaisons DD, FD et FF}{Organisation / planification}
     \centering
-    \resizebox{0.98\textwidth}{!}{
-        \begin{tikzpicture}[node distance=2.5cm and 3.5cm] % Espacement très large
+    \small
+    \begin{adjustbox}{max width=0.98\textwidth, max totalheight=0.8\textheight}
+    \begin{ganttchart}[
+        hgrid,
+        vgrid,
+        x unit=0.222cm,
+        y unit chart=0.50cm,
+        y unit title=0.45cm,
+        title height=1,
+        bar height=0.66,
+        group height=0.74,
+        group peaks tip position=0,
+        bar label font=\scriptsize,
+        group label font=\scriptsize\bfseries,
+        title label font=\scriptsize\bfseries,
+        bar label node/.append style={align=left, text width=2.2cm},
+        group label node/.append style={align=left},
+        bar/.append style={fill=blue!18, draw=blue!70!black},
+        group/.append style={fill=black!10, draw=black!65},
+        link/.style={-Latex, line width=0.55pt, draw=black!60},
+        link label font=\tiny
+    ]{1}{42}
+        \gantttitle{Calendrier du projet}{42} \\
+        \gantttitle{S1}{7}\gantttitle{S2}{7}\gantttitle{S3}{7}\gantttitle{S4}{7}\gantttitle{S5}{7}\gantttitle{S6}{7} \\
 
-            % --- NOEUDS ---
-            \node[pert_node={A}{0}{0}, critical] (A) {};
-            \node[pert_node={E}{3}{3}, right=of A, critical] (E) {};
-            \node[pert_node={G}{8}{8}, right=of E, xshift=1.5cm, critical] (G) {};
-            \node[pert_node={H}{15}{15}, right=of G, critical] (H) {};
-            \node[pert_node={I}{20}{20}, right=of H, critical] (I) {};
-            \node[pert_node={K}{24}{24}, right=of I, critical] (K) {};
-            \node[pert_node={L}{34}{34}, right=of K, critical] (L) {};
-            \node[pert_node={M}{37}{37}, right=of L, critical] (M) {};
+        \ganttgroup{Cadrage / études}{1}{8} \\
+        \ganttbar[name=A, bar/.append style={fill=red!20, draw=red!75!black}]{A Cadrage}{1}{3} \\
+        \ganttbar[name=B]{B SOTA CNN}{4}{7} \\
+        \ganttbar[name=C]{C SOTA Swin}{4}{7} \\
+        \ganttbar[name=D]{D XAI}{6}{7} \\
+        \ganttbar[name=E, bar/.append style={fill=red!20, draw=red!75!black}]{E Prétrait.}{4}{8} \\
+        \ganttbar[name=J]{J GPU / Colab}{2}{3} \\
 
-            \node[pert_node={B}{3}{5}, above right=of A] (B) {};
-            \node[pert_node={C}{3}{4}, below right=of A] (C) {};
-            \node[pert_node={J}{3}{22}, below=of C] (J) {};
-            \node[pert_node={F}{8}{9}, right=of B] (F) {};
-            \node[pert_node={D}{7}{40}, above=of F] (D) {};
+        \ganttgroup{Développement}{9}{24} \\
+        \ganttbar[name=F]{F Branche CNN}{9}{14} \\
+        \ganttbar[name=G, bar/.append style={fill=red!20, draw=red!75!black}]{G Branche Swin}{9}{15} \\
+        \ganttbar[name=H, bar/.append style={fill=red!20, draw=red!75!black}]{H Fusion}{16}{20} \\
+        \ganttbar[name=I, bar/.append style={fill=red!20, draw=red!75!black}]{I Sortie clin.}{21}{24} \\
 
-            % --- LIAISONS ---
-            \draw[critarrow] (A) -- (E);
-            \draw[critarrow] (E) -- (G);
-            \draw[critarrow] (G) -- (H);
-            \draw[critarrow] (H) -- (I);
-            \draw[critarrow] (I) -- (K);
-            \draw[critarrow] (K) -- (L);
-            \draw[critarrow] (L) -- (M);
+        \ganttgroup{Apprentissage / clôture}{25}{42} \\
+        \ganttbar[name=K, bar/.append style={fill=red!20, draw=red!75!black}]{K Entraînt.}{25}{34} \\
+        \ganttbar[name=L, bar/.append style={fill=red!20, draw=red!75!black}]{L Évaluat.}{35}{37} \\
+        \ganttbar[name=M, bar/.append style={fill=red!20, draw=red!75!black}]{M Rapport / démo}{38}{42} \\
 
-            \draw[arrow] (A) -- (B);
-            \draw[arrow] (A) -- (C);
-            \draw[arrow] (A) |- (J);
-            \draw[arrow] (B) -- (D);
-            \draw[arrow] (C) -- (D);
-            \draw[arrow] (B) -- (F);
-            \draw[arrow] (E) -- (F);
-            \draw[arrow] (C) -- (G);
-            \draw[arrow] (F) -- (H);
-            \draw[arrow] (J) -| (K);
+        \ganttlink[link type=f-s, link label=FD]{A}{B}
+        \ganttlink[link type=f-s, link label=FD]{A}{C}
+        \ganttlink[link type=f-s, link label=FD]{A}{E}
+        \ganttlink[link type=s-s, link label=DD+1]{A}{J}
+        \ganttlink[link type=s-s, link label=DD+1]{B}{D}
+        \ganttlink[link type=f-f, link label=FF]{C}{D}
+        \ganttlink[link type=f-s, link label=FD]{B}{F}
+        \ganttlink[link type=f-s, link label=FD]{E}{F}
+        \ganttlink[link type=f-s, link label=FD]{C}{G}
+        \ganttlink[link type=f-s, link label=FD]{E}{G}
+        \ganttlink[link type=f-s, link label=FD]{F}{H}
+        \ganttlink[link type=f-s, link label=FD]{G}{H}
+        \ganttlink[link type=f-s, link label=FD]{H}{I}
+        \ganttlink[link type=f-s, link label=FD]{I}{K}
+        \ganttlink[link type=f-s, link label=FD]{J}{K}
+        \ganttlink[link type=f-s, link label=FD]{K}{L}
+        \ganttlink[link type=f-s, link label=FD]{L}{M}
+        \ganttlink[link type=f-s, link label=FD]{D}{M}
+    \end{ganttchart}
+    \end{adjustbox}
 
-        \end{tikzpicture}
-    }
 \end{frame}
 
 \section{Analyse SOTA}
@@ -1809,6 +2024,104 @@ Notre socle algorithmique sépare rigoureusement la donnée, la logique métier,
 \draw[->, thick] (model.east) -| ++(0.5,-1.6) |- (infer.east);
 \end{tikzpicture}%
 }{Interaction logique entre les fichiers source principaux}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Implémentation — API REST locale}
+\slidepurpose{Montrer comment le moteur d'inférence a été exposé à des clients externes sans casser l'interface web}{Architecture Logicielle}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\scriptsize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Composants d'exposition}
+\defitem{api.py}{Blueprint Flask sous \texttt{/api/v1} exposant \texttt{/health}, \texttt{/predict}, \texttt{/predict/gradcam} et \texttt{/benchmark}.}
+\defitem{app.py}{Enregistre le Blueprint sans toucher aux routes HTML déjà utilisées par l'interface Flask.}
+\defitem{service.py}{Conserve \texttt{model\_store} : le chargement du checkpoint reste \textbf{lazy} et partagé.}
+\defitem{client.py}{CLI local pour tester l'API, afficher les métriques et exporter les images Grad-CAM.}
+\end{block}
+\begin{block}{Intérêt pratique}
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item même moteur d'inférence pour le navigateur, \texttt{curl} et les scripts externes ;
+\item point d'intégration propre pour une future interface plus riche ;
+\item smoke tests simples via \texttt{/api/v1/health} et le client CLI.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\begin{center}
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, minimum width=2.55cm, minimum height=0.62cm}]
+\node[box, fill=blue!10] (curl) {\texttt{curl} / scripts};
+\node[box, fill=green!10, below=0.26cm of curl] (client) {\texttt{client.py}};
+\node[box, fill=orange!10, below=0.26cm of client] (api) {\texttt{api.py}\\Blueprint \texttt{/api/v1}};
+\node[box, fill=yellow!10, below=0.26cm of api] (store) {\texttt{model\_store}\\chargement lazy};
+\node[box, fill=purple!10, below=0.26cm of store] (infer) {\texttt{MedFusionInference}\\ou \texttt{run\_benchmark()}};
+\draw[->, thick] (curl) -- (client);
+\draw[->, thick] (client) -- (api);
+\draw[->, thick] (api) -- (store);
+\draw[->, thick] (store) -- (infer);
+\draw[->, thick, dashed] (api.east) -- ++(0.66,0) node[right, align=left] {JSON\\compact};
+\end{tikzpicture}
+\end{center}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Implémentation — Workflow d'une requête API}
+\slidepurpose{Expliquer le cycle complet d'une requête, la validation de l'image et la structure des réponses JSON}{Déploiement local / intégration}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\scriptsize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Cycle de traitement}
+\begin{enumerate}
+\setlength{\itemsep}{0.1em}
+\item Entrée : \texttt{multipart/form-data} ou octets image bruts.
+\item Validation : extension autorisée, ouverture PIL, conversion \texttt{RGB}.
+\item Traitement : \texttt{engine.predict(...)} ou \texttt{run\_benchmark(max\_images)}.
+\item Sortie : réponse \textbf{JSON} avec probabilités, métadonnées et temps d'inférence.
+\end{enumerate}
+\end{block}
+\begin{block}{Choix d'implémentation}
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item \texttt{/predict} : score simple, sans heatmap.
+\item \texttt{/predict/gradcam} : overlay et heatmap en PNG Base64.
+\item \texttt{/benchmark} : métriques seulement, graphes exclus.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\scriptsize
+\begin{block}{Routes exposées}
+\begin{itemize}
+\setlength{\itemsep}{0.1em}
+\item \texttt{GET /api/v1/health}
+\item \texttt{POST /api/v1/predict}
+\item \texttt{POST /api/v1/predict/gradcam}
+\item \texttt{GET /api/v1/benchmark?max\_images=20}
+\end{itemize}
+\end{block}
+\begin{block}{Exemples d'appel}
+\texttt{curl /api/v1/health}
+
+\vspace{0.1cm}
+\texttt{curl -X POST /api/v1/predict}
+
+\vspace{0.03cm}
+\texttt{-F "image=@radio.jpeg"}
+
+\vspace{0.1cm}
+\texttt{python client.py predict image.jpeg}
+
+\vspace{0.03cm}
+\texttt{--gradcam --save overlay.png}
+\end{block}
 \end{column}
 \end{columns}
 \end{frame}

@@ -1,0 +1,207 @@
+\documentclass[a4paper,12pt]{report} % changed from beamer
+
+\usepackage[most]{tcolorbox}
+
+\newtcolorbox{block}[1][]{enhanced,breakable,colback=blue!5!white, colframe=blue!75!black, title=#1}
+\newtcolorbox{alertblock}[1][]{enhanced,breakable,colback=red!5!white, colframe=red!75!black, title=#1}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{listings}
+\usepackage[french]{babel}
+\usepackage{xcolor,graphicx}
+\usepackage{geometry}
+\geometry{a4paper, top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+\usepackage{amsmath,amssymb}
+\usepackage{array}
+\usepackage{caption}
+\usepackage{lmodern}
+\usepackage{pgfgantt} % Ensure you have this package
+\usepackage{pgf-umlsd}
+
+\newenvironment{fquote}
+  {\begin{quote}\itshape}
+  {\end{quote}}
+
+\newcommand{\mychapter}[2]{%
+  \chapter*{#2}%
+  \addcontentsline{toc}{chapter}{#2}%
+}
+
+\usepackage{wrapfig}
+\usepackage{tikz}
+\usetikzlibrary{shapes.geometric,calc,arrows.meta,positioning,fit}
+\usepackage{adjustbox}
+\usepackage{xparse}
+\usepackage{hyperref}
+\graphicspath{{./}{DPR_tex/}}
+\hfuzz=3pt
+
+\setcounter{tocdepth}{1}
+\setcounter{secnumdepth}{0}
+\setlength{\parskip}{0.45em}
+\setlength{\parindent}{1.2em}
+
+\newcommand{\slidepurpose}[2]{%
+\noindent{\footnotesize\textcolor{black!70}{\textbf{Rôle :} #1 \hfill \textbf{Étape du projet :} #2}}\par
+\vspace{0.18cm}
+}
+
+\newcommand{\defitem}[2]{\textbf{#1} : #2\par\vspace{0.32em}}
+
+\newcommand{\solutionfigure}[2]{%
+\begin{center}
+\includegraphics[width=0.96\linewidth,height=0.70\textheight,keepaspectratio]{#1}
+\captionsetup{type=figure}
+\captionof{figure}{#2}
+\end{center}
+}
+
+\newcommand{\tikzsolutionfigure}[2]{%
+\begin{center}
+\begin{adjustbox}{max width=0.96\linewidth, max totalheight=0.70\textheight}
+#1
+\end{adjustbox}
+\captionsetup{type=figure}
+\captionof{figure}{#2}
+\end{center}
+}
+
+\newif\ifreportfirstcolumn
+\NewDocumentEnvironment{columns}{ O{} }{%
+\par\medskip\noindent\ignorespaces
+}{%
+\par\medskip
+}
+
+\NewDocumentEnvironment{column}{ m }{%
+\par\noindent\begin{minipage}[t]{\linewidth}\vspace{0pt}
+}{%
+\end{minipage}\par\medskip
+}
+
+\RenewDocumentEnvironment{frame}{ O{} m }{%
+\subsection{#2}
+\vspace{0.1cm}
+}{%
+\par\vspace{0.3cm}
+}
+
+\begin{document}
+
+\begin{titlepage}
+\centering
+{\small Royaume du Maroc}\\
+{\small HONORIS UNITED UNIVERSITIES}\\
+\rule{\linewidth}{0.3mm} \\[0.4cm]
+
+\begin{minipage}{5cm}
+\begin{center}
+\includegraphics[width=5cm]{logo.png}
+\end{center}
+\end{minipage}\hfill
+\begin{minipage}{10cm}
+\begin{flushright}
+{\small École Marocaine Des Sciences de L'Ingenieur}\\[0.1cm]
+{\small Département Informatique}\\[0.1cm]
+\end{flushright}
+\end{minipage}\hfill\\
+\vspace{20mm}
+{\large \bfseries Mémoire du projet de fin d’année}\\[0.5cm]
+{\large Pour la validation du module PFA Semestre S1}\\[0.5cm]
+{\large \bfseries{Option : 4IADO G2} \\ }
+\vspace{10mm}
+\rule{\linewidth}{0.3mm} \\[0.4cm]
+{ \huge \bfseries Détection de la pneumonie sur radiographie thoracique via MedFusionNet\\[0.4cm] }
+\rule{\linewidth}{0.3mm} \\[1cm]
+\vspace{10mm}
+
+\noindent
+\begin{minipage}{0.5\textwidth}
+\vspace{-7mm}
+\begin{flushleft} \large
+\emph{Réalisé par :}\\
+M. \textsc{HANFAOUI} Karim \\
+Mme. \textsc{KAFIF} Imane \\
+\end{flushleft}
+\end{minipage}
+\begin{minipage}{0.4\textwidth}
+\begin{flushright} \large
+\emph{Encadré par :} \\
+Pr. \textsc{Mdarbi} Fatimaezzahra \\
+\end{flushright}
+\end{minipage}\\[1cm]
+
+{\large \textit{Soutenu le [à compléter], Devant le jury composé de : }}\\[0.5cm]
+
+\centering
+\begin{tabular}{lll}
+\large M. x \textsc{y} : & \large EMSI & \large - Président(e) \\[0.1cm]
+\large M. x \textsc{y} : & \large EMSI & \large - Examinateur(trice) \\[0.1cm]
+\large M. x \textsc{y} : & \large EMSI & \large - Rapporteur
+\end{tabular}
+
+\vspace{20mm}
+{\large Promotion : 2025/2026}
+\end{titlepage}
+
+\chapter*{Remerciements}
+\addcontentsline{toc}{chapter}{Remerciements}
+\thispagestyle{empty}
+
+\vspace{1cm}
+
+Je tiens à exprimer ma profonde gratitude à toutes les personnes qui ont contribué, de près ou de loin, à la réalisation de ce projet de détection de la pneumonie sur radiographie thoracique.\\[0.5cm]
+
+Je remercie tout particulièrement \textbf{Pr. Mdarbi Fatimaezzahra} pour son encadrement, ses conseils avisés et son soutien tout au long de cette aventure.\\[0.5cm]
+
+Je souhaite également remercier \textbf{l'EMSI Les Orangers} pour l'accompagnement pédagogique, l'environnement de travail et les ressources mises à disposition durant ce projet.\\[0.5cm]
+
+Enfin, une pensée sincère à nos familles et à nos proches pour leur soutien moral et leurs encouragements constants.
+
+\vfill
+
+\begin{flushright}
+    \textit{Karim Hanfaoui et Imane Kafif}\\
+    \textit{Avril 2026}
+\end{flushright}
+
+\clearpage
+\pagenumbering{roman}
+\tableofcontents
+\clearpage
+\listoffigures
+\clearpage
+\pagenumbering{arabic}
+
+\chapter*{Résumé}
+\addcontentsline{toc}{chapter}{Résumé}
+Ce mémoire présente \textbf{MedFusionNet}, un système de détection binaire de la pneumonie sur radiographie thoracique conçu dans le cadre du projet de fin d'année. L'objectif principal est de proposer une solution de vision par ordinateur à la fois performante, interprétable et exploitable localement pour l'inférence, tout en conservant une logique de développement cohérente avec les contraintes académiques et expérimentales du projet. Le travail s'inscrit dans un contexte où la radiographie thoracique constitue un examen de première ligne, mais où l'interprétation peut rester difficile lorsque les signes sont discrets, diffus ou hétérogènes.
+
+L'approche retenue repose sur une \textbf{architecture hybride} combinant une branche \textbf{DenseNet} pour l'extraction d'indices locaux et une branche \textbf{Swin Transformer} pour la capture du contexte global. Les deux représentations sont ensuite agrégées par un mécanisme de \textbf{gated fusion} afin d'adapter dynamiquement la contribution de chaque branche à chaque image. Le système ne se limite pas à une simple probabilité de classe : il intègre aussi une couche d'\textbf{explicabilité visuelle} via Grad-CAM, ainsi qu'une chaîne logicielle complète comprenant un moteur d'inférence modulaire, une API locale et une interface web de démonstration.
+
+Les résultats obtenus sur le jeu de test final montrent qu'il est possible d'obtenir un \textbf{niveau de performance élevé} tout en conservant une interprétation technique lisible du fonctionnement du modèle. Le projet aboutit ainsi à un livrable complet, couvrant à la fois l'étude bibliographique, la conception, l'implémentation, l'évaluation et la mise à disposition d'un environnement local d'utilisation.
+
+\chapter*{Introduction générale}
+\addcontentsline{toc}{chapter}{Introduction générale}
+La détection assistée de la pneumonie constitue un cas d'usage particulièrement pertinent pour l'intelligence artificielle appliquée à l'imagerie médicale. D'un point de vue clinique, une pneumonie non détectée assez tôt peut dégrader rapidement l'état du patient, tandis qu'un excès d'alertes peut saturer les circuits de triage. Le problème n'est donc pas uniquement de classer des images, mais de proposer un système dont le comportement reste cohérent avec une logique de priorisation médicale.
+
+Dans ce contexte, l'objectif de ce projet est de construire un modèle capable d'exploiter à la fois les \textbf{motifs radiographiques fins} et la \textbf{structure thoracique globale}. Cette double exigence justifie l'étude d'une architecture hybride : les CNN restent très efficaces pour capturer des textures locales, alors que les Transformers apportent une meilleure lecture des dépendances spatiales plus larges. La question centrale du mémoire devient alors la suivante : \textit{comment combiner ces deux familles de modèles dans une même architecture afin d'améliorer la détection de la pneumonie tout en gardant un système explicable et réellement utilisable ?}
+
+Le travail réalisé ne s'arrête pas à la phase d'entraînement. Une attention particulière a aussi été portée à la \textbf{valorisation du modèle}, c'est-à-dire à la manière dont il peut être utilisé hors du notebook expérimental. Cette orientation a conduit à la mise en place d'un runtime local en Python, d'une API REST, d'un client en ligne de commande et d'une interface web Flask permettant d'exécuter des prédictions, de visualiser les probabilités, d'afficher des cartes Grad-CAM et de lancer des benchmarks.
+
+Le présent rapport reprend donc l'ensemble du cheminement du projet. Il commence par les acronymes, la problématique et la méthodologie, puis développe l'analyse de l'état de l'art. Il présente ensuite la solution proposée, le pipeline technique détaillé, les outils d'implémentation retenus, les résultats quantitatifs et qualitatifs, avant de conclure sur les apports effectifs du projet ainsi que sur ses limites et ses perspectives d'évolution.
+
+\input{rapport_body.tex}
+
+\chapter*{Conclusion générale}
+\addcontentsline{toc}{chapter}{Conclusion générale}
+Ce projet a permis de concevoir, d'implémenter et de valider une chaîne complète de détection de la pneumonie sur radiographie thoracique, depuis l'étude de l'état de l'art jusqu'à l'usage local du modèle final. L'apport majeur du travail réside dans l'intégration cohérente d'une \textbf{architecture hybride DenseNet + Swin Transformer}, d'un mécanisme de fusion adaptative, d'une couche d'explicabilité par Grad-CAM et d'un ensemble d'outils logiciels rendant le modèle réellement exploitable en dehors d'un simple environnement d'expérimentation.
+
+Au-delà des performances obtenues, le projet montre surtout qu'une démarche rigoureuse en vision médicale ne peut pas se limiter à un score global. Il faut également considérer la nature des erreurs, la sensibilité aux cas positifs, la lisibilité des activations et la facilité d'usage du système par un utilisateur final. Sous cet angle, MedFusionNet représente une base technique sérieuse : le modèle produit des résultats solides, les cas de pneumonie sont majoritairement détectés, et l'environnement logiciel développé autour du modèle permet une démonstration claire et reproductible.
+
+Certaines limites demeurent toutefois importantes. Le jeu de validation reste très réduit, ce qui impose de fonder l'analyse finale sur le jeu de test complet. La généralisation à d'autres centres, d'autres distributions d'images ou d'autres conditions d'acquisition n'a pas encore été vérifiée. De même, la calibration probabiliste et la spécificité pourraient être encore améliorées pour réduire les faux positifs sans sacrifier la détection des cas réellement pathologiques.
+
+En perspective, plusieurs prolongements sont donc possibles : enrichissement de la validation, test sur des jeux de données externes, amélioration de la calibration, optimisation de la robustesse et éventuelle évolution vers un déploiement plus structuré. Malgré ces pistes d'amélioration, le mémoire montre que les objectifs du PFA ont été atteints : le projet aboutit à un système complet, techniquement justifié, expérimentalement validé et suffisamment mûr pour servir de base à des développements futurs.
+
+\end{document}

@@ -33,7 +33,21 @@
     </div>
     <form action="{{ url_for('predict') }}" method="post" enctype="multipart/form-data" class="stack-form">
       <label for="image_file">Chest X-ray image</label>
-      <input id="image_file" type="file" name="image_file" accept=".png,.jpg,.jpeg">
+      <div class="dropzone" id="dropzone">
+        <div class="dropzone-icon">🫁</div>
+        <p class="dropzone-hint">
+          Drag and drop an X-ray image here<br>
+          <span class="dropzone-sub">or click to browse</span>
+        </p>
+        <p class="dropzone-filename" id="dropzone-filename" hidden></p>
+        <input
+          id="image_file"
+          type="file"
+          name="image_file"
+          accept=".png,.jpg,.jpeg"
+          class="dropzone-input"
+        >
+      </div>
       <button type="submit" class="primary-button">Analyze uploaded image</button>
     </form>
   </article>
@@ -99,6 +113,14 @@
     <div>
       <p class="eyebrow">Inference result</p>
       <h2>{{ prediction.prediction }}</h2>
+      {% set prob = prediction.pneumonia_probability %}
+      {% if prob >= 0.70 %}
+        <span class="risk-badge risk-high">⚠ High risk — Pneumonia likely</span>
+      {% elif prob >= 0.30 %}
+        <span class="risk-badge risk-uncertain">~ Uncertain — Clinical review advised</span>
+      {% else %}
+        <span class="risk-badge risk-low">✓ Low risk — Normal likely</span>
+      {% endif %}
     </div>
     <div class="source-tag">
       <span>{{ prediction.source_label }}</span>
@@ -156,4 +178,49 @@
   </div>
 </section>
 {% endif %}
+
+<script>
+(function () {
+  var zone     = document.getElementById('dropzone');
+  var input    = document.getElementById('image_file');
+  var filename = document.getElementById('dropzone-filename');
+  if (!zone || !input) return;
+
+  function showFile(file) {
+    if (!file) return;
+    filename.textContent = file.name;
+    filename.hidden = false;
+    zone.classList.add('has-file');
+  }
+
+  zone.addEventListener('click', function (e) {
+    if (e.target !== input) input.click();
+  });
+
+  input.addEventListener('change', function () {
+    showFile(input.files[0]);
+  });
+
+  zone.addEventListener('dragover', function (e) {
+    e.preventDefault();
+    zone.classList.add('drag-over');
+  });
+
+  zone.addEventListener('dragleave', function () {
+    zone.classList.remove('drag-over');
+  });
+
+  zone.addEventListener('drop', function (e) {
+    e.preventDefault();
+    zone.classList.remove('drag-over');
+    var dt = e.dataTransfer;
+    if (dt && dt.files.length > 0) {
+      try {
+        input.files = dt.files;
+      } catch (_) {}
+      showFile(dt.files[0]);
+    }
+  });
+}());
+</script>
 {% endblock %}

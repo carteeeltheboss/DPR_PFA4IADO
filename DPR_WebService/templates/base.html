@@ -3,6 +3,9 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    {% if request.endpoint in ('benchmark', 'run_benchmark_view') and benchmark_status is defined and benchmark_status == 'running' %}
+    <meta http-equiv="refresh" content="8">
+    {% endif %}
     <title>{% block title %}MedFusionNet Web Service{% endblock %}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
   </head>
@@ -11,7 +14,7 @@
       <header class="hero">
         <div class="hero-copy">
           <p class="eyebrow">DPR Web Service</p>
-          <h1>MedFusionNet Admin</h1>
+          <h1>MedFusionNet</h1>
           <p class="hero-text">
             Local inference and benchmarking console for the active checkpoint.
           </p>

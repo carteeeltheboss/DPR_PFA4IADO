@@ -8,7 +8,7 @@
 MedFusionNet is a chest X-ray pneumonia detection project built around a hybrid deep-learning model and two practical entry points:
 
 - `DPR_MedFusionNet/` for local Python and CLI inference
-- `DPR_WebService/` for a local web interface with prediction, Grad-CAM, and benchmark reporting
+- `DPR_WebService/` for a local web interface and REST API with prediction, Grad-CAM, and benchmark reporting
 
 The current training workflow lives in [`MedFusionNet_v4.ipynb`](./MedFusionNet_v4.ipynb) and is designed for Google Colab. The local Python package in this repository was split back out of that notebook so the trained model can be used cleanly outside Colab.
 
@@ -59,8 +59,10 @@ Important: the current local code is aligned with `MedFusionNet_v4.ipynb`, not o
 │   └── runs/                          # Local checkpoints folder (ignored by git except .gitkeep)
 ├── DPR_WebService/                    # Flask web UI for inference and benchmarking
 │   ├── app.py
+│   ├── api.py
 │   ├── service.py
 │   ├── benchmark.py
+│   ├── client.py
 │   ├── templates/
 │   └── static/
 └── DPR_tex/                           # Presentation / report material
@@ -84,6 +86,8 @@ At inference time, the local runtime provides:
 
 The web service adds:
 
+- a REST API under `/api/v1`
+- a standalone CLI client for the API
 - checkpoint selection
 - sample gallery from the test set
 - image upload
@@ -179,7 +183,44 @@ git clone https://github.com/carteeeltheboss/DPR_PFA4IADO.git
 cd DPR_PFA4IADO
 ```
 
-### 2. Create a virtual environment for the local runtime
+### 2. Recommended first launch
+
+From the repository root, use the launcher that matches your platform.
+
+macOS / Linux:
+
+```bash
+./run_first.sh
+```
+
+Windows PowerShell:
+
+```powershell
+.\run_first.ps1
+```
+
+Windows Command Prompt:
+
+```bat
+run_first.bat
+```
+
+What `run_first` does:
+
+- creates `DPR_MedFusionNet/venv` if needed
+- installs `DPR_MedFusionNet/requirements.txt`
+- installs `DPR_WebService/requirements.txt`
+- starts the Flask web service on `http://127.0.0.1:8000`
+
+After the first setup, use the lighter launcher:
+
+- macOS / Linux: `./run.sh`
+- PowerShell: `.\run.ps1`
+- Command Prompt: `run.bat`
+
+### 3. Manual environment setup
+
+If you prefer not to use the launchers, create the environment manually:
 
 ```bash
 cd DPR_MedFusionNet
@@ -195,9 +236,11 @@ This single environment is enough for:
 - CLI inference
 - Python inference
 - the Flask web app
+- the REST API
+- the API client
 - the benchmark dashboard
 
-### 3. Make sure a checkpoint exists
+### 4. Make sure a checkpoint exists
 
 The runtime expects checkpoints under:
 
@@ -219,7 +262,13 @@ This behavior is implemented in [`DPR_MedFusionNet/checkpoint_utils.py`](./DPR_M
 
 ### Recommended: Web Interface
 
-Start the local web service from the repository root:
+Recommended startup:
+
+```bash
+./run.sh
+```
+
+Manual startup from the repository root:
 
 ```bash
 ./DPR_MedFusionNet/venv/bin/python DPR_WebService/app.py
@@ -242,12 +291,136 @@ The web interface lets you:
 - inspect Grad-CAM and overlay images
 - run a benchmark on the test set
 - check service health through `/healthz`
+- serve a REST API under `/api/v1`
 
 The sample gallery is populated from:
 
 ```text
 DPR_MedFusionNet/data/test/
 ```
+
+### REST API
+
+The Flask application now exposes a local REST API under:
+
+```text
+http://127.0.0.1:8000/api/v1
+```
+
+Available endpoints:
+
+| Method | Route | Purpose |
+|---|---|---|
+| `GET` | `/api/v1/health` | API + model status |
+| `POST` | `/api/v1/predict` | Prediction without Grad-CAM |
+| `POST` | `/api/v1/predict/gradcam` | Prediction with Grad-CAM images |
+| `GET` | `/api/v1/benchmark` | Benchmark metrics without chart payloads |
+
+The image prediction endpoints accept input in two forms:
+
+1. `multipart/form-data` with field name `image`
+2. raw request body with an image `Content-Type`
+
+Supported image extensions:
+
+- `.png`
+- `.jpg`
+- `.jpeg`
+
+Health check example:
+
+```bash
+curl http://127.0.0.1:8000/api/v1/health
+```
+
+Expected response shape:
+
+```json
+{
+  "status": "ok",
+  "model": "MedFusionNet",
+  "device": "mps",
+  "checkpoint_path": "DPR_MedFusionNet/runs/run_v1/checkpoints/Model_19Apr26.pth",
+  "checkpoint_epoch": 2,
+  "checkpoint_auc": 1.0
+}
+```
+
+Prediction example with multipart upload:
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/predict \
+  -F "image=@DPR_MedFusionNet/data/test/PNEUMONIA/person100_bacteria_475.jpeg"
+```
+
+Prediction example with raw image bytes:
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/predict \
+  --header "Content-Type: image/jpeg" \
+  --data-binary @DPR_MedFusionNet/data/test/NORMAL/IM-0001-0001.jpeg
+```
+
+Grad-CAM example:
+
+```bash
+curl -X POST http://127.0.0.1:8000/api/v1/predict/gradcam \
+  -F "image=@DPR_MedFusionNet/data/test/NORMAL/IM-0001-0001.jpeg"
+```
+
+Benchmark smoke test:
+
+```bash
+curl "http://127.0.0.1:8000/api/v1/benchmark?max_images=20"
+```
+
+The benchmark API intentionally returns only compact metrics:
+
+- model path
+- dataset size
+- duration
+- global metrics
+- per-class metrics
+
+It does not return the base64 chart bundle used by the web dashboard.
+
+### API Client
+
+[`DPR_WebService/client.py`](./DPR_WebService/client.py) is a standalone CLI that talks to the running API.
+
+Health:
+
+```bash
+./DPR_MedFusionNet/venv/bin/python DPR_WebService/client.py health
+```
+
+Prediction:
+
+```bash
+./DPR_MedFusionNet/venv/bin/python DPR_WebService/client.py predict \
+  DPR_MedFusionNet/data/test/PNEUMONIA/person100_bacteria_475.jpeg
+```
+
+Prediction with Grad-CAM export:
+
+```bash
+./DPR_MedFusionNet/venv/bin/python DPR_WebService/client.py predict \
+  DPR_MedFusionNet/data/test/NORMAL/IM-0001-0001.jpeg \
+  --gradcam \
+  --save DPR_WebService/runtime/api_gradcam.png
+```
+
+Benchmark:
+
+```bash
+./DPR_MedFusionNet/venv/bin/python DPR_WebService/client.py benchmark
+./DPR_MedFusionNet/venv/bin/python DPR_WebService/client.py benchmark --max_images 20
+```
+
+Useful client options:
+
+- `--host` to target another local server URL
+- `--json` to print raw JSON instead of formatted console output
 
 ### CLI Inference
 
@@ -572,6 +745,9 @@ Then verify:
 - the default model loads
 - one sample prediction works
 - the benchmark page renders
+- `GET /api/v1/health` returns JSON
+- one `POST /api/v1/predict` request works
+- `python DPR_WebService/client.py health` works
 
 If you modify training behavior, document:
 
@@ -616,6 +792,30 @@ Fix:
 
 - copy the dataset locally
 - or use upload-based inference instead of the sample gallery
+- or call the REST API with your own image payloads
+
+### The API returns `No image provided`
+
+Cause:
+
+- the request was sent without multipart field `image`
+- and the raw request body did not use an image content type
+
+Fix:
+
+- send `-F "image=@file.jpeg"` with `curl`
+- or send raw bytes with `Content-Type: image/jpeg` or `image/png`
+
+### The benchmark API is slower than a single prediction
+
+Cause:
+
+- `/api/v1/benchmark` evaluates the whole test set instead of one image
+
+Fix:
+
+- use `?max_images=20` for a smoke test
+- use the full benchmark only when you actually want full evaluation metrics
 
 ### Colab runs out of memory
 

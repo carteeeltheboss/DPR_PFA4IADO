@@ -15,6 +15,15 @@
       This runs the active checkpoint across the full `DPR_MedFusionNet/data/test` split and
       computes metrics, ROC, precision-recall, confusion matrix, and score distributions.
     </p>
+    {% if benchmark_status == "running" %}
+    <div class="flash flash-success" style="margin-top: 10px;">
+      ⏳ Benchmark is running in the background — refresh this page in ~20 seconds to see results.
+    </div>
+    {% elif benchmark_status and benchmark_status.startswith("error") %}
+    <div class="flash flash-error" style="margin-top: 10px;">
+      ❌ Last benchmark failed: {{ benchmark_status | replace("error: ", "") }}
+    </div>
+    {% endif %}
     <form action="{{ url_for('run_benchmark_view') }}" method="post" class="stack-form">
       <button type="submit" class="primary-button">Run full benchmark</button>
     </form>
@@ -88,6 +97,7 @@
     </div>
   </div>
 
+  {% if benchmark.charts is defined %}
   <div class="chart-grid">
     <figure class="chart-card">
       <img src="{{ benchmark.charts.confusion_matrix }}" alt="Confusion matrix" class="chart-image" decoding="async">
@@ -106,6 +116,11 @@
       <figcaption>Score distribution</figcaption>
     </figure>
   </div>
+  {% else %}
+  <p class="muted">
+    Charts are not available in the persisted benchmark cache. Run a fresh benchmark in this session to regenerate them.
+  </p>
+  {% endif %}
 
   <div class="split-layout">
     <div class="card-subsection">
@@ -171,7 +186,17 @@
       <tbody>
         {% for row in benchmark.misclassified %}
         <tr>
-          <td>{{ row.relative_path }}</td>
+          <td>
+            <form
+              action="{{ url_for('predict') }}"
+              method="post"
+              target="_blank"
+              style="margin: 0;"
+            >
+              <input type="hidden" name="sample_path" value="{{ row.relative_path }}">
+              <button type="submit" class="link-button">{{ row.relative_path }}</button>
+            </form>
+          </td>
           <td>{{ row.true_class }}</td>
           <td>{{ row.pred_class }}</td>
           <td>{{ "%.3f"|format(row.pneumonia_probability) }}</td>

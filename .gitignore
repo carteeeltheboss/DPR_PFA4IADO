@@ -58,3 +58,10 @@ htmlcov/
 .env.*
 .venv/
 venv/
+
+# Manim
+DPR_Manim/.DS_Store
+DPR_Manim/venvManim/
+DPR_Manim/media/
+DPR_Manim/output_videos/
+DPR_Manim/**/__pycache__/

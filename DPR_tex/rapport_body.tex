@@ -1,0 +1,2437 @@
+\mychapter{}{Acronymes et terminologie}
+\section{Glossaire initial}
+
+\begin{frame}{Acronymes — Domaine et modèles}
+\slidepurpose{Donner les sigles du domaine avant les slides techniques}{Référence documentaire}
+\small
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\begin{block}{Domaine médical et IA}
+\defitem{IA}{Intelligence Artificielle.}
+\defitem{DL}{Deep Learning, famille de modèles à plusieurs couches.}
+\defitem{CXR}{Chest X-Ray, radiographie thoracique.}
+\defitem{SOTA}{State Of The Art, meilleur niveau connu au moment de l'étude.}
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{Modèles et approches}
+\defitem{CNN}{Convolutional Neural Network, réseau fondé sur les convolutions.}
+\defitem{ViT}{Vision Transformer, adaptation du Transformer aux images.}
+\defitem{Swin}{Shifted Window Transformer, Transformer hiérarchique à fenêtres décalées.}
+\defitem{Grad-CAM}{Gradient-weighted Class Activation Mapping, outil d'explicabilité visuelle.}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Acronymes — Blocs techniques}
+\slidepurpose{Définir les sigles techniques utilisés dans les architectures et l'évaluation}{Référence documentaire}
+\small
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\begin{block}{Architecture}
+\defitem{BN}{Batch Normalization, normalisation des activations sur un mini-batch.}
+\defitem{ReLU}{Rectified Linear Unit, activation $f(x)=\max(0,x)$.}
+\defitem{GAP}{Global Average Pooling, moyenne spatiale par canal.}
+\defitem{FC}{Fully Connected, couche dense finale de décision.}
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{Efficacité et confiance}
+\defitem{MBConv}{Mobile Inverted Bottleneck Convolution, bloc compact d'EfficientNet.}
+\defitem{SE}{Squeeze-and-Excitation, mécanisme de ré-pondération des canaux.}
+\defitem{FLOPs}{Floating Point Operations, estimation du coût de calcul.}
+\defitem{ECE}{Expected Calibration Error, mesure de calibration des probabilités.}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Notations mathématiques}
+\slidepurpose{Définir les notations qui reviennent dans les équations et les schémas}{Référence documentaire}
+\small
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\begin{block}{Tailles et dimensions}
+\defitem{$H,W$}{Hauteur et largeur spatiales d'une image ou d'une carte de features.}
+\defitem{$C$}{Nombre de canaux.}
+\defitem{$L$}{Nombre de couches ou de blocs, selon le contexte.}
+\defitem{$k$}{Growth rate DenseNet, nombre de nouveaux canaux ajoutés par couche.}
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{Variables de modélisation}
+\defitem{$\phi$}{Facteur global de scaling dans EfficientNet.}
+\defitem{$X$}{Image d'entrée.}
+\defitem{$F$}{Tensor de features appris par le modèle.}
+\defitem{$p(y|X)$}{Probabilité prédite pour une classe $y$ conditionnée par l'image $X$.}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Terminologie d'architecture}
+\slidepurpose{Définir les termes techniques utilisés sans alourdir les slides principales}{Référence documentaire}
+\small
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\begin{block}{CNN et représentations}
+\defitem{Feature map}{Carte d'activation produite par un bloc du réseau.}
+\defitem{Backbone}{Extracteur principal de représentations d'une architecture.}
+\defitem{Bottleneck}{Réduction intermédiaire des canaux pour baisser le coût.}
+\defitem{Skip connection}{Chemin de contournement transmettant une information plus tôt dans le réseau.}
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{Transformers et fiabilité}
+\defitem{Token}{Unité d'entrée d'un Transformer, ici un patch projeté.}
+\defitem{Embedding}{Représentation vectorielle dense d'un objet discret ou local.}
+\defitem{Calibration}{Adéquation entre probabilité annoncée et fréquence réelle de succès.}
+\defitem{Heatmap}{Carte colorée montrant des zones activées ou importantes pour la décision.}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Guide de lecture du document}
+\slidepurpose{Préciser le rôle exact de chaque groupe de slides dans la fabrication du projet}{Lecture guidée du rapport}
+\small
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\begin{block}{Cadrage}
+\defitem{Problématique / Méthodologie}{Définir le besoin clinique, la question scientifique et l'organisation du travail.}
+\defitem{Analyse SOTA}{Comparer les approches existantes avant de choisir une direction.}
+\end{block}
+\begin{block}{Conception}
+\defitem{Solution proposée}{Définir l'architecture cible, sa logique et ses sorties.}
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{Validation}
+\defitem{Résultats}{Mesurer la performance finale et lire les indicateurs.}
+\defitem{Annexes}{Documenter les notions techniques non développées dans le flux principal.}
+\end{block}
+\begin{block}{Principe de lecture}
+Chaque slide technique indique explicitement :
+\begin{itemize}
+\setlength{\itemsep}{0.3em}
+\item son \textbf{role} dans le document,
+\item l'\textbf{etape du projet} à laquelle il appartient.
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\mychapter{}{Problématique et Méthodologie}
+
+\begin{frame}{Problématique}
+\slidepurpose{Poser le besoin clinique, la question de recherche et la contrainte d'explicabilité}{Cadrage scientifique}
+    \begin{alertblock}{Question Centrale de Recherche}
+        Face à la complexité visuelle des pathologies pulmonaires et à la pénurie mondiale de radiologues experts, comment pouvons-nous concevoir un système automatisé basé sur le Deep Learning capable non seulement de détecter la pneumonie avec une précision clinique supérieure à l'interprétation humaine, mais aussi de fournir une justification visuelle explicable afin de garantir une intégration sécurisée et fiable dans le flux de travail médical d'urgence ?
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{Méthodologie : Approche Agile (Scrum)}
+\slidepurpose{Montrer comment le projet est découpé en phases de travail et d'itération}{Organisation / planification}
+    \centering
+    \begin{tikzpicture}[node distance=2cm, auto]
+        \node[draw, rectangle, fill=blue!10, text width=2.5cm, align=center] (sprint1) {Sprint 1:\\Analyse \& Collecte (Datasets)};
+        \node[draw, rectangle, fill=blue!20, text width=2.5cm, align=center, right of=sprint1, xshift=1.5cm] (sprint2) {Sprint 2:\\Prétraitement \& Modélisation};
+        \node[draw, rectangle, fill=blue!30, text width=2.5cm, align=center, right of=sprint2, xshift=1.5cm] (sprint3) {Sprint 3:\\Évaluation \& Grad-CAM};
+        
+        \draw[thick, ->] (sprint1) -- (sprint2);
+        \draw[thick, ->] (sprint2) -- (sprint3);
+        \draw[thick, ->] (sprint3.south) |- ++(0,-0.5) -| (sprint1.south) node[pos=0.25, below] {Amélioration Continue (Refinement)};
+        
+        \node[draw, circle, fill=green!20, below of=sprint2, yshift=-1.5cm] (delivery) {Produit Final};
+        \draw[thick, ->] (sprint3) |- (delivery);
+    \end{tikzpicture}
+    \begin{itemize}
+        \item \textbf{Flexibilité :} Adaptation aux contraintes des données médicales.
+        \item \textbf{Itérations :} Optimisation progressive des hyperparamètres.
+    \end{itemize}
+\end{frame}
+
+\begin{frame}{Gestion de Projet --- Tableau des Tâches (PFA)}
+    \slidepurpose{Détailler les tâches, leur charge et le type exact de liaison temporelle}{Organisation / planification}
+    \textbf{Le tableau ci-dessous affine la planification en ajoutant les décalages et les relations PERT.}
+    \centering
+    \scriptsize
+    \renewcommand{\arraystretch}{1.1}
+    \begin{adjustbox}{max width=0.98\textwidth}
+    \begin{tabular}{|c|p{5.6cm}|c|p{4.8cm}|}
+        \hline
+        \textbf{ID} & \textbf{Nom de la Tâche} & \textbf{Durée} & \textbf{Antécédent(s) + liaison} \\ \hline
+        \textbf{A} & Cadrage et problématique clinique & 3 j & --- \\ \hline
+        \textbf{B} & Analyse SOTA CNN (DenseNet / CheXNet) & 4 j & A (0FD) \\ \hline
+        \textbf{C} & Analyse SOTA Swin Transformer / ViT & 4 j & A (0FD) \\ \hline
+        \textbf{D} & Étude d'explicabilité XAI et lecture Grad-CAM & 2 j & B (1DD), C (0FF) \\ \hline
+        \textbf{E} & Prétraitement $T(X)$, resize et normalisation & 5 j & A (0FD) \\ \hline
+        \textbf{F} & Développement de la branche locale CNN & 6 j & B (0FD), E (0FD) \\ \hline
+        \textbf{G} & Développement de la branche globale Swin & 7 j & C (0FD), E (0FD) \\ \hline
+        \textbf{H} & Intégration du module de gated fusion & 5 j & F (0FD), G (0FD) \\ \hline
+        \textbf{I} & Sortie clinique $\Psi$ : score + incertitude & 4 j & H (0FD) \\ \hline
+        \textbf{J} & Configuration GPU / Colab / environnement & 2 j & A (1DD) \\ \hline
+        \textbf{K} & Entraînement, calibration et optimisation & 10 j & I (0FD), J (0FD) \\ \hline
+        \textbf{L} & Évaluation finale, benchmark et métriques & 3 j & K (0FD) \\ \hline
+        \textbf{M} & Finalisation rapport, slides et démonstration & 5 j & L (0FD), D (0FD) \\ \hline
+    \end{tabular}
+    \end{adjustbox}
+
+    \vspace{0.15cm}
+    \tiny
+    \begin{block}{Lecture de la notation}
+        \textbf{Exemple :} \texttt{0FD} signifie \emph{Fin-Début sans décalage}, \texttt{1DD} signifie \emph{Début-Début avec 1 jour de décalage}. 
+        La notation générale est : \textbf{[décalage] + [type de liaison]}.
+    \end{block}
+\end{frame}
+
+\begin{frame}{Gestion de Projet --- Typologie des Dépendances PERT}
+    \slidepurpose{Préciser les quatre types de relations temporelles utilisés dans un ordonnancement PERT}{Organisation / planification}
+    \scriptsize
+    \setlength{\columnsep}{0.7cm}
+    \begin{columns}[T,onlytextwidth]
+        \begin{column}{0.465\textwidth}
+            \begin{block}{FD --- Fin à Début}
+                La tâche successeure démarre après la fin de la tâche précédente.\\
+                \textbf{Exemple projet :} A $\rightarrow$ B = \texttt{0FD}.
+            \end{block}
+            \vspace{0.18cm}
+            \begin{block}{DD --- Début à Début}
+                La tâche successeure peut commencer après le début du précédent, avec un éventuel décalage.\\
+                \textbf{Exemple projet :} A $\rightarrow$ J = \texttt{1DD}.
+            \end{block}
+        \end{column}
+        \begin{column}{0.465\textwidth}
+            \begin{block}{FF --- Fin à Fin}
+                La fin de la tâche successeure est contrainte par la fin d'une autre tâche.\\
+                \textbf{Exemple projet :} C $\rightarrow$ D = \texttt{0FF}.
+            \end{block}
+            \vspace{0.18cm}
+            \begin{block}{DF --- Début à Fin}
+                Relation plus rare : la fin d'une tâche dépend du début d'une autre.\\
+                \textbf{Exemple de notation :} \texttt{2DF}. Elle est documentée dans la méthode, mais non structurante ici.
+            \end{block}
+        \end{column}
+    \end{columns}
+
+    \vspace{0.12cm}
+    \begin{alertblock}{Lecture managériale}
+        Dans MedFusionNet, la planification repose surtout sur des relations \textbf{FD} pour sécuriser les jalons de validation, avec des liaisons \textbf{DD} et \textbf{FF} pour modéliser les travaux menés en parallèle sans perdre la cohérence globale.
+    \end{alertblock}
+\end{frame}
+
+% --- FRAME PERT : EXPLICATION ---
+\begin{frame}{Méthodologie --- Analyse du Réseau de PERT}
+    \slidepurpose{Interpréter les dates, les marges et les zones critiques du planning}{Organisation / planification}
+    \scriptsize
+    \setlength{\columnsep}{0.75cm}
+    \begin{columns}[T,onlytextwidth]
+        \begin{column}{0.465\textwidth}
+            \begin{block}{Principes de lecture}
+                \begin{itemize}
+                    \item Le réseau PERT calcule des dates au plus tôt et au plus tard pour chaque activité.
+                    \item L'écart entre ces deux positions donne la flexibilité réelle de la tâche.
+                    \item Une activité sans marge devient immédiatement sensible à tout retard.
+                    \item Les relations \textbf{FD}, \textbf{DD} et \textbf{FF} modifient directement les dates admissibles.
+                \end{itemize}
+            \end{block}
+        \end{column}
+        \begin{column}{0.465\textwidth}
+            \begin{block}{Lecture des dépendances}
+                \begin{itemize}
+                    \item \textbf{B} et \textbf{C} sont lancées en parallèle après \textbf{A}.
+                    \item \textbf{J} démarre en \textbf{1DD} pour préparer l'infrastructure sans attendre la fin complète du cadrage.
+                    \item \textbf{D} démarre tôt, mais se ferme en même temps que \textbf{C} via la contrainte \textbf{0FF}.
+                \end{itemize}
+            \end{block}
+        \end{column}
+    \end{columns}
+\end{frame}
+
+\begin{frame}{Méthodologie --- Lecture du Chemin Critique}
+    \slidepurpose{Mettre en avant les tâches à marge nulle et les points de pilotage du projet}{Organisation / planification}
+    \tiny
+    \setlength{\columnsep}{0.8cm}
+    \begin{columns}[T,onlytextwidth]
+        \begin{column}{0.46\textwidth}
+            \begin{block}{Interprétation projet}
+                \begin{itemize}
+                    \item \textbf{H} concentre la convergence des deux branches \textbf{F} et \textbf{G}.
+                    \item \textbf{K} attend simultanément la sortie clinique \textbf{I} et l'environnement \textbf{J}.
+                    \item \textbf{D} et \textbf{J} restent importantes, mais elles ne pilotent pas la date finale.
+                \end{itemize}
+            \end{block}
+        \end{column}
+        \begin{column}{0.46\textwidth}
+            \begin{block}{Lecture managériale}
+                \begin{itemize}
+                    \item Les n{\oe}uds critiques pilotent directement la livraison finale.
+                    \item Les tâches quasi critiques, comme \textbf{C} et \textbf{F}, doivent rester sous surveillance.
+                    \item Les activités très flexibles, comme \textbf{D} et \textbf{J}, absorbent les aléas sans casser le planning.
+                \end{itemize}
+            \end{block}
+            \vspace{0.16cm}
+            \begin{alertblock}{Conséquence managériale}
+                Priorité de pilotage : toute dérive sur une tâche à marge nulle décale immédiatement la démonstration finale.
+            \end{alertblock}
+        \end{column}
+    \end{columns}
+
+    \vspace{0.18cm}
+    \begin{alertblock}{Chemin critique}
+        \textbf{A $\rightarrow$ E $\rightarrow$ G $\rightarrow$ H $\rightarrow$ I $\rightarrow$ K $\rightarrow$ L $\rightarrow$ M}
+        \hfill \textbf{Durée totale estimée : 42 jours}
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{Gestion de Projet --- Interprétation Opérationnelle}
+    \slidepurpose{Transformer le planning théorique en lecture de pilotage concrète pour le projet}{Organisation / planification}
+    \scriptsize
+    \setlength{\columnsep}{0.8cm}
+    \begin{columns}[T,onlytextwidth]
+        \begin{column}{0.46\textwidth}
+            \begin{block}{Hypothèses de conduite}
+                \begin{itemize}
+                    \item Le cadrage \textbf{A} alimente rapidement l'état de l'art et le prétraitement pour éviter un démarrage séquentiel trop long.
+                    \item Les branches \textbf{F} et \textbf{G} sont parallélisées afin de réduire la durée totale avant l'étape de fusion.
+                    \item L'environnement \textbf{J} démarre tôt et l'entraînement \textbf{K} reste le lot le plus long, car il concentre essais, calibration et choix du meilleur checkpoint.
+                \end{itemize}
+            \end{block}
+        \end{column}
+        \begin{column}{0.46\textwidth}
+            \begin{block}{Lecture de risque}
+                \begin{itemize}
+                    \item Le verrou principal est la séquence \textbf{E-G-H-I-K}, car elle relie directement données, architecture et validation du modèle.
+                    \item Un retard sur \textbf{D} ou \textbf{J} reste absorbable grâce aux marges, alors qu'un retard sur \textbf{H} ou \textbf{K} décale toute la démonstration.
+                    \item Les tâches à faible marge, comme \textbf{C} et \textbf{F}, restent à surveiller, tandis que \textbf{L} et \textbf{M} sécurisent la transformation du travail technique en livrables académiques.
+                \end{itemize}
+            \end{block}
+        \end{column}
+    \end{columns}
+
+    \vspace{0.16cm}
+    \begin{alertblock}{Message clé}
+        Le planning montre que la réussite du PFA dépend moins du nombre de tâches que de la bonne maîtrise des quelques étapes critiques qui structurent tout le projet.
+    \end{alertblock}
+\end{frame}
+
+\begin{frame}{Gestion de Projet --- Tableau des Marges}
+    \slidepurpose{Quantifier la flexibilité de chaque tâche à travers la marge libre et la marge totale}{Organisation / planification}
+    \centering
+    \scriptsize
+    \renewcommand{\arraystretch}{1.28}
+    \setlength{\tabcolsep}{4.2pt}
+    \begin{adjustbox}{max width=0.98\textwidth}
+    \begin{tabular}{|c|*{13}{c|}}
+        \hline
+        \textbf{ID} & \textbf{A} & \textbf{B} & \textbf{C} & \textbf{D} & \textbf{E} & \textbf{F} & \textbf{G} & \textbf{H} & \textbf{I} & \textbf{J} & \textbf{K} & \textbf{L} & \textbf{M} \\ \hline
+        \textbf{ML} & 0 & 1 & 0 & 30 & 0 & 1 & 0 & 0 & 0 & 21 & 0 & 0 & 0 \\ \hline
+        \textbf{MT} & 0 & 2 & 1 & 30 & 0 & 1 & 0 & 0 & 0 & 21 & 0 & 0 & 0 \\ \hline
+    \end{tabular}
+    \end{adjustbox}
+
+    \vspace{0.2cm}
+    \tiny
+    \textbf{ML} = marge libre ; \textbf{MT} = marge totale. Les tâches critiques vérifient \textbf{ML = MT = 0}, tandis que \textbf{D} et \textbf{J} concentrent l'essentiel de la souplesse du planning.
+\end{frame}
+
+% --- FRAME PERT : LE SCHÉMA ---
+\begin{frame}{Méthodologie --- Schéma du Réseau de PERT}
+    \slidepurpose{Visualiser le réseau PERT avec les décalages, les convergences et le chemin critique}{Organisation / planification}
+    \tikzsolutionfigure{
+    \begin{tikzpicture}[
+        x=0.95cm,
+        y=0.95cm,
+        task/.style={draw, rounded corners=3pt, minimum width=1.95cm, minimum height=1.1cm, align=center, fill=white, font=\scriptsize},
+        crit/.style={task, draw=red!80!black, very thick, fill=red!8},
+        link/.style={-{Latex[length=2.6mm]}, line width=0.95pt, draw=gray!75},
+        clink/.style={-{Latex[length=3mm]}, line width=2pt, draw=red!80!black},
+        rel/.style={font=\tiny, fill=white, inner sep=1.2pt}
+    ]
+        % Noeuds
+        \node[crit] (A) at (0,0) {\textbf{A}\\3 j};
+        \node[task] (B) at (3.2,2.0) {\textbf{B}\\4 j};
+        \node[task] (C) at (3.2,-2.0) {\textbf{C}\\4 j};
+        \node[crit] (E) at (3.2,0) {\textbf{E}\\5 j};
+        \node[task] (D) at (6.6,3.0) {\textbf{D}\\2 j};
+        \node[task] (F) at (6.6,1.1) {\textbf{F}\\6 j};
+        \node[crit] (G) at (6.6,-1.1) {\textbf{G}\\7 j};
+        \node[task] (J) at (6.6,-3.2) {\textbf{J}\\2 j};
+        \node[crit] (H) at (10.0,0) {\textbf{H}\\5 j};
+        \node[crit] (I) at (13.0,0) {\textbf{I}\\4 j};
+        \node[crit] (K) at (16.0,0) {\textbf{K}\\10 j};
+        \node[crit] (L) at (19.0,0) {\textbf{L}\\3 j};
+        \node[crit] (M) at (22.0,0) {\textbf{M}\\5 j};
+
+        % Liaisons critiques
+        \draw[clink] (A) -- node[rel, above] {\texttt{0FD}} (E);
+        \draw[clink] (E) -- node[rel, below] {\texttt{0FD}} (G);
+        \draw[clink] (G) -- node[rel, below] {\texttt{0FD}} (H);
+        \draw[clink] (H) -- node[rel, above] {\texttt{0FD}} (I);
+        \draw[clink] (I) -- node[rel, above] {\texttt{0FD}} (K);
+        \draw[clink] (K) -- node[rel, above] {\texttt{0FD}} (L);
+        \draw[clink] (L) -- node[rel, above] {\texttt{0FD}} (M);
+
+        % Liaisons secondaires
+        \draw[link] (A) -- node[rel, above] {\texttt{0FD}} (B);
+        \draw[link] (A) -- node[rel, below] {\texttt{0FD}} (C);
+        \draw[link] (A.south east) |- node[rel, pos=0.32, right] {\texttt{1DD}} (J.west);
+        \draw[link] (B) -- node[rel, above] {\texttt{1DD}} (D);
+        \draw[link] (C) -- node[rel, below] {\texttt{0FF}} (D);
+        \draw[link] (B) -- node[rel, above] {\texttt{0FD}} (F);
+        \draw[link] (E) -- node[rel, above left] {\texttt{0FD}} (F);
+        \draw[link] (C) -- node[rel, below] {\texttt{0FD}} (G);
+        \draw[link] (F) -- node[rel, above] {\texttt{0FD}} (H);
+        \draw[link] (J.east) -| node[rel, pos=0.22, below] {\texttt{0FD}} (K.south);
+        \draw[link] (D.east) -| node[rel, pos=0.28, above] {\texttt{0FD}} (M.north);
+
+        % Légende
+        \node[draw, rounded corners=3pt, fill=white, align=left, font=\tiny] at (11.1,-4.6) {
+            \textbf{Lecture du schéma}\\
+            Rouge = chemin critique\\
+            Noeud = identifiant + durée\\
+            \texttt{1DD} = décalage de 1 jour en Début-Début\\
+            \texttt{0FF} = fin synchronisée sans décalage
+        };
+    \end{tikzpicture}
+    }{Réseau PERT de MedFusionNet avec liaisons temporelles annotées et chemin critique mis en évidence.}
+\end{frame}
+
+\begin{frame}{Gestion de Projet --- Diagramme de Gantt}
+    \slidepurpose{Projeter le planning sur un calendrier opérationnel tout en respectant les liaisons DD, FD et FF}{Organisation / planification}
+    \centering
+    \small
+    \begin{adjustbox}{max width=0.98\textwidth, max totalheight=0.8\textheight}
+    \begin{ganttchart}[
+        hgrid,
+        vgrid,
+        x unit=0.222cm,
+        y unit chart=0.50cm,
+        y unit title=0.45cm,
+        title height=1,
+        bar height=0.66,
+        group height=0.74,
+        group peaks tip position=0,
+        bar label font=\scriptsize,
+        group label font=\scriptsize\bfseries,
+        title label font=\scriptsize\bfseries,
+        bar label node/.append style={align=left, text width=2.2cm},
+        group label node/.append style={align=left},
+        bar/.append style={fill=blue!18, draw=blue!70!black},
+        group/.append style={fill=black!10, draw=black!65},
+        link/.style={-Latex, line width=0.55pt, draw=black!60},
+        link label font=\tiny
+    ]{1}{42}
+        \gantttitle{Calendrier du projet}{42} \\
+        \gantttitle{S1}{7}\gantttitle{S2}{7}\gantttitle{S3}{7}\gantttitle{S4}{7}\gantttitle{S5}{7}\gantttitle{S6}{7} \\
+
+        \ganttgroup{Cadrage / études}{1}{8} \\
+        \ganttbar[name=A, bar/.append style={fill=red!20, draw=red!75!black}]{A Cadrage}{1}{3} \\
+        \ganttbar[name=B]{B SOTA CNN}{4}{7} \\
+        \ganttbar[name=C]{C SOTA Swin}{4}{7} \\
+        \ganttbar[name=D]{D XAI}{6}{7} \\
+        \ganttbar[name=E, bar/.append style={fill=red!20, draw=red!75!black}]{E Prétrait.}{4}{8} \\
+        \ganttbar[name=J]{J GPU / Colab}{2}{3} \\
+
+        \ganttgroup{Développement}{9}{24} \\
+        \ganttbar[name=F]{F Branche CNN}{9}{14} \\
+        \ganttbar[name=G, bar/.append style={fill=red!20, draw=red!75!black}]{G Branche Swin}{9}{15} \\
+        \ganttbar[name=H, bar/.append style={fill=red!20, draw=red!75!black}]{H Fusion}{16}{20} \\
+        \ganttbar[name=I, bar/.append style={fill=red!20, draw=red!75!black}]{I Sortie clin.}{21}{24} \\
+
+        \ganttgroup{Apprentissage / clôture}{25}{42} \\
+        \ganttbar[name=K, bar/.append style={fill=red!20, draw=red!75!black}]{K Entraînt.}{25}{34} \\
+        \ganttbar[name=L, bar/.append style={fill=red!20, draw=red!75!black}]{L Évaluat.}{35}{37} \\
+        \ganttbar[name=M, bar/.append style={fill=red!20, draw=red!75!black}]{M Rapport / démo}{38}{42} \\
+
+        \ganttlink[link type=f-s, link label=FD]{A}{B}
+        \ganttlink[link type=f-s, link label=FD]{A}{C}
+        \ganttlink[link type=f-s, link label=FD]{A}{E}
+        \ganttlink[link type=s-s, link label=DD+1]{A}{J}
+        \ganttlink[link type=s-s, link label=DD+1]{B}{D}
+        \ganttlink[link type=f-f, link label=FF]{C}{D}
+        \ganttlink[link type=f-s, link label=FD]{B}{F}
+        \ganttlink[link type=f-s, link label=FD]{E}{F}
+        \ganttlink[link type=f-s, link label=FD]{C}{G}
+        \ganttlink[link type=f-s, link label=FD]{E}{G}
+        \ganttlink[link type=f-s, link label=FD]{F}{H}
+        \ganttlink[link type=f-s, link label=FD]{G}{H}
+        \ganttlink[link type=f-s, link label=FD]{H}{I}
+        \ganttlink[link type=f-s, link label=FD]{I}{K}
+        \ganttlink[link type=f-s, link label=FD]{J}{K}
+        \ganttlink[link type=f-s, link label=FD]{K}{L}
+        \ganttlink[link type=f-s, link label=FD]{L}{M}
+        \ganttlink[link type=f-s, link label=FD]{D}{M}
+    \end{ganttchart}
+    \end{adjustbox}
+
+\end{frame}
+
+\mychapter{}{Analyse SOTA}
+\section{Phase 1 — DenseNet / CheXNet}
+
+\begin{frame}{SOTA : Architecture DenseNet-121}
+\slidepurpose{Présenter le modele CNN de référence utilisé comme base de comparaison}{Analyse SOTA / comparaison}
+\vspace*{-0.35cm}
+\centering
+\resizebox{0.95\textwidth}{!}{%
+\begin{tikzpicture}[
+    >=Latex,
+    font=\scriptsize,
+    op/.style={
+        draw,
+        rounded corners=3pt,
+        minimum width=2.7cm,
+        minimum height=1.15cm,
+        align=center,
+        thick
+    },
+    io/.style={op, fill=blue!15, draw=blue!70!black},
+    stem/.style={op, fill=green!20, draw=green!50!black},
+    dense/.style={op, fill=yellow!30, draw=orange!80!black},
+    trans/.style={op, fill=red!15, draw=red!70!black},
+    head/.style={op, fill=violet!15, draw=violet!70!black},
+    explain/.style={draw, dashed, rounded corners=3pt, inner sep=4pt}
+]
+
+% ligne principale
+\node[io]    (in)   at (0,0)    {Input\\$224\times224\times3$};
+\node[stem]  (c1)   at (3.3,0)  {Conv $7\times7$, $s=2$\\$112\times112\times64$};
+\node[stem]  (mp)   at (6.6,0)  {MaxPool $3\times3$, $s=2$\\$56\times56\times64$};
+\node[dense] (db1)  at (10.1,0) {Dense Block 1\\\textbf{6 couches}\\$56\times56\times256$};
+\node[trans] (tr1)  at (13.6,0) {Transition 1\\$1\times1$ Conv + AvgPool\\$28\times28\times128$};
+\node[dense] (db2)  at (17.1,0) {Dense Block 2\\\textbf{12 couches}\\$28\times28\times512$};
+\node[trans] (tr2)  at (20.6,0) {Transition 2\\$1\times1$ Conv + AvgPool\\$14\times14\times256$};
+\node[dense] (db3)  at (24.1,0) {Dense Block 3\\\textbf{24 couches}\\$14\times14\times1024$};
+\node[trans] (tr3)  at (27.6,0) {Transition 3\\$1\times1$ Conv + AvgPool\\$7\times7\times512$};
+\node[dense] (db4)  at (31.1,0) {Dense Block 4\\\textbf{16 couches}\\$7\times7\times1024$};
+\node[head]  (gap)  at (34.3,0) {Global Avg Pool\\$1\times1\times1024$};
+\node[head]  (fc)   at (37.4,0) {Fully Connected\\Classification};
+
+% flèches
+\draw[->, thick] (in)  -- (c1);
+\draw[->, thick] (c1)  -- (mp);
+\draw[->, thick] (mp)  -- (db1);
+\draw[->, thick] (db1) -- (tr1);
+\draw[->, thick] (tr1) -- (db2);
+\draw[->, thick] (db2) -- (tr2);
+\draw[->, thick] (tr2) -- (db3);
+\draw[->, thick] (db3) -- (tr3);
+\draw[->, thick] (tr3) -- (db4);
+\draw[->, thick] (db4) -- (gap);
+\draw[->, thick] (gap) -- (fc);
+
+% annotation dense block
+\node[explain, draw=orange!80!black, fit=(db2)] {};
+\node[align=center, text=orange!80!black] at (17.1,2.0)
+{\textbf{Bloc dense}\\Chaque couche reçoit les sorties\\des couches précédentes\\(\textbf{concaténation})};
+
+% annotation transition
+\node[explain, draw=red!70!black, fit=(tr2)] {};
+\node[align=center, text=red!70!black] at (20.6,-2.0)
+{\textbf{Transition}\\Compression des canaux\\par conv $1\times1$\\+ réduction spatiale par AvgPool};
+
+% formule
+\node[align=center] at (8.8,-2.0)
+{\textbf{Dense Block :}\quad $x_\ell = H_\ell([x_0,x_1,\dots,x_{\ell-1}])$};
+
+\end{tikzpicture}%
+}
+
+\vspace{0.01cm}
+{\tiny
+\setlength{\fboxsep}{3pt}
+\setlength{\fboxrule}{0.7pt}
+\begin{center}
+\begin{minipage}[t]{0.48\textwidth}
+\fcolorbox{orange!80!black}{yellow!25}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule-8pt\relax}{\raggedright
+\textbf{Dense Block}\\
+Concaténation de toutes les cartes précédentes :\\
+$x_\ell = H_\ell([x_0,x_1,\dots,x_{\ell-1}])$\\
+Réutilisation des features + meilleur flux de gradient.\\
+Croissance des canaux : $C_{\text{out}} = C_0 + L\cdot k$.\\
+Exemple : $k=32$, $L=6$ $\Rightarrow C_{\text{out}}=C_0+192$.\\
+Où $C_0$ = canaux initiaux, $L$ = nb de couches, $k$ = growth rate.
+}}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\fcolorbox{red!70!black}{red!15}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Transition}\\
+Entre blocs denses, compresse et réduit.\\
+$X\in\mathbb{R}^{H\times W\times C}$\\
+$\rightarrow \mathrm{Conv}_{1\times1}(X)=Y\in\mathbb{R}^{H\times W\times C'}$\\
+$Y_{h,w,c'}=\sum_{c}W_{c',c}X_{h,w,c}+b_{c'}$\\
+$\rightarrow \mathrm{AvgPool}(Y)=Z\in\mathbb{R}^{H/2\times W/2\times C'}$\\
+$Z_{i,j,c'}=\tfrac{1}{4}\!\!\sum_{u,v\in\{0,1\}}\!Y_{2i+u,2j+v,c'}$\\
+Compression, efficacité, préparation du bloc suivant.\\
+Où $H,W$ = hauteur/largeur, $C$ = canaux, $C'$ = canaux compressés.
+}}
+\end{minipage}
+
+\vspace{0.18cm}
+
+\begin{minipage}[t]{0.48\textwidth}
+\fcolorbox{green!50!black}{blue!10}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Stem / Entrée}\\
+Entrée $224\times224\times3$.\\
+Conv $7\times7$ ($s=2$) puis MaxPool $3\times3$ ($s=2$).\\
+Extrait des bords/textures et réduit tôt la résolution.\\
+Exemple : $224\!\times\!224 \rightarrow 112\!\times\!112 \rightarrow 56\!\times\!56$.\\
+Où $H,W$ = dimensions spatiales, $s$ = stride.
+}}
+\end{minipage}
+\hfill
+\begin{minipage}[t]{0.48\textwidth}
+\fcolorbox{violet!70!black}{violet!15}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Tête de classification}\\
+Global Avg Pooling : moyenne spatiale par canal.\\
+$7\times7\times1024 \rightarrow 1\times1\times1024$.\\
+$g_c=\frac{1}{HW}\sum_{h,w}F_{h,w,c}$, puis FC.\\
+Exemple : $g\in\mathbb{R}^{1024}\rightarrow \text{scores} \in \mathbb{R}^K$.\\
+Où $F$ = carte de features, $g$ = vecteur global, $K$ = nb de classes.
+}}
+\end{minipage}
+\end{center}
+}
+\end{frame}
+
+\begin{frame}{DenseNet-121 : Structure d'une couche dense}
+\slidepurpose{Expliquer le calcul interne d'une couche dense pour comprendre le baseline choisi}{Analyse SOTA / compréhension mécanistique}
+\vspace*{-0.2cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.46\textwidth}
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+    >=Latex,
+    font=\scriptsize,
+    box/.style={
+        draw,
+        rounded corners=3pt,
+        minimum width=1.9cm,
+        minimum height=0.85cm,
+        align=center,
+        thick,
+        fill=yellow!20,
+        draw=orange!80!black
+    }
+]
+\node[box] (bn1) at (0,0) {BN};
+\node[box] (relu1) at (2.2,0) {ReLU};
+\node[box] (c11) at (4.4,0) {Conv $1\times1$};
+\node[box] (bn2) at (6.6,0) {BN};
+\node[box] (relu2) at (8.8,0) {ReLU};
+\node[box] (c33) at (11.0,0) {Conv $3\times3$};
+
+\draw[->, thick] (bn1) -- (relu1);
+\draw[->, thick] (relu1) -- (c11);
+\draw[->, thick] (c11) -- (bn2);
+\draw[->, thick] (bn2) -- (relu2);
+\draw[->, thick] (relu2) -- (c33);
+\end{tikzpicture}
+}
+
+\vspace{0.2cm}
+{\scriptsize
+\parbox{0.9\linewidth}{\centering
+\textbf{Séquence :} BN $\rightarrow$ ReLU $\rightarrow$ Conv $1\times1$\\
+$\rightarrow$ BN $\rightarrow$ ReLU $\rightarrow$ Conv $3\times3$}
+}
+\end{column}
+\begin{column}{0.54\textwidth}
+{\scriptsize
+\setlength{\fboxsep}{4pt}
+\setlength{\fboxrule}{0.8pt}
+\fcolorbox{orange!80!black}{yellow!12}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Transformation $H_\ell$}\\
+$H_\ell$ est la transformation appliquée par la couche $\ell$ dans un bloc dense ; elle produit de \textbf{nouvelles} cartes de features.\\
+\textbf{Formule :}\\
+\resizebox{\linewidth}{!}{$H_\ell(x)=\mathrm{Conv}_{3\times3}\big(\mathrm{ReLU}(\mathrm{BN}(\mathrm{Conv}_{1\times1}(\mathrm{ReLU}(\mathrm{BN}(x))))))\big)$}\\
+Si $x=[x_0,x_1,\dots,x_{\ell-1}]$, alors $x_\ell=H_\ell(x)$.\\
+\textbf{Interprétation :} $1\times1$ = mélange/réduction des canaux (bottleneck),\\
+$3\times3$ = extraction spatiale locale, BN+ReLU = stabilité + non-linéarité.\\
+\textbf{Croissance :} la couche ajoute $k$ canaux : $C_{\text{out}}=C_{\text{in}}+k$.\\
+Après $L$ couches : $C_{\text{out}}=C_0+Lk$.\\
+Où $C_{\text{in}}$ = canaux d'entrée, $C_0$ = canaux initiaux, $k$ = growth rate.
+}}
+}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ==================================================
+% PHASE 2 — Optimisation et Efficacité
+% ==================================================
+\section{Phase 2 — Optimisation et efficacité}
+
+\begin{frame}{Phase 2 — EfficientNet : idée générale et scaling}
+\slidepurpose{Comparer une stratégie d'optimisation du coût de calcul par scaling équilibré}{Analyse SOTA / comparaison}
+\vspace*{-0.2cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.52\textwidth}
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+    >=Latex,
+    font=\scriptsize,
+    box/.style={draw, rounded corners=3pt, align=center, thick}
+]
+\node[box, fill=gray!10] (base) {Réseau de base};
+\node[box, fill=blue!10, below left=0.6cm and 0.8cm of base] (depth) {Profondeur\\($L$)};
+\node[box, fill=green!10, below=0.6cm of base] (width) {Largeur\\($C$)};
+\node[box, fill=orange!10, below right=0.6cm and 0.8cm of base] (res) {Résolution\\($H\times W$)};
+\node[box, fill=yellow!20, below=1.2cm of width] (compound) {Compound Scaling\\(équilibré)};
+\draw[->, thick] (base) -- (depth);
+\draw[->, thick] (base) -- (width);
+\draw[->, thick] (base) -- (res);
+\draw[->, thick] (depth) -- (compound);
+\draw[->, thick] (width) -- (compound);
+\draw[->, thick] (res) -- (compound);
+\end{tikzpicture}
+}
+\end{column}
+
+\begin{column}{0.48\textwidth}
+{\scriptsize
+\setlength{\fboxsep}{4pt}
+\setlength{\fboxrule}{0.8pt}
+\fcolorbox{blue!70!black}{blue!10}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Idée centrale}\\
+EfficientNet est une famille de CNN conçue pour \textbf{mieux exploiter} un budget de calcul donné.\\
+Le \textbf{scaling naïf} (uniquement profondeur, largeur ou résolution) crée un déséquilibre :\\
+trop profond $\Rightarrow$ gradient fragile,\\
+trop large $\Rightarrow$ surcoût mémoire,\\
+trop haute résolution $\Rightarrow$ coût quadratique.
+}}
+\vspace{0.15cm}
+\fcolorbox{green!60!black}{green!10}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Compound Scaling}\\
+On augmente \textbf{ensemble} profondeur, largeur et résolution par un facteur global $\phi$ pour rester efficace.
+}}
+}
+\end{column}
+\end{columns}
+
+\vspace{0.12cm}
+\begin{center}
+{\scriptsize
+\[
+\begin{aligned}
+d&=\alpha^{\phi},\quad w=\beta^{\phi},\quad r=\gamma^{\phi},\\
+\alpha\,\beta^2\,\gamma^2 &\approx 2
+\end{aligned}
+\]
+$\phi$ contrôle l’échelle globale ; la contrainte équilibre coût et performance.
+}
+\end{center}
+\end{frame}
+
+{\hfuzz=5pt\hbadness=10000
+\begin{frame}{Phase 2 — MBConv : bloc clé d’EfficientNet}
+\slidepurpose{Détailler le bloc opératoire central qui rend EfficientNet efficace}{Analyse SOTA / modélisation d'un bloc}
+\vspace*{-0.2cm}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    >=Latex,
+    font=\scriptsize,
+    box/.style={draw, rounded corners=3pt, align=center, thick, minimum width=2.2cm, minimum height=0.9cm},
+    exp/.style={box, fill=green!15, draw=green!60!black},
+    dw/.style={box, fill=orange!20, draw=orange!80!black},
+    se/.style={box, fill=yellow!20, draw=yellow!60!black},
+    proj/.style={box, fill=blue!15, draw=blue!70!black}
+]
+\node[box, fill=gray!10] (in) {Entrée\\$H\times W\times C_{in}$};
+\node[exp, right=0.7cm of in] (exp) {Conv $1\times1$\\Expansion $t$};
+\node[dw, right=0.7cm of exp] (dw) {Depthwise\\Conv $3\times3$};
+\node[se, right=0.7cm of dw] (se) {Squeeze\\\& Excite};
+\node[proj, right=0.7cm of se] (proj) {Conv $1\times1$\\Projection};
+\node[box, fill=gray!10, right=0.7cm of proj] (out) {Sortie\\$H'\times W'\times C_{out}$};
+
+\draw[->, thick] (in) -- (exp);
+\draw[->, thick] (exp) -- (dw);
+\draw[->, thick] (dw) -- (se);
+\draw[->, thick] (se) -- (proj);
+\draw[->, thick] (proj) -- (out);
+
+\draw[->, thick, dashed] (in) to[bend left=25] node[above]{skip si $s=1$} (out);
+\end{tikzpicture}
+}
+
+\vspace{0.12cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.5\textwidth}
+{\scriptsize
+\setlength{\fboxsep}{4pt}
+\setlength{\fboxrule}{0.8pt}
+\fcolorbox{orange!80!black}{yellow!15}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Depthwise Convolution}\\
+Chaque canal est filtré séparément :\\
+\resizebox{0.6\linewidth}{!}{$Y_{h,w,c}=\sum_{i,j}K^{(c)}_{i,j}\,X_{h+i,w+j,c}$}\\
+Coût paramétrique : $k^2 C$\\
+au lieu de $k^2 C C'$ (conv standard).\\
+Réduit fortement les paramètres et FLOPs.
+}}
+}
+\end{column}
+\begin{column}{0.5\textwidth}
+{\scriptsize
+\fcolorbox{green!60!black}{green!10}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{MBConv en pratique}\\
+1) Expansion\\
+$C_e=t\cdot C_{in}$,\\
+2) Depthwise $3\times3$,\\
+3) SE (ré-pondération canal),\\
+4) Projection vers $C_{out}$,\\
+5) Skip si stride $s=1$\\
+et dimensions\\
+compatibles.\\
+Objectif :\\
+expressivité élevée\\
+avec coût réduit.
+}}
+}
+\end{column}
+\end{columns}
+\end{frame}
+}
+
+\begin{frame}{Phase 2 — EfficientNetV2 et impact médical}
+\slidepurpose{Montrer l'évolution d'EfficientNet vers une version plus rapide à entraîner et à déployer}{Analyse SOTA / comparaison}
+\vspace*{-0.2cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.55\textwidth}
+{\scriptsize
+\setlength{\fboxsep}{4pt}
+\setlength{\fboxrule}{0.8pt}
+\fcolorbox{blue!70!black}{blue!10}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{EfficientNetV2 : améliorations}\\
+Optimise l’entraînement (plus rapide et stable) via :\\
+- \textbf{Fused-MBConv} sur les petits étages (meilleur débit GPU),\\
+- règles de scaling adaptées,\\
+- stratégies de régularisation plus efficaces.\\
+Résultat : \textbf{meilleure précision} à coût d’entraînement réduit.
+}}
+\vspace{0.15cm}
+\fcolorbox{green!60!black}{green!10}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Intérêt en imagerie médicale}\\
+Meilleur compromis précision/temps :\\
+- utile pour stations avec GPU limités,\\
+- facilite l’expérimentation rapide,\\
+- déploiement clinique plus réaliste.
+}}
+}
+\end{column}
+\begin{column}{0.45\textwidth}
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[x=4.2cm,y=3.2cm,>=Latex]
+\draw[->, thick] (0,0) -- (1.05,0) node[right]{Paramètres};
+\draw[->, thick] (0,0) -- (0,1.05) node[above]{Précision};
+
+\filldraw[gray] (0.25,0.35) circle (1.2pt);
+\node[anchor=west, font=\scriptsize] at (0.28,0.35) {CNN classiques};
+
+\filldraw[orange!80!black] (0.45,0.55) circle (1.2pt);
+\node[anchor=west, font=\scriptsize] at (0.48,0.55) {DenseNet-121};
+
+\filldraw[green!60!black] (0.35,0.75) circle (1.2pt);
+\node[anchor=west, font=\scriptsize] at (0.38,0.75) {EfficientNet};
+
+\filldraw[blue!70!black] (0.42,0.82) circle (1.2pt);
+\node[anchor=west, font=\scriptsize] at (0.45,0.82) {EfficientNetV2};
+
+\node[font=\scriptsize] at (0.55,0.08) {Schéma conceptuel};
+\end{tikzpicture}
+}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Phase 2 — EfficientNet : ce que fait le modèle}
+\slidepurpose{Relier le mécanisme d'EfficientNet aux besoins pratiques de la détection sur CXR}{Analyse SOTA / pertinence applicative}
+\vspace*{-0.2cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.55\textwidth}
+{\scriptsize
+\setlength{\fboxsep}{4pt}
+\setlength{\fboxrule}{0.8pt}
+\fcolorbox{blue!70!black}{blue!10}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Mécanisme effectif}\\
+Le réseau apprend une fonction $f_\theta$ qui transforme $X$ en \textbf{cartes hiérarchiques} (bords, textures, motifs complexes).\\
+Les blocs MBConv alternent \textbf{mixage de canaux} ($1\times1$), \textbf{filtrage spatial local} (depthwise) et \textbf{ré-pondération} (SE).\\
+Après agrégation globale :\\
+\resizebox{0.75\linewidth}{!}{$z=\mathrm{GAP}(F_L(X)),\quad p(y|X)=\sigma(w^\top z)$}\\
+Le scaling compound règle \textbf{profondeur/largeur/résolution} pour préserver détail et contexte.
+}}
+}
+\end{column}
+\begin{column}{0.45\textwidth}
+{\scriptsize
+\setlength{\fboxsep}{4pt}
+\setlength{\fboxrule}{0.8pt}
+\fcolorbox{green!60!black}{green!10}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Aide en imagerie médicale}\\
+Capte des patterns \textbf{multi-échelles} (opacités diffuses, consolidations).\\
+Bon compromis précision/coût $\Rightarrow$ utile en contexte GPU limité.\\
+Permet d’exploiter des images haute résolution sans explosion de paramètres.
+}}
+\vspace{0.12cm}
+\fcolorbox{red!70!black}{red!10}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Limites et risques}\\
+Downsampling peut effacer des signes \textbf{très fins}.\\
+Sensibilité aux biais (texte, position, appareil, contraste).\\
+Pas de localisation directe : nécessite un outil d’explicabilité.
+}}
+}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ==================================================
+% PHASE 3 — Vision Transformers / Swin
+% ==================================================
+\section{Phase 3 — Vision Transformers et contexte global}
+
+\begin{frame}{Phase 3 — ViT : patches et tokens}
+\slidepurpose{Introduire la représentation en patches qui remplace la grille convolutive classique}{Analyse SOTA / comparaison}
+\vspace*{-0.2cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.5\textwidth}
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[scale=0.75]
+\draw[thick] (0,0) rectangle (3,3);
+\foreach \x in {0.75,1.5,2.25} { \draw[gray] (\x,0) -- (\x,3); }
+\foreach \y in {0.75,1.5,2.25} { \draw[gray] (0,\y) -- (3,\y); }
+\draw[thick, red!70] (0,0) rectangle (0.75,0.75);
+\draw[thick, red!70] (1.5,1.5) rectangle (2.25,2.25);
+\node[font=\scriptsize] at (1.5,3.3) {Image $\rightarrow$ patches};
+
+\draw[->, thick] (3.2,1.5) -- (4.2,1.5);
+\foreach \i in {0,...,4} {
+  \draw[fill=blue!10] (4.4+0.5*\i,1.2) rectangle (4.8+0.5*\i,1.8);
+}
+\node[font=\scriptsize] at (5.6,0.8) {séquence de tokens};
+\end{tikzpicture}
+}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+{\scriptsize
+\setlength{\fboxsep}{4pt}
+\setlength{\fboxrule}{0.8pt}
+\fcolorbox{blue!70!black}{blue!10}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Tokenisation d’image}\\
+Image $X\in\mathbb{R}^{H\times W\times C}$ découpée en patches $P\times P$.\\
+Nombre de tokens : $N=\frac{HW}{P^2}$.\\
+Chaque patch est aplati et projeté :\\
+$z_i = E\,x_i + e_i^{\text{pos}},\quad z_i\in\mathbb{R}^D$.\\
+On traite ensuite $(z_1,\dots,z_N)$ comme une \textbf{séquence}.
+}}
+}
+\end{column}
+\end{columns}
+
+\vspace{0.1cm}
+\begin{center}
+{\scriptsize
+\textbf{Intuition :} les patches jouent le rôle de “mots” visuels ; l’attention relie des régions éloignées.
+}
+\end{center}
+\end{frame}
+
+\begin{frame}{Phase 3 — Auto-attention : mécanisme et coût}
+\slidepurpose{Expliquer le calcul d'attention, son intérêt et son coût computationnel}{Analyse SOTA / modélisation}
+\vspace*{-0.2cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+{\scriptsize
+\setlength{\fboxsep}{4pt}
+\setlength{\fboxrule}{0.8pt}
+\fcolorbox{blue!70!black}{blue!10}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Auto-attention}\\
+$Q=XW_Q,\quad K=XW_K,\quad V=XW_V$\\
+\[
+\resizebox{\linewidth}{!}{$\mathrm{Attention}(Q,K,V)=\mathrm{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V$}
+\]
+$Q$ : requêtes, $K$ : clés, $V$ : valeurs.\\
+Chaque token “regarde” tous les autres \textbf{(contexte global)}.
+}}
+\vspace{0.12cm}
+\fcolorbox{red!70!black}{red!10}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Limite de ViT}\\
+Complexité quadratique : $O(N^2)$ avec $N$ tokens.\\
+Pour grandes images médicales, $N$ devient très élevé $\Rightarrow$ coût prohibitif.
+}}
+}
+\end{column}
+\begin{column}{0.44\textwidth}
+\centering
+\begin{tikzpicture}[font=\scriptsize]
+\node[draw, rounded corners=3pt, fill=gray!10, minimum width=2.1cm, minimum height=0.8cm] (x) {Tokens $X$};
+\node[draw, rounded corners=3pt, fill=blue!10, minimum width=2.1cm, minimum height=0.8cm, below=0.5cm of x] (qkv) {$Q,K,V$};
+\node[draw, rounded corners=3pt, fill=yellow!10, minimum width=2.1cm, minimum height=0.8cm, below=0.5cm of qkv] (att) {Poids d'attention};
+\node[draw, rounded corners=3pt, fill=green!10, minimum width=2.1cm, minimum height=0.8cm, below=0.5cm of att] (out) {Sortie};
+\draw[->, thick] (x) -- (qkv);
+\draw[->, thick] (qkv) -- (att);
+\draw[->, thick] (att) -- (out);
+\end{tikzpicture}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Phase 3 — Swin Transformer : fenêtres et décalage}
+\slidepurpose{Montrer comment Swin conserve le contexte global tout en réduisant la complexité}{Analyse SOTA / comparaison}
+\vspace*{-0.2cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.55\textwidth}
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[scale=0.65]
+% global attention
+\node[font=\scriptsize] at (1.5,3.4) {Global (ViT)};
+\draw[thick] (0,2.0) rectangle (3,3.0);
+\draw[gray] (1,2.0)--(1,3.0);
+\draw[gray] (2,2.0)--(2,3.0);
+\draw[gray] (0,2.33)--(3,2.33);
+\draw[gray] (0,2.66)--(3,2.66);
+
+% window attention
+\node[font=\scriptsize] at (5.5,3.4) {Fenêtres (Swin)};
+\draw[thick] (4.0,2.0) rectangle (7.0,3.0);
+\draw[gray] (5.0,2.0)--(5.0,3.0);
+\draw[gray] (6.0,2.0)--(6.0,3.0);
+\draw[gray] (4.0,2.33)--(7.0,2.33);
+\draw[gray] (4.0,2.66)--(7.0,2.66);
+\draw[red, thick] (4.0,2.0) rectangle (5.5,2.5);
+\draw[red, thick] (5.5,2.5) rectangle (7.0,3.0);
+
+% shifted windows
+\node[font=\scriptsize] at (9.5,3.4) {Fenêtres décalées};
+\draw[thick] (8.0,2.0) rectangle (11.0,3.0);
+\draw[gray] (9.0,2.0)--(9.0,3.0);
+\draw[gray] (10.0,2.0)--(10.0,3.0);
+\draw[gray] (8.0,2.33)--(11.0,2.33);
+\draw[gray] (8.0,2.66)--(11.0,2.66);
+\draw[blue, thick] (8.5,2.0) rectangle (10.0,2.5);
+\draw[blue, thick] (9.0,2.5) rectangle (10.5,3.0);
+\end{tikzpicture}
+}
+\end{column}
+
+\begin{column}{0.45\textwidth}
+{\scriptsize
+\setlength{\fboxsep}{4pt}
+\setlength{\fboxrule}{0.8pt}
+\fcolorbox{blue!70!black}{blue!10}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Attention par fenêtres}\\
+Swin limite l’attention à des fenêtres $M\times M$ :\\
+complexité $\;O\!\left(\frac{HW}{M^2}\cdot M^4\right)=O(HW\,M^2)$,\\
+au lieu de $O(N^2)$ global.\\
+Le \textbf{décalage} des fenêtres connecte les régions voisines.
+}}
+\vspace{0.12cm}
+\fcolorbox{green!60!black}{green!10}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Intérêt médical}\\
+Capte des relations à longue distance tout en restant scalable.\\
+Meilleure adaptation aux images haute résolution (radiographies).\\
+Permet de relier des patterns subtils répartis dans l’image.
+}}
+}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Phase 3 — ViT/Swin : ce que fait le modèle}
+\slidepurpose{Relier Transformers et radiographie thoracique en termes de bénéfices et de limites}{Analyse SOTA / pertinence applicative}
+\vspace*{-0.2cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.55\textwidth}
+{\scriptsize
+\setlength{\fboxsep}{4pt}
+\setlength{\fboxrule}{0.8pt}
+\fcolorbox{blue!70!black}{blue!10}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Mécanisme effectif}\\
+Chaque patch devient un token ; l’attention calcule l’importance \textbf{entre régions}.\\
+\resizebox{\linewidth}{!}{$a_{ij}=\mathrm{softmax}\!\left(\frac{q_i k_j}{\sqrt{d}}\right),\quad \tilde z_i=\sum_j a_{ij} v_j$}\\
+Le modèle combine ainsi \textbf{contexte global} et information locale.\\
+Swin ajoute attention par \textbf{fenêtres} + \textbf{décalage}, puis \textbf{fusion de patches} (hiérarchie multi-échelle).
+}}
+}
+\end{column}
+\begin{column}{0.45\textwidth}
+{\scriptsize
+\setlength{\fboxsep}{4pt}
+\setlength{\fboxrule}{0.8pt}
+\fcolorbox{green!60!black}{green!10}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Aide en imagerie médicale}\\
+Relie des régions éloignées (symétrie pulmonaire, contexte global).\\
+Utile pour motifs diffus et structures larges.\\
+Swin reste efficace sur grandes images tout en gardant du détail.
+}}
+\vspace{0.12cm}
+\fcolorbox{red!70!black}{red!10}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Limites}\\
+Moins d’inductif bias que les CNN $\Rightarrow$ besoin de pré-entraînement.\\
+Patches trop grands $\Rightarrow$ perte de lésions fines ; trop petits $\Rightarrow$ coût élevé.\\
+Attention peut suivre des corrélats non pathologiques.
+}}
+}
+\end{column}
+\end{columns}
+\end{frame}
+
+% ==================================================
+% PHASE 4 — Grad-CAM
+% ==================================================
+\section{Phase 4 — Confiance et explicabilité}
+
+\begin{frame}{Phase 4 — Grad-CAM : principe et formulation}
+\slidepurpose{Définir l'outil d'explicabilité utilisé pour interpréter les prédictions}{Analyse SOTA / évaluation interprétable}
+\vspace*{-0.2cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.55\textwidth}
+{\scriptsize
+\setlength{\fboxsep}{4pt}
+\setlength{\fboxrule}{0.8pt}
+\fcolorbox{red!70!black}{red!10}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Idée}\\
+Grad-CAM met en évidence \textbf{où} le réseau “regarde” pour une classe donnée.\\
+On utilise les gradients du score $y^c$ par rapport aux cartes $A^k$.
+}}
+\vspace{0.12cm}
+\fcolorbox{orange!80!black}{yellow!15}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Formules}\\
+Poids d’importance :\\
+\resizebox{.6\linewidth}{!}{$\alpha_k^c=\frac{1}{Z}\sum_i\sum_j \frac{\partial y^c}{\partial A^k_{ij}}$}\\
+Carte Grad-CAM :\\
+\resizebox{.6\linewidth}{!}{$L_{\text{Grad-CAM}}^c=\mathrm{ReLU}\!\left(\sum_k \alpha_k^c A^k\right)$}
+}}
+}
+\end{column}
+
+\begin{column}{0.45\textwidth}
+{\scriptsize
+\setlength{\fboxsep}{4pt}
+\setlength{\fboxrule}{0.8pt}
+\fcolorbox{blue!70!black}{blue!10}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Interprétation}\\
+$A^k$ : carte de features de la dernière couche conv.\\
+$\alpha_k^c$ : contribution de la carte $k$ à la classe $c$.\\
+ReLU conserve les contributions positives.\\
+Le modèle donne \textbf{“quoi”}, Grad-CAM suggère \textbf{“où”}.
+}}
+}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Phase 4 — Grad-CAM : schéma de génération}
+\slidepurpose{Visualiser le pipeline complet de production d'une heatmap explicative}{Analyse SOTA / évaluation interprétable}
+\vspace*{-0.2cm}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    >=Latex,
+    font=\scriptsize,
+    box/.style={draw, rounded corners=3pt, align=center, thick, minimum width=2.2cm, minimum height=0.9cm}
+]
+\node[box, fill=gray!10] (img) {Image\\d’entrée};
+\node[box, fill=blue!10, right=0.9cm of img] (cnn) {CNN};
+\node[box, fill=yellow!15, right=0.9cm of cnn] (feat) {Cartes $A^k$};
+\node[box, fill=orange!15, below=0.8cm of feat] (grad) {Gradients\\$\partial y^c/\partial A^k$};
+\node[box, fill=red!10, right=0.9cm of feat] (weights) {Poids\\$\alpha_k^c$};
+\node[box, fill=green!15, right=0.9cm of weights] (heat) {Heatmap\\$L_{\text{Grad-CAM}}^c$};
+\node[box, fill=violet!15, right=0.9cm of heat] (overlay) {Overlay\\Image + Heatmap};
+
+\draw[->, thick] (img) -- (cnn);
+\draw[->, thick] (cnn) -- (feat);
+\draw[->, thick] (feat) -- (weights);
+\draw[->, thick] (weights) -- (heat);
+\draw[->, thick] (heat) -- (overlay);
+\draw[->, thick] (feat) -- (grad);
+\draw[->, thick] (grad) -- (weights);
+\end{tikzpicture}
+}
+
+\vspace{0.12cm}
+{\scriptsize
+\textbf{Lecture :} l’overlay montre les régions activées associées à la classe prédite.
+}
+\end{frame}
+
+\begin{frame}{Phase 4 — Grad-CAM : ce que ça aide (et ce que ça n’aide pas)}
+\slidepurpose{Préciser l'utilité clinique réelle de Grad-CAM et ses limites méthodologiques}{Analyse SOTA / validation critique}
+\vspace*{-0.2cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.55\textwidth}
+{\scriptsize
+\setlength{\fboxsep}{4pt}
+\setlength{\fboxrule}{0.8pt}
+\fcolorbox{green!60!black}{green!10}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Ce que Grad-CAM apporte}\\
+Explication \textbf{post-hoc} : montre quelles zones augmentent le score $y^c$.\\
+Ne modifie pas la prédiction, mais \textbf{guide l’analyse} (triage, relecture).\\
+Utile pour repérer des biais (texte, marqueurs, position).\\
+Permet d’aligner le modèle avec l’expertise clinique.
+}}
+}
+\end{column}
+\begin{column}{0.45\textwidth}
+{\scriptsize
+\setlength{\fboxsep}{4pt}
+\setlength{\fboxrule}{0.8pt}
+\fcolorbox{red!70!black}{red!10}{%
+\parbox[t]{\dimexpr\linewidth-2\fboxsep-2\fboxrule\relax}{\raggedright
+\textbf{Ce que Grad-CAM ne garantit pas}\\
+Carte \textbf{grossière} (résolution = stride de la dernière couche).\\
+Importance $\neq$ causalité ; une heatmap “plausible” peut être trompeuse.\\
+Sensibilité à la couche choisie, au prétraitement et au bruit.\\
+\textbf{Interprétabilité = aide}, pas preuve diagnostique.
+}}
+}
+\end{column}
+\end{columns}
+\end{frame}
+
+\mychapter{}{Solution proposée}
+\section{Architecture et conception}
+
+\begin{frame}[t]{Solution proposée — Étape 0 : vue d'ensemble}
+\slidepurpose{Présenter la logique globale du modèle avant le détail des étapes}{Conception de la solution}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\scriptsize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Principe et formule globale}
+MedFusionNet combine deux lectures d'une même radiographie :
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item une branche \textbf{CNN} pour les indices locaux : contours, textures, petites opacités ;
+\item une branche \textbf{Swin} pour le contexte global : symétrie thoracique, bilatéralité, cohérence anatomique ;
+\item une \textbf{fusion guidée} qui pondère automatiquement les deux branches.
+\end{itemize}
+\textbf{Chaîne mathématique.}
+\[
+\begin{aligned}
+\tilde X &= T(X)\\
+F_c &= \Phi_c(\tilde X), \qquad F_s = \Phi_s(\tilde X)
+\end{aligned}
+\]
+\[
+\begin{aligned}
+g &= \sigma\!\big(W_g[\mathrm{GAP}(F_c),\mathrm{GAP}(F_s)] + b_g\big)\\
+F &= g\odot F_c + (1-g)\odot F_s
+\end{aligned}
+\]
+La sortie finale vérifie \(\Psi(F)=(p,L^c,u)\) : score $p$, heatmap $L^c$, incertitude $u$.
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, minimum width=2.8cm, minimum height=0.6cm}]
+\node[box, fill=gray!10] (img) {\textbf{Image Thoracique}};
+\node[box, fill=blue!10, below=0.6cm of img, xshift=-1.5cm] (cnn) {Branche CNN\\(Indices locaux)};
+\node[box, fill=green!10, below=0.6cm of img, xshift=1.5cm] (swin) {Branche Swin\\(Contexte global)};
+\node[box, fill=yellow!15, below=1.8cm of img] (fusion) {Fusion Guidée\\$g\odot F_c + (1-g)\odot F_s$};
+\node[box, fill=red!10, below=0.6cm of fusion] (out) {\textbf{Sortie Clinique}\\$p, L^c, u$};
+\draw[->, thick] (img) -| (cnn);
+\draw[->, thick] (img) -| (swin);
+\draw[->, thick] (cnn) |- (fusion);
+\draw[->, thick] (swin) |- (fusion);
+\draw[->, thick] (fusion) -- (out);
+\end{tikzpicture}%
+}{Vue d'ensemble du pipeline complet}
+\end{column}
+\end{columns}
+\end{frame}
+
+\section{Pipeline détaillé}
+
+\begin{frame}[t]{Solution proposée — Étape 1 : échantillon d'entrée}
+\slidepurpose{Définir la donnée d'entrée et ce qu'elle contient avant tout calcul}{Conception détaillée}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\scriptsize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Image et variabilité}
+Une radiographie thoracique est modélisée par :
+\[
+X\in\mathbb{R}^{H\times W}
+\]
+\noindent avec une étiquette binaire :
+\[
+\begin{cases}
+y=1 & \text{pneumonie}\\
+y=0 & \text{normal ou autre classe négative}
+\end{cases}
+\]
+\textbf{Pourquoi l'entrée est difficile.}
+L'image brute contient à la fois le signal clinique et des facteurs parasites :
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item variations d'intensité et de contraste selon l'appareil ;
+\item bruit, annotations, câbles et autres artefacts ;
+\item cadrage, résolution et structures normales parfois trompeuses.
+\end{itemize}
+\textbf{Exemple :} deux clichés de même classe peuvent avoir un contraste ou un centrage très différents ; le modèle doit ignorer cette variabilité non pathologique.
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[font=\scriptsize]
+\draw[draw=none, fill=black!80, rounded corners=5pt] (0,0) rectangle (2.5,3.5);
+\draw[draw=none, fill=gray!40] (0.4, 0.4) .. controls (0.2, 1.8) and (0.8, 3) .. (1.1, 3.1) .. controls (1.3, 2.6) and (1.0, 0.8) .. (0.6, 0.4) -- cycle;
+\draw[draw=none, fill=gray!40] (2.1, 0.4) .. controls (2.3, 1.8) and (1.7, 3) .. (1.4, 3.1) .. controls (1.2, 2.6) and (1.5, 0.8) .. (1.9, 0.4) -- cycle;
+\node[text=white, font=\tiny] at (0.3, 3.2) {TAG};
+\draw[white, thick] (2.3,0.2) -- (2.0, 0.9);
+\draw[white, thick] (2.25,0.2) -- (1.95, 0.9);
+\node[draw, fill=white, rounded corners, inner sep=2pt, font=\tiny, align=center] (bruit) at (-0.5, 3.6) {Bruit /\\Artefacts};
+\draw[->, thick, red] (bruit) -- (0.3, 3.3);
+\node[draw, fill=white, rounded corners, inner sep=2pt, font=\tiny, align=center] (cable) at (3.2, 1) {Câbles};
+\draw[->, thick, red] (cable.west) -- (2.2, 0.6);
+\node[draw, fill=white, rounded corners, inner sep=2pt, font=\tiny, align=center] (contrast) at (1.25, -0.6) {Contraste\\variable};
+\draw[->, thick, red] (contrast) -- (1.25, 0.1);
+\end{tikzpicture}%
+}{Échantillon brut provenant du dataset}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Solution proposée — Étape 2 : prétraitement}
+\slidepurpose{Standardiser l'image avant son entrée dans les deux branches du modèle}{Développement / préparation des données}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\scriptsize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Transformation}
+Le prétraitement applique une chaîne de standardisation :
+\[
+\tilde X=T(X)=A\big(R(N(X))\big)
+\]
+\noindent où $N$ normalise les intensités, $R$ redimensionne et $A$ peut améliorer localement le contraste.
+\end{block}
+\begin{block}{Ce que la donnée devient}
+\[
+\text{normalisation :}\qquad X_{norm}=\frac{X-\mu}{\sigma}
+\]
+\[
+\begin{aligned}
+\text{redimensionnement :}\qquad
+X&\in\mathbb{R}^{H\times W}\\
+&\longrightarrow \tilde X\in\mathbb{R}^{H_0\times W_0}
+\end{aligned}
+\]
+\textbf{Exemple :} $1024\times1024 \rightarrow 384\times384$. Cette étape réduit le coût mémoire, homogénéise les entrées et diminue le risque que le modèle prenne une différence d'acquisition pour une pneumonie.
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, thick, rounded corners, fill=white, align=center, minimum width=2.5cm, minimum height=0.8cm}]
+\node[box, fill=gray!20] (brut) {$X_{brut}$\\($1024 \times 1024$)};
+\node[box, fill=blue!10, below=1cm of brut] (norm) {Normalisation\\$\frac{X - \mu}{\sigma}$};
+\node[box, fill=green!10, below=1cm of norm] (resize) {Redimensionnement};
+\node[box, fill=orange!10, below=1cm of resize] (final) {$\tilde{X}$\\($384 \times 384$)};
+\draw[->, thick] (brut) -- (norm);
+\draw[->, thick] (norm) -- (resize);
+\draw[->, thick] (resize) -- (final);
+\end{tikzpicture}%
+}{Image après normalisation et redimensionnement}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Solution proposée — Étape 3 : branche CNN locale}
+\slidepurpose{Extraire les motifs fins et localisés par une lecture convolutive}{Modélisation de la branche locale}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\scriptsize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Lecture locale par CNN}
+La branche locale produit :
+\[
+F_c=\Phi_c(\tilde X)\in\mathbb{R}^{H'\times W'\times C_c}
+\]
+\noindent Une convolution applique un filtre sur un voisinage restreint :
+\[
+F^{(\ell)}_{i,j,c'}=\sum_{u,v,c}W^{(\ell)}_{u,v,c,c'}\,F^{(\ell-1)}_{i+u,j+v,c}+b^{(\ell)}_{c'}
+\]
+\textbf{Ce que la branche voit réellement.}
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item bords pleuraux, côtes, contours pulmonaires ;
+\item textures diffuses ou focales ;
+\item petites consolidations et opacités locales ;
+\item transitions fines entre tissu sain et tissu suspect.
+\end{itemize}
+\textbf{Exemple :} une opacité basale discrète peut être amplifiée par la comparaison locale entre intensités voisines.
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize]
+\draw[step=0.6cm, gray, very thin] (0,0) grid (3,3);
+\draw[thick, fill=blue!10, opacity=0.8] (1.2,1.2) rectangle (2.4,2.4);
+\node[font=\footnotesize, align=center] at (1.5, 3.3) {Image / Feature Map};
+\begin{scope}[yshift=-3cm, xshift=0.5cm]
+\draw[step=0.6cm, gray, very thin] (0,0) grid (2,2);
+\draw[thick, fill=red!10, opacity=0.8] (0.6,0.6) rectangle (1.2,1.2);
+\node[font=\footnotesize, align=center] at (1, -0.4) {Couche suivante};
+\end{scope}
+\draw[->, thick, dashed, draw=blue!80] (1.2, 1.2) -- (1.1, -1.2);
+\draw[->, thick, dashed, draw=blue!80] (2.4, 1.2) -- (1.7, -1.2);
+\fill[red] (1.8, 1.8) circle (0.05);
+\node[draw=none, fill=none, font=\tiny] at (1.5, -3.8) {Champ récepteur local ($k \times k$)};
+\end{tikzpicture}%
+}{Représentation locale extraite par la branche CNN}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Solution proposée — Étape 4 : branche Swin globale}
+\slidepurpose{Extraire une représentation de contexte capable de relier des régions éloignées}{Modélisation de la branche globale}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\scriptsize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Lecture globale par Swin}
+L'image prétraitée est découpée en patches puis projetée :
+\[
+z_i = E\,x_i + e_i^{pos}
+\]
+\noindent La branche globale calcule ensuite :
+\[
+F_s=\Phi_s(\tilde X)\in\mathbb{R}^{H'\times W'\times C_s}
+\]
+\[
+Q=XW_Q,\quad K=XW_K,\quad V=XW_V
+\]
+\[
+\mathrm{Attention}(Q,K,V)=\mathrm{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V
+\]
+Dans Swin, cette attention est calculée par fenêtres, puis les fenêtres sont décalées pour reconnecter les régions voisines.
+\textbf{Ce que la branche globale apporte.}
+Elle relie des zones éloignées : apex, bases, hémithorax droit/gauche, médiastin. Si une anomalie n'a de sens que par sa \textbf{distribution spatiale}, Swin la capture mieux qu'un CNN purement local.
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[font=\scriptsize]
+\draw[step=0.7cm, gray, thick] (0,0) grid (2.8, 2.8);
+\foreach \x/\y in {0.35/0.35, 0.35/2.45, 2.45/0.35, 2.45/2.45, 1.05/1.05, 1.75/1.75} {
+    \fill[blue!40] (\x,\y) circle (0.15);
+}
+\draw[<->, thick, red] (0.35, 0.35) to[bend right=45] (2.45, 0.35);
+\draw[<->, thick, red] (0.35, 0.35) to[bend left=30] (0.35, 2.45);
+\draw[<->, thick, red] (1.05, 1.05) to[bend left=20] (2.45, 2.45);
+\node[draw=none, fill=none, font=\scriptsize, align=center] at (1.4, -0.6) {\textbf{Patches d'image}};
+\node[draw=none, fill=none, font=\scriptsize, text=red, align=center] at (1.4, 3.4) {\textbf{Attention Globale}\\\textbf{(Longue distance)}};
+\end{tikzpicture}%
+}{Représentation globale extraite par la branche Swin}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Solution proposée — Étape 5 : fusion guidée}
+\slidepurpose{Combiner les indices locaux et globaux sans imposer un poids fixe à chaque branche}{Conception du coeur de fusion}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\scriptsize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Porte de fusion et interprétation}
+On résume d'abord chaque branche par un vecteur global :
+\[
+\bar F_c=\mathrm{GAP}(F_c),\qquad \bar F_s=\mathrm{GAP}(F_s)
+\]
+\noindent Puis on apprend un coefficient de fusion :
+\[
+g=\sigma\!\left(W_g[\bar F_c,\bar F_s]+b_g\right)
+\]
+\[
+F = g\odot F_c + (1-g)\odot F_s
+\]
+Si $g\approx 1$, le modèle privilégie l'indice local ; si $g\approx 0$, il privilégie le contexte global.
+\textbf{Exemples.}
+\textbf{Exemple 1 :} foyer net et compact $\Rightarrow g\approx 0.8$.\\
+\textbf{Exemple 2 :} atteinte diffuse ou bilatérale $\Rightarrow g\approx 0.3$.\\[0.15em]
+La fusion n'est donc pas une moyenne fixe : elle s'adapte à la structure réelle de l'image.
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, minimum width=1.5cm, minimum height=0.6cm}]
+\node[box, fill=blue!10] (fc) {$F_c$ (CNN)};
+\node[box, fill=green!10, right=1.2cm of fc] (fs) {$F_s$ (Swin)};
+\node[box, fill=gray!10, align=center, minimum width=2.5cm] (gate) at ($(fc)!0.5!(fs)+(0,-1.8)$) {Porte $g = \sigma(\dots)$};
+\node[draw, circle, fill=yellow!20, below=2.5cm of fc] (mul_c) {$\odot$};
+\node[draw, circle, fill=yellow!20, below=2.5cm of fs] (mul_s) {$\odot$};
+\node[box, fill=purple!10] (f) at ($(mul_c)!0.5!(mul_s)+(0,-1.1)$) {$F$ (Fusion)};
+\draw[->, thick] (fc) -- (mul_c);
+\draw[->, thick] (fs) -- (mul_s);
+\draw[->, thick, dashed] (fc) -- (gate);
+\draw[->, thick, dashed] (fs) -- (gate);
+\draw[->, thick] (gate) -- node[left, font=\tiny] {$g$} (mul_c);
+\draw[->, thick] (gate) -- node[right, font=\tiny] {$1-g$} (mul_s);
+\draw[->, thick] (mul_c) |- (f);
+\draw[->, thick] (mul_s) |- (f);
+\end{tikzpicture}%
+}{Fusion adaptative entre la branche locale et la branche globale}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Solution proposée — Étape 6 : classification}
+\slidepurpose{Transformer la représentation fusionnée en probabilité de pneumonie}{Tête de décision}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\scriptsize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Score de classe}
+La représentation fusionnée est condensée en un vecteur :
+\[
+z=\mathrm{GAP}(F)
+\]
+\noindent puis convertie en probabilité :
+\[
+p(y=1|X)=\sigma(w^\top z+b)
+\]
+\end{block}
+\begin{block}{Décision pratique}
+Avec un seuil $\tau$ :
+\[
+\hat y =
+\begin{cases}
+1 & \text{si } p(y=1|X)\ge \tau\\
+0 & \text{sinon}
+\end{cases}
+\]
+\textbf{Exemple :} si $p=0.91$ et $\tau=0.5$, la prédiction est positive avec une forte marge. Si $p=0.54$, la décision reste positive mais devient fragile : elle doit être lue avec la heatmap et l'incertitude.
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, minimum width=2.5cm, minimum height=0.6cm}]
+\node[box, fill=purple!10] (f) {$F$};
+\node[box, fill=blue!10, below=0.6cm of f] (gap) {GAP $\rightarrow z$};
+\node[box, fill=green!10, below=0.6cm of gap] (fc) {FC: $w^\top z + b$};
+\node[box, fill=yellow!10, below=0.6cm of fc] (sig) {Sigmoid $\sigma(\cdot)$};
+\node[box, fill=red!10, below left=0.8cm and -0.2cm of sig] (out1) {$\hat{y}=1$};
+\node[box, fill=gray!10, below right=0.8cm and -0.2cm of sig] (out0) {$\hat{y}=0$};
+\draw[->, thick] (f) -- (gap);
+\draw[->, thick] (gap) -- (fc);
+\draw[->, thick] (fc) -- (sig);
+\draw[->, thick, red] (sig) -| node[above left, font=\tiny] {$p \ge \tau$} (out1);
+\draw[->, thick, gray] (sig) -| node[above right, font=\tiny] {$p < \tau$} (out0);
+\end{tikzpicture}%
+}{Passage de la représentation fusionnée au score de classe}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Solution proposée — Étape 7 : localisation et incertitude}
+\slidepurpose{Produire une explication spatiale et mesurer la fiabilité de la décision}{Sorties interprétables}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\footnotesize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Localisation et incertitude}
+À partir des cartes finales $A^k$ :
+\[
+\alpha_k^c=\frac{1}{Z}\sum_i\sum_j \frac{\partial y^c}{\partial A^k_{ij}}
+\]
+\[
+L^c=\mathrm{ReLU}\!\left(\sum_k \alpha_k^c A^k\right)
+\]
+La heatmap montre \textbf{où} le modèle a trouvé des indices pour la classe prédite.
+\textbf{Incertitude.}
+En répétant plusieurs passes avec dropout actif :
+\[
+u=\mathrm{Var}_t(p_t)
+\]
+\textbf{Exemple :} si $p_t=\{0.87,0.88,0.89\}$, la variance est faible ; si $p_t=\{0.42,0.81,0.57\}$, la décision est instable et doit être relue.
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[font=\scriptsize]
+\node[draw, thick, rounded corners, minimum width=3cm, minimum height=2.5cm, fill=black!80] (bg) at (0, 2) {};
+\draw[fill=gray!40] (-0.8, 1.2) .. controls (-1.1, 2) and (-0.5, 3) .. (-0.2, 3) .. controls (0, 2.5) and (-0.3, 1.5) .. (-0.6, 1.2) -- cycle;
+\draw[fill=gray!40] (0.8, 1.2) .. controls (1.1, 2) and (0.5, 3) .. (0.2, 3) .. controls (0, 2.5) and (0.3, 1.5) .. (0.6, 1.2) -- cycle;
+\fill[red, opacity=0.4] (0.6, 1.8) circle (0.4);
+\fill[orange, opacity=0.6] (0.6, 1.8) circle (0.25);
+\fill[yellow, opacity=0.8] (0.6, 1.8) circle (0.15);
+\node[text=white, font=\tiny, align=center] at (0, 3.5) {\textbf{Grad-CAM $L^c$}};
+\draw[->, thick] (-1.5, -0.5) -- (1.5, -0.5) node[right] {$p_t$};
+\draw[->, thick] (-1.5, -0.5) -- (-1.5, 1) node[above] {Freq};
+\draw[thick, blue] plot[smooth] coordinates {(-1.0, -0.4) (-0.5, -0.2) (0, 0.8) (0.5, -0.2) (1.0, -0.4)};
+\draw[dashed] (0, 0.8) -- (0, -0.5) node[below] {\tiny Moyenne};
+\draw[<->, red] (-0.3, 0.3) -- (0.3, 0.3) node[midway, above=-0.05cm] {\tiny Variance $u$};
+\end{tikzpicture}%
+}{Heatmap explicative et estimation d'incertitude}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Solution proposée — Étape 8 : apprentissage}
+\slidepurpose{Définir exactement ce qui est optimisé pendant l'entraînement}{Développement / entraînement}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\footnotesize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Fonction objectif}
+\[
+\mathcal{L}=
+\mathcal{L}_{cls}
+\;+\;
+\lambda_1\mathcal{L}_{loc}
+\;+\;
+\lambda_2\mathcal{L}_{cons}
+\;+\;
+\lambda_3\mathcal{L}_{cal}
+\]
+\end{block}
+\begin{block}{Sens de chaque terme}
+\defitem{$\mathcal{L}_{cls}$}{apprendre la bonne classe.}
+\defitem{$\mathcal{L}_{loc}$}{contraindre la heatmap à rester cliniquement plausible.}
+\defitem{$\mathcal{L}_{cons}$}{garder une prédiction stable sous augmentation.}
+\defitem{$\mathcal{L}_{cal}$}{mieux aligner confiance prédite et fréquence réelle d'erreur.}
+\textbf{Exemple :} sur un dataset déséquilibré, $\mathcal{L}_{cls}$ peut être une Focal Loss afin de mieux traiter les cas rares ou difficiles.
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, minimum width=1.8cm, minimum height=0.6cm}]
+\node[box, fill=blue!10] (cls) {$\mathcal{L}_{cls}$};
+\node[box, fill=green!10, right=0.3cm of cls] (loc) {$\mathcal{L}_{loc}$};
+\node[box, fill=yellow!10, below=1cm of cls] (cons) {$\mathcal{L}_{cons}$};
+\node[box, fill=orange!10, below=1cm of loc] (cal) {$\mathcal{L}_{cal}$};
+\node[draw, circle, fill=gray!20] at ($(cls)!0.5!(cal)$) (sum) {$\sum$};
+\node[box, fill=red!15, below=0.6cm of sum] (total) {\textbf{Perte Totale $\mathcal{L}$}};
+\draw[->, thick] (cls) -- node[left, font=\tiny] {$1$} (sum);
+\draw[->, thick] (loc) -- node[right, font=\tiny] {$\lambda_1$} (sum);
+\draw[->, thick] (cons) -- node[left, font=\tiny] {$\lambda_2$} (sum);
+\draw[->, thick] (cal) -- node[right, font=\tiny] {$\lambda_3$} (sum);
+\draw[->, thick] (sum) -- (total);
+\end{tikzpicture}%
+}{Schéma de la perte totale et de ses composantes}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Solution proposée — Étape 9 : sortie clinique}
+\slidepurpose{Montrer comment les sorties du modèle deviennent une aide concrète pour le workflow médical}{Validation métier / déploiement}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\footnotesize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Sortie exploitable pour le clinicien}
+Pour une image $X$, le modèle renvoie :
+\[
+\big(p(y=1|X),\,L^c,\,u\big)
+\]
+soit un score de pneumonie, une heatmap explicative et une estimation d'incertitude.
+\textbf{Comment cela aide le clinicien.}
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item score élevé + faible incertitude : cas à prioriser ;
+\item score modéré + incertitude élevée : revue humaine prioritaire ;
+\item score faible + faible incertitude : cas probablement normal.
+\end{itemize}
+\textbf{Limite :} une heatmap plausible reste un support de lecture, pas une preuve diagnostique.
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, text width=2.5cm}]
+\node[box, fill=blue!05] (pred) {\textbf{Prédiction}\\$p=0.91 \quad u=\text{Faible}$};
+\node[box, fill=red!10, below left=0.6cm and -0.8cm of pred] (high) {\textbf{Priorité Haute}\\(Score $\uparrow$)};
+\node[box, fill=green!10, below right=0.6cm and -0.8cm of pred] (low) {\textbf{Prob. Normal}\\(Score $\downarrow$)};
+\node[box, fill=orange!10, below=2cm of pred] (rev) {\textbf{Revue}\\(Incertitude $\uparrow$)};
+\draw[->, thick, draw=red] (pred) -| (high);
+\draw[->, thick, draw=green] (pred) -| (low);
+\draw[->, thick, draw=orange] (pred) -- (rev);
+\end{tikzpicture}%
+}{Sortie finale utilisable par le clinicien}
+\end{column}
+\end{columns}
+\end{frame}
+
+\section{Implémentation et Outils techniques}
+
+\begin{frame}[t]{Implémentation — Dataset Chest X-Ray}
+\slidepurpose{Justifier la sélection et les caractéristiques des données d'apprentissage}{Préparation des données}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\scriptsize
+\setlength{\abovedisplayskip}{2pt}
+\setlength{\belowdisplayskip}{2pt}
+\begin{block}{Spécifications \& Accès aux données}
+Dataset Kaggle de Paul Mooney (5\,856 images).
+\begin{itemize}
+\setlength{\itemsep}{0.05em}
+\item \textbf{Classes} : \textit{NORMAL} vs \textit{PNEUMONIA}.
+\item \textbf{Défi} : Déséquilibre fort (plus de cas malades).
+\item \textbf{Choix} : Utilisation de la \textit{Focal Loss} pour corriger le biais de majorité et focaliser sur les cas difficiles.
+\end{itemize}
+\vspace{0.3cm}
+\centering
+\begin{tikzpicture}[font=\tiny]
+\node[inner sep=0pt] (qr) {\href{https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia}{\includegraphics[width=3cm]{kaggle_qr.png}}};
+\node[right=0.2cm of qr, text width=4.5cm, align=left] {
+\href{https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia}{\textbf{\color{blue}Lien Kaggle :} \\ \scriptsize (Scanner pour accéder \\ au dataset)}
+};
+\end{tikzpicture}
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[font=\scriptsize, align=center]
+\node[draw, rounded corners, thick, fill=gray!10, minimum width=3cm, minimum height=0.5cm] (dataset) {\textbf{Chest X-Ray Dataset}};
+\node[draw, rounded corners, fill=blue!10, below left=0.4cm and -0.7cm of dataset] (train) {Train (5\,216)};
+\node[draw, rounded corners, fill=green!10, below=0.4cm of dataset] (val) {Val (16)};
+\node[draw, rounded corners, fill=orange!10, below right=0.4cm and -0.7cm of dataset] (test) {Test (624)};
+\draw[->, thick] (dataset.south) -| (train.north);
+\draw[->, thick] (dataset.south) -- (val.north);
+\draw[->, thick] (dataset.south) -| (test.north);
+\node[draw, dashed, rounded corners, fill=red!05, text width=2.4cm, below=1.4cm of dataset] (issues) {\textbf{Défis}\\Déséquilibre / Bruit};
+\draw[->, thick, dashed] (train.south) |- (issues.west);
+\end{tikzpicture}%
+}{Répartition et flux des données d'imagerie}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Implémentation — Choix Technologiques}
+\slidepurpose{Exposer et justifier la stack matérielle et logicielle du projet}{Configuration de l'environnement}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\footnotesize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Framework \& Langage}
+Code source intégral en \textbf{Python 3}.
+L'orchestration du Deep Learning repose sur l'écosystème \textbf{PyTorch}.
+\end{block}
+\begin{block}{Environnement et Accélération}
+Face aux contraintes matérielles de machine locale (crash mémoire liés aux larges matrices \textit{Swin}), le modèle a migré sur \textbf{Google Colab} :
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item Accès direct aux GPU (T4 ou A100).
+\item Injection de l'AMP (\textit{Automatic Mixed Precision}) pour basculer en \texttt{float16} et réduire drastiquement la consommation VRAM.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, minimum width=2.8cm, minimum height=0.6cm}]
+\node[box, fill=yellow!10] (py) {\textbf{Python 3.10+}};
+\node[box, fill=orange!15, below=0.5cm of py] (pt) {\textbf{PyTorch}\\Deep Learning Engine};
+\node[box, fill=blue!10, below=0.5cm of pt] (colab) {\textbf{Google Colab}\\Cloud VM Jupyter};
+\node[box, fill=green!10, below left=0.5cm and -1.2cm of colab] (gpu) {\textbf{NVIDIA GPU}\\(T4 / A100)};
+\node[box, fill=red!10, below right=0.5cm and -1.2cm of colab] (amp) {\textbf{Mixed Precis.}\\(AMP 16-bit)};
+\draw[->, thick] (py) -- (pt);
+\draw[->, thick] (pt) -- (colab);
+\draw[->, thick] (colab) -| (gpu);
+\draw[->, thick] (colab) -| (amp);
+\end{tikzpicture}%
+}{Pile Technologique du système MedFusionNet}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Implémentation — Architecture du Projet}
+\slidepurpose{Montrer la robustesse de l'arborescence et la modularité des composants}{Gestion de Projet}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\footnotesize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Séparation des responsabilités}
+Notre socle algorithmique sépare rigoureusement la donnée, la logique métier, l'entraînement et l'inférence. Cette compartimentation favorise une évolutivité sans bugs spatiaux :
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item Dossiers \texttt{checkpoints/} isolant les poids sauvegardés des écrasements.
+\item Fichiers modulaires \texttt{.py} clairs et réutilisables.
+\item Carnet \texttt{MedFusionNet\_Colab.ipynb} agissant comme un orchestrateur important l'environnement ciblé du Cloud vers nos scripts natifs.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, node distance=0.4cm and 0.5cm]
+\node[fill=blue!10, rounded corners, draw] (root) {\textbf{MedFusionNet/}};
+\node[fill=yellow!10, rounded corners, draw, below right=0.2cm and 0.5cm of root] (data) {data/};
+\node[fill=yellow!10, rounded corners, draw, below=0.1cm of data] (check) {checkpoints/};
+\node[fill=yellow!10, rounded corners, draw, below=0.1cm of check] (logs) {logs/};
+\node[fill=red!05, rounded corners, draw, below=0.1cm of logs] (pyf) {*.py (Modules)};
+\node[fill=green!10, rounded corners, draw, below=0.1cm of pyf] (ipynb) {*.ipynb};
+\draw[->, thick] (root.south) |- (data.west);
+\draw[->, thick] (root.south) |- (check.west);
+\draw[->, thick] (root.south) |- (logs.west);
+\draw[->, thick] (root.south) |- (pyf.west);
+\draw[->, thick] (root.south) |- (ipynb.west);
+\end{tikzpicture}%
+}{Arborescence du répertoire de travail (Git)}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Implémentation — Les Modules de Code (API)}
+\slidepurpose{Documenter les scripts métiers Python principaux et leurs relations}{Architecture Logicielle}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\footnotesize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Cœur Algorithmique}
+\defitem{preprocessing.py \& dataset.py}{Pipeline de normalisation (CLAHE) et orchestration PyTorch \textit{DataLoaders} fournissant des batchs au GPU en parallèle.}
+\defitem{model.py \& losses.py}{Définition déclarative de la double branche (CNN + Swin + Gate) et des équations de la fonction \textit{Objective} (Focal Loss, ...).}
+\defitem{inference.py}{API finale (\texttt{MedFusionInference}) destinée au clinicien : génère le score, calcule l'incertitude via MC-Dropout en 20 passes rapides, puis tisse la masque explicative (Heatmap).}
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, minimum width=2.5cm, minimum height=0.6cm}]
+\node[box, fill=orange!10] (data) {\texttt{dataset.py}\\($Tensor ~ X, y$)};
+\node[box, fill=blue!10, below=0.8cm of data] (model) {\texttt{model.py}\\(Process $X \rightarrow \hat{y}$)};
+\node[box, fill=yellow!10, below=0.8cm of model] (loss) {\texttt{losses.py}\\(Évalue l'erreur $\mathcal{L}$)};
+\node[box, fill=green!10, below=0.8cm of loss] (infer) {\textbf{\texttt{inference.py}}\\(Production)};
+\draw[->, thick, dashed] (data) -- (model);
+\draw[<->, thick, dashed] (model) -- (loss);
+\draw[->, thick] (model.east) -| ++(0.5,-1.6) |- (infer.east);
+\end{tikzpicture}%
+}{Interaction logique entre les fichiers source principaux}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Implémentation — API REST locale}
+\slidepurpose{Montrer comment le moteur d'inférence a été exposé à des clients externes sans casser l'interface web}{Architecture Logicielle}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\scriptsize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Composants d'exposition}
+\defitem{api.py}{Blueprint Flask sous \texttt{/api/v1} exposant \texttt{/health}, \texttt{/predict}, \texttt{/predict/gradcam} et \texttt{/benchmark}.}
+\defitem{app.py}{Enregistre le Blueprint sans toucher aux routes HTML déjà utilisées par l'interface Flask.}
+\defitem{service.py}{Conserve \texttt{model\_store} : le chargement du checkpoint reste \textbf{lazy} et partagé.}
+\defitem{client.py}{CLI local pour tester l'API, afficher les métriques et exporter les images Grad-CAM.}
+\end{block}
+\begin{block}{Intérêt pratique}
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item même moteur d'inférence pour le navigateur, \texttt{curl} et les scripts externes ;
+\item point d'intégration propre pour une future interface plus riche ;
+\item smoke tests simples via \texttt{/api/v1/health} et le client CLI.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\begin{center}
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, minimum width=2.55cm, minimum height=0.62cm}]
+\node[box, fill=blue!10] (curl) {\texttt{curl} / scripts};
+\node[box, fill=green!10, below=0.26cm of curl] (client) {\texttt{client.py}};
+\node[box, fill=orange!10, below=0.26cm of client] (api) {\texttt{api.py}\\Blueprint \texttt{/api/v1}};
+\node[box, fill=yellow!10, below=0.26cm of api] (store) {\texttt{model\_store}\\chargement lazy};
+\node[box, fill=purple!10, below=0.26cm of store] (infer) {\texttt{MedFusionInference}\\ou \texttt{run\_benchmark()}};
+\draw[->, thick] (curl) -- (client);
+\draw[->, thick] (client) -- (api);
+\draw[->, thick] (api) -- (store);
+\draw[->, thick] (store) -- (infer);
+\draw[->, thick, dashed] (api.east) -- ++(0.66,0) node[right, align=left] {JSON\\compact};
+\end{tikzpicture}
+\end{center}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Implémentation — Workflow d'une requête API}
+\slidepurpose{Expliquer le cycle complet d'une requête, la validation de l'image et la structure des réponses JSON}{Déploiement local / intégration}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\scriptsize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Cycle de traitement}
+\begin{enumerate}
+\setlength{\itemsep}{0.1em}
+\item Entrée : \texttt{multipart/form-data} ou octets image bruts.
+\item Validation : extension autorisée, ouverture PIL, conversion \texttt{RGB}.
+\item Traitement : \texttt{engine.predict(...)} ou \texttt{run\_benchmark(max\_images)}.
+\item Sortie : réponse \textbf{JSON} avec probabilités, métadonnées et temps d'inférence.
+\end{enumerate}
+\end{block}
+\begin{block}{Choix d'implémentation}
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item \texttt{/predict} : score simple, sans heatmap.
+\item \texttt{/predict/gradcam} : overlay et heatmap en PNG Base64.
+\item \texttt{/benchmark} : métriques seulement, graphes exclus.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\scriptsize
+\begin{block}{Routes exposées}
+\begin{itemize}
+\setlength{\itemsep}{0.1em}
+\item \texttt{GET /api/v1/health}
+\item \texttt{POST /api/v1/predict}
+\item \texttt{POST /api/v1/predict/gradcam}
+\item \texttt{GET /api/v1/benchmark?max\_images=20}
+\end{itemize}
+\end{block}
+\begin{block}{Exemples d'appel}
+\texttt{curl /api/v1/health}
+
+\vspace{0.1cm}
+\texttt{curl -X POST /api/v1/predict}
+
+\vspace{0.03cm}
+\texttt{-F "image=@radio.jpeg"}
+
+\vspace{0.1cm}
+\texttt{python client.py predict image.jpeg}
+
+\vspace{0.03cm}
+\texttt{--gradcam --save overlay.png}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Implémentation — Exécution et Hyperparamètres}
+\slidepurpose{Justifier les variables d'ajustement du code lors de l'apprentissage}{Lancement de l'Entraînement}
+\vspace*{-0.18cm}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.56\textwidth}
+\footnotesize
+\setlength{\abovedisplayskip}{3pt}
+\setlength{\belowdisplayskip}{3pt}
+\begin{block}{Lancement via \texttt{train.py}}
+L'exécution de l'entraînement a été finement calibrée sur l'environnement Colab :
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item \texttt{-\,-epochs 50} : Temps de chauffe suffisant pour stabiliser le réseau Transformer.
+\item \texttt{-\,-batch\_size 16} : Contrainte optimale GPU allégeant la VRAM tout en maintenant le batch normalization fonctionnel.
+\item \texttt{-\,-lr 1e-4} \& \textbf{AdamW} : Taux d'apprentissage modéré afin d'éviter l'oubli catastrophique du pré-entraînement CNN.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize, box/.style={draw, rounded corners, thick, fill=white, align=center, minimum width=2.8cm}]
+\node[box, fill=black!80, text=white] (train) {\texttt{python train.py}};
+\node[box, fill=gray!20, below=0.5cm of train] (epoch) {Opt: \textbf{AdamW}\\Epochs: \textbf{50} | BZ: \textbf{16}};
+\node[box, fill=gray!20, below=0.3cm of epoch] (amp) {Mixed Prec: ENABLED};
+\node[box, fill=purple!10, below=0.5cm of amp] (out) {\texttt{best.pth} (Modèle final)};
+\node[box, fill=green!10, below=0.3cm of out] (metrics) {Métriques CSV\\($Recall, Accuracy$)};
+\draw[->, thick] (train) -- (epoch);
+\draw[->, thick] (epoch) -- (amp);
+\draw[->, thick] (amp) -- (out);
+\draw[->, thick] (out) -- (metrics);
+\end{tikzpicture}%
+}{Flux d'exécution de l'entraînement et enregistrements}
+\end{column}
+\end{columns}
+\end{frame}
+
+\mychapter{}{Résultats et Finalisation}
+
+\begin{frame}{Résultats obtenus — synthèse quantitative}
+\slidepurpose{Donner les performances finales du modèle sur le jeu de test et les interpréter}{Évaluation finale}
+\footnotesize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.53\textwidth}
+\begin{block}{Protocole d'évaluation}
+\begin{itemize}
+\item \textbf{Jeu de test final :} 624 radiographies.
+\item \textbf{Répartition :} 234 cas \texttt{NORMAL} et 390 cas \texttt{PNEUMONIA}.
+\item \textbf{Checkpoint évalué :} \texttt{Model\_19Apr26.pth}.
+\end{itemize}
+\end{block}
+\begin{block}{Indicateurs globaux}
+\begin{itemize}
+\item \textbf{Accuracy :} 92.79\%
+\item \textbf{AUC-ROC :} 0.976
+\item \textbf{Average Precision :} 0.984
+\item \textbf{Erreurs totales :} 45 images sur 624 seulement
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.45\textwidth}
+\begin{block}{Classe \texttt{PNEUMONIA}}
+\begin{itemize}
+\item \textbf{Recall / Sensibilité :} 96.92\%
+\item \textbf{Precision :} 91.97\%
+\item \textbf{F1-score :} 94.38\%
+\end{itemize}
+\end{block}
+\begin{block}{Classe \texttt{NORMAL}}
+\begin{itemize}
+\item \textbf{Recall / Spécificité :} 85.90\%
+\item \textbf{Precision :} 94.37\%
+\item \textbf{F1-score :} 89.93\%
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Résultats obtenus — matrice de confusion et lecture métier}
+\slidepurpose{Expliquer précisément où le modèle se trompe et pourquoi ces erreurs comptent}{Analyse détaillée des sorties}
+\footnotesize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.46\textwidth}
+\begin{block}{Matrice de confusion}
+\centering
+\renewcommand{\arraystretch}{1.25}
+\resizebox{0.98\linewidth}{!}{%
+\begin{tabular}{|c|c|c|}
+\hline
+\textbf{Vrai / Prédit} & \textbf{NORMAL} & \textbf{PNEUMONIA} \\
+\hline
+\textbf{NORMAL} & 201 & 33 \\
+\hline
+\textbf{PNEUMONIA} & 12 & 378 \\
+\hline
+\end{tabular}
+}
+\end{block}
+\begin{block}{Bilan chiffré}
+\begin{itemize}
+\item \textbf{Vrais positifs :} 378
+\item \textbf{Vrais négatifs :} 201
+\item \textbf{Faux positifs :} 33
+\item \textbf{Faux négatifs :} 12
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.50\textwidth}
+\begin{block}{Interprétation}
+\begin{itemize}
+\item Sur \textbf{390} cas de pneumonie, le système en détecte \textbf{378}.
+\item Le taux de cas pneumonie manqués est de \textbf{12 / 390 = 3.08\%}.
+\item Sur \textbf{234} images normales, \textbf{33} sont surclassées à tort en pneumonie.
+\item Le modèle est donc \textbf{volontairement plus sensible que spécifique} : il déclenche plus facilement une alerte plutôt que de laisser passer une pneumonie.
+\item En contexte de triage, ce compromis reste \textbf{cohérent médicalement}.
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Résultats obtenus — benchmark visuel sur le jeu de test}
+\slidepurpose{Montrer visuellement la qualité de séparation du modèle à l'échelle du test complet}{Benchmark final}
+\scriptsize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.68\textwidth}
+\includegraphics[width=\linewidth,height=0.74\textheight,keepaspectratio]{benchmark_testset.png}
+\end{column}
+\begin{column}{0.29\textwidth}
+\begin{block}{Ce que montrent les courbes}
+\begin{itemize}
+\item \textbf{ROC :} courbe très proche du coin supérieur gauche.
+\item \textbf{PR :} AP = \textbf{0.984}, donc très bon classement des cas pneumonie.
+\item Les scores sont \textbf{bien séparés} ; peu d'ambiguïté autour du seuil 0.5.
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Résultats obtenus — comportement durant l'entraînement}
+\slidepurpose{Lire les courbes d'apprentissage et signaler les limites de validation}{Analyse du run conservé}
+\scriptsize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.70\textwidth}
+\includegraphics[width=\linewidth,height=0.71\textheight,keepaspectratio]{benchmark_training.png}
+\end{column}
+\begin{column}{0.27\textwidth}
+\begin{block}{Lecture des courbes}
+\begin{itemize}
+\item La \textbf{train loss} baisse régulièrement : le modèle apprend effectivement.
+\item La \textbf{val loss} oscille davantage : la validation est plus instable.
+\item Les métriques montent vite, mais la validation ne contient que \textbf{16 images}.
+\item La conclusion finale doit donc s'appuyer sur le \textbf{test set à 624 images}.
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Résultats obtenus — validation qualitative par Grad-CAM}
+\slidepurpose{Montrer comment l'explicabilité visuelle aide à valider le comportement du modèle}{Interprétabilité}
+\footnotesize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.66\textwidth}
+\includegraphics[width=\linewidth,height=0.73\textheight,keepaspectratio]{gradcam_results.png}
+\end{column}
+\begin{column}{0.31\textwidth}
+\begin{block}{Ce que l'on observe}
+\begin{itemize}
+\item Les activations se concentrent surtout sur les \textbf{champs pulmonaires} et sur des zones cohérentes avec des opacités.
+\item Le modèle ne semble pas décider uniquement à partir des bords ou du fond de l'image.
+\item Grad-CAM aide à expliquer \textbf{où} le réseau regarde, mais reste un \textbf{outil qualitatif}.
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Finalisation du projet}
+\slidepurpose{Résumer les livrables concrets du projet et la suite logique}{Clôture / mise en production locale}
+\scriptsize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.49\textwidth}
+\begin{block}{Livrables finalisés}
+\begin{itemize}
+\item \textbf{Modèle final entraîné} et checkpoint exporté.
+\item \textbf{Runtime Python} modulaire avec CLI et API locale.
+\item \textbf{Interface web Flask} pour charger une image, lancer l'inférence et voir le Grad-CAM.
+\item \textbf{Benchmark local} avec ROC, PR, matrice de confusion et distribution des scores.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.47\textwidth}
+\begin{block}{Conclusion technique}
+\begin{itemize}
+\item Le système est \textbf{fonctionnel de bout en bout}.
+\item Les performances sont \textbf{suffisamment fortes} pour démontrer la viabilité de l'approche hybride Swin + DenseNet.
+\item Le compromis retenu favorise la \textbf{détection des cas positifs}, ce qui est cohérent avec l'objectif médical.
+\end{itemize}
+\end{block}
+\begin{block}{Améliorations futures}
+\begin{itemize}
+\item augmenter la taille du jeu de validation
+\item renforcer la spécificité
+\item tester sur un dataset externe et améliorer la calibration
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Mots clés}
+\slidepurpose{Synthétiser les thèmes techniques majeurs couverts par le document}{Clôture documentaire}
+    \begin{center}
+        \fbox{Intelligence Artificielle} \quad \fbox{Deep Learning} \quad \fbox{Vision par Ordinateur} \\
+        \vspace{0.5cm}
+        \fbox{Radiographie Thoracique (CXR)} \quad \fbox{Pneumonie} \quad \fbox{CNN / Transformers} \\
+        \vspace{0.5cm}
+        \fbox{Transfer Learning} \quad \fbox{Interprétabilité (Grad-CAM)}
+    \end{center}
+\end{frame}
+
+\appendix
+\mychapter{}{Annexes}
+\section{Références techniques}
+
+\begin{frame}{Annexe A — Convolution, stride et pooling}
+\slidepurpose{Définir les opérations de base des CNN utilisées dans les architectures étudiées}{Annexe technique}
+\small
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\begin{block}{Definitions}
+\defitem{Convolution $k\times k$}{Filtre local glissant sur l'image ou sur une carte de features.}
+\defitem{Stride $s$}{Pas de déplacement du filtre ; quand $s$ augmente, la résolution baisse plus vite.}
+\defitem{Padding}{Bordure ajoutée pour contrôler la taille de sortie.}
+\defitem{MaxPool}{Conserve la plus forte activation dans une fenêtre locale.}
+\defitem{AvgPool}{Remplace une fenêtre locale par sa moyenne.}
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{Formules utiles}
+\[
+Y_{i,j,c'}=\sum_{u,v,c}W_{u,v,c,c'}X_{i+u,j+v,c}+b_{c'}
+\]
+\[
+H_{out}=\left\lfloor \frac{H+2p-k}{s}\right\rfloor +1
+\]
+\end{block}
+\begin{block}{Intuition}
+Les convolutions extraient des motifs locaux. Le pooling résume l'information et réduit la taille spatiale pour rendre le calcul plus efficace.
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Annexe B — BN, ReLU, bottleneck et connexions}
+\slidepurpose{Clarifier les briques de stabilisation et d'efficacité citées dans DenseNet et EfficientNet}{Annexe technique}
+\small
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\begin{block}{Stabilisation}
+\defitem{BN}{Normalise les activations d'un mini-batch pour stabiliser et accélérer l'entraînement.}
+\defitem{ReLU}{Garde les valeurs positives et annule les négatives, ce qui introduit une non-linéarité simple.}
+\defitem{Skip connection}{Réinjecte une information plus tôt dans le réseau pour faciliter le gradient.}
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{Efficacité}
+\defitem{Bottleneck}{Réduit les canaux avant une opération coûteuse, puis projette de nouveau si besoin.}
+\defitem{Growth rate $k$}{Nombre de nouveaux canaux ajoutés par chaque couche dense.}
+\defitem{SE}{Mécanisme qui ré-pondère les canaux selon leur importance.}
+\defitem{Fused-MBConv}{Version simplifiée de MBConv, souvent plus rapide à entraîner sur GPU dans les premiers étages.}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Annexe C — DenseNet et MBConv}
+\slidepurpose{Reprendre proprement les blocs spécifiques les plus utilisés dans l'analyse SOTA}{Annexe technique}
+\small
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\begin{block}{Bloc dense}
+DenseNet concatène les sorties précédentes au lieu de simplement les additionner.
+\[
+x_\ell = H_\ell([x_0,\dots,x_{\ell-1}])
+\]
+Cela favorise la réutilisation des features et un meilleur flux de gradient.
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{MBConv}
+MBConv combine :
+\begin{itemize}
+\setlength{\itemsep}{0.35em}
+\item une expansion $1\times1$,
+\item une convolution depthwise,
+\item un module SE,
+\item une projection finale $1\times1$.
+\end{itemize}
+L'objectif est d'obtenir une bonne expressivité à coût réduit.
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Annexe D — Vocabulaire Transformer}
+\slidepurpose{Définir les notions de patchs, tokens et embeddings utilisées dans ViT et Swin}{Annexe technique}
+\small
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\begin{block}{Definitions}
+\defitem{Patch}{Sous-image locale de taille $P\times P$.}
+\defitem{Token}{Vecteur obtenu après projection d'un patch.}
+\defitem{Embedding}{Représentation vectorielle dense envoyée dans le Transformer.}
+\defitem{Encodage positionnel}{Information ajoutée pour conserver l'ordre spatial des patches.}
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{Formule de tokenisation}
+\[
+N=\frac{HW}{P^2},\qquad z_i = E\,x_i + e_i^{pos}
+\]
+\end{block}
+\begin{block}{Intuition}
+Le Transformer traite l'image comme une séquence de morceaux visuels, de la même façon qu'un modèle de langage traite une phrase comme une séquence de mots.
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Annexe E — Attention et Swin}
+\slidepurpose{Détailler le calcul d'attention et la logique des fenêtres décalées de Swin}{Annexe technique}
+\small
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\begin{block}{Attention}
+\[
+Q=XW_Q,\quad K=XW_K,\quad V=XW_V
+\]
+\[
+\resizebox{0.95\linewidth}{!}{$\mathrm{Attention}(Q,K,V)=\mathrm{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right)V$}
+\]
+\defitem{$Q$}{Ce que le token courant cherche.}
+\defitem{$K$}{Ce que les autres tokens proposent pour être reliés à lui.}
+\defitem{$V$}{L'information qui sera effectivement transmise.}
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{Pourquoi Swin}
+\defitem{Fenêtre}{Sous-ensemble local de tokens traité ensemble.}
+\defitem{Fenêtres décalées}{Décalage d'une couche à la suivante pour reconnecter des zones voisines.}
+\defitem{Bénéfice}{Réduire le coût du contexte global tout en conservant des interactions spatiales utiles.}
+\end{block}
+\begin{block}{Complexité}
+L'attention globale est quadratique en nombre de tokens. Swin réduit ce coût en limitant l'attention à des fenêtres locales.
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Annexe F — Entraînement complémentaire}
+\slidepurpose{Définir les notions d'entraînement mentionnées sans détail dans la solution proposée}{Annexe technique}
+\small
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\begin{block}{Concepts de base}
+\defitem{Transfer learning}{Réutiliser un modèle pré-entraîné puis l'adapter à la radiographie thoracique.}
+\defitem{Augmentation}{Modifier l'image pendant l'entraînement pour rendre le modèle plus robuste.}
+\defitem{Pseudo-masque}{Zone approximative utilisée comme supervision faible quand on n'a pas d'annotation pixel exacte.}
+\defitem{Logit}{Score brut avant application de la sigmoïde ou du softmax.}
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{Pourquoi c'est utile}
+Ces mécanismes servent à :
+\begin{itemize}
+\setlength{\itemsep}{0.35em}
+\item mieux généraliser,
+\item réduire la dépendance à un seul centre hospitalier,
+\item exploiter des annotations incomplètes,
+\item stabiliser l'apprentissage quand les données sont déséquilibrées.
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Annexe G — Pertes et calibration}
+\slidepurpose{Définir les fonctions objectif et la notion de confiance calibrée}{Annexe technique}
+\small
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.5\textwidth}
+\begin{block}{Fonctions de perte}
+\defitem{BCE}{Binary Cross-Entropy, perte standard de classification binaire.}
+\defitem{Focal loss}{Version de BCE qui met davantage l'accent sur les exemples difficiles ou rares.}
+\defitem{$\mathcal{L}_{cons}$}{Impose des sorties proches pour deux vues augmentées d'une même image.}
+\defitem{$\mathcal{L}_{loc}$}{Contraint la carte explicative à rester cohérente avec une zone plausible.}
+\end{block}
+\[
+\mathcal{L}_{BCE}=-(y\log p +(1-y)\log(1-p))
+\]
+\end{column}
+\begin{column}{0.5\textwidth}
+\begin{block}{Calibration}
+\defitem{Calibration}{Une probabilité 0.8 devrait correspondre à environ 80\% de prédictions correctes.}
+\defitem{Temperature scaling}{Correction post-hoc des logits par un scalaire de température.}
+\defitem{ECE}{Mesure l'écart entre confiance moyenne et précision réelle.}
+\end{block}
+\[
+\mathrm{ECE}=\sum_{m=1}^{M}\frac{|B_m|}{n}\left|\mathrm{acc}(B_m)-\mathrm{conf}(B_m)\right|
+\]
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Annexe H — Fusion, explicabilité et incertitude}
+\slidepurpose{Documenter les sorties avancées de la solution proposée}{Annexe technique}
+\small
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\begin{block}{Fusion et gating}
+Le gating apprend le poids relatif des branches locale et globale.
+\[
+g=\sigma(W_g[\mathrm{GAP}(F_c),\mathrm{GAP}(F_s)])
+\]
+\[
+F=g\odot F_c + (1-g)\odot F_s
+\]
+Si $g$ est grand, la branche CNN domine ; sinon la branche Swin domine.
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{Explicabilité et confiance}
+\defitem{Grad-CAM}{Carte visuelle des zones qui contribuent positivement au score choisi.}
+\defitem{MC-Dropout}{Plusieurs passes avec dropout actif à l'inférence pour estimer l'incertitude.}
+\defitem{Variance prédictive}{Plus elle est grande, moins la décision est fiable.}
+\[
+u=\mathrm{Var}_{t}(p_t)
+\]
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}{Annexe I — Metriques d'evaluation}
+\slidepurpose{Définir précisément les mesures de performance et leur lecture clinique}{Annexe technique}
+\small
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\begin{block}{Definitions}
+\defitem{Accuracy}{Proportion totale de prédictions correctes.}
+\defitem{Recall / Sensibilité}{Capacité à retrouver les cas positifs.}
+\defitem{Spécificité}{Capacité à rejeter les cas négatifs.}
+\defitem{AUC-ROC}{Qualité de séparation entre classes quand on fait varier le seuil.}
+\defitem{Faux positif}{Cas sain déclaré malade.}
+\defitem{Faux négatif}{Cas malade déclaré sain.}
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{Formules}
+\[
+\resizebox{0.92\linewidth}{!}{$\mathrm{Recall}=\frac{TP}{TP+FN},\qquad
+\mathrm{Specificite}=\frac{TN}{TN+FP}$}
+\]
+\[
+\resizebox{0.82\linewidth}{!}{$\mathrm{Accuracy}=\frac{TP+TN}{TP+TN+FP+FN}$}
+\]
+\end{block}
+\begin{block}{Lecture en contexte médical}
+En dépistage de pneumonie, réduire les faux négatifs est souvent prioritaire : manquer un cas pathologique est généralement plus grave que sur-appeler un cas douteux.
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\end{document}

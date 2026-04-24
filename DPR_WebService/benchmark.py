@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import io
 import time
 import base64
@@ -28,6 +29,26 @@ from DPR_MedFusionNet.config import CLASS_NAMES, CLASS_TO_IDX, SUPPORTED_IMAGE_E
 from DPR_MedFusionNet.preprocessing import load_image
 
 from .service import TEST_ROOT, model_store
+
+_BENCHMARK_CACHE_FILE = Path(__file__).resolve().parent / "runtime" / "benchmark_cache.json"
+
+
+def save_benchmark_to_disk(result: dict[str, Any]) -> None:
+    """Save benchmark result without charts to disk for persistence."""
+    _BENCHMARK_CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
+    saveable = {key: value for key, value in result.items() if key != "charts"}
+    _BENCHMARK_CACHE_FILE.write_text(json.dumps(saveable, indent=2))
+
+
+def load_benchmark_from_disk() -> dict[str, Any] | None:
+    """Load the last benchmark result from disk if it exists."""
+    if not _BENCHMARK_CACHE_FILE.exists():
+        return None
+    try:
+        loaded = json.loads(_BENCHMARK_CACHE_FILE.read_text())
+    except Exception:
+        return None
+    return loaded if isinstance(loaded, dict) else None
 
 
 def _iter_test_samples(test_root: Path = TEST_ROOT) -> list[tuple[Path, int]]:
