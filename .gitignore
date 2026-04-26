@@ -60,8 +60,16 @@ htmlcov/
 venv/
 
 # Manim
-DPR_Manim/.DS_Store
-DPR_Manim/venvManim/
-DPR_Manim/media/
-DPR_Manim/output_videos/
-DPR_Manim/**/__pycache__/
+# Ignore everything under DPR_Manim except source code files.
+DPR_Manim/*
+!DPR_Manim/main.py
+!DPR_Manim/*.sh
+!DPR_Manim/*.ps1
+!DPR_Manim/scenes/
+!DPR_Manim/utils/
+
+DPR_Manim/scenes/*
+!DPR_Manim/scenes/*.py
+
+DPR_Manim/utils/*
+!DPR_Manim/utils/*.py
