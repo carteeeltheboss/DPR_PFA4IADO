@@ -1,0 +1,25 @@
+# ───────────────────────────────────────────────────────────────
+# MedFusionNet – one-command launch
+#
+# Usage:
+#   docker compose up --build
+#
+# Then open:  http://localhost:8000
+# ───────────────────────────────────────────────────────────────
+
+services:
+  medfusionnet:
+    build: .
+    container_name: medfusionnet
+    ports:
+      - "8000:8000"
+    environment:
+      # Bind to all interfaces so Docker port-forwarding works
+      - DPR_HOST=0.0.0.0
+      - DPR_PORT=8000
+    volumes:
+      # Mount checkpoints from host so you can swap models without rebuilding
+      - ./DPR_MedFusionNet/runs:/app/DPR_MedFusionNet/runs:ro
+      # Mount test data from host (optional – enables sample gallery & benchmarks)
+      - ./DPR_MedFusionNet/data:/app/DPR_MedFusionNet/data:ro
+    restart: unless-stopped

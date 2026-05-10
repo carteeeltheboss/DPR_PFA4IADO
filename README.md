@@ -46,6 +46,9 @@ Important: the current local code is aligned with `MedFusionNet_v4.ipynb`, not o
 ```text
 .
 ├── MedFusionNet_v4.ipynb              # Current Colab training notebook / source of truth
+├── Dockerfile                         # Container image for one-command deployment
+├── docker-compose.yml                 # One-command launcher via Docker Compose
+├── .dockerignore                      # Keeps the Docker image lean
 ├── DPR_MedFusionNet/                  # Inference-focused Python runtime
 │   ├── config.py
 │   ├── checkpoint_utils.py
@@ -183,7 +186,72 @@ git clone https://github.com/carteeeltheboss/DPR_PFA4IADO.git
 cd DPR_PFA4IADO
 ```
 
-### 2. Recommended first launch
+### 2. Docker (recommended — one command)
+
+The fastest way to run the entire project is with Docker. No Python, no virtual environments, no dependency issues.
+
+Prerequisites:
+
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed and running
+
+Build and start:
+
+```bash
+docker compose up --build
+```
+
+The first build takes 2–5 minutes (downloads Python, CPU-only PyTorch, and all dependencies). Subsequent runs start in seconds.
+
+Once you see:
+
+```text
+medfusionnet  |  * Running on http://0.0.0.0:8000
+```
+
+Open **http://localhost:8000** in your browser.
+
+Stop the container:
+
+```bash
+# Ctrl+C in the terminal, or:
+docker compose down
+```
+
+What the Docker setup does:
+
+- builds a lightweight Python 3.11 image with CPU-only PyTorch
+- installs all inference and web dependencies automatically
+- mounts your local checkpoints (`DPR_MedFusionNet/runs/`) and test data (`DPR_MedFusionNet/data/`) as read-only volumes
+- binds the Flask web service to port `8000`
+
+You can swap checkpoints or add test images on the host without rebuilding.
+
+Alternatively, build and run without Compose:
+
+```bash
+docker build -t medfusionnet .
+docker run -p 8000:8000 \
+  -e DPR_HOST=0.0.0.0 \
+  -v ./DPR_MedFusionNet/runs:/app/DPR_MedFusionNet/runs:ro \
+  -v ./DPR_MedFusionNet/data:/app/DPR_MedFusionNet/data:ro \
+  medfusionnet
+```
+
+Smoke test the running container:
+
+```bash
+# Health check
+curl http://localhost:8000/healthz
+
+# API health
+curl http://localhost:8000/api/v1/health
+
+# Predict on a test image
+curl -X POST http://localhost:8000/api/v1/predict \
+  -F "image=@DPR_MedFusionNet/data/test/NORMAL/IM-0001-0001.jpeg"
+```
+
+### 3. Recommended first launch (without Docker)
 
 From the repository root, use the launcher that matches your platform.
 
@@ -218,7 +286,7 @@ After the first setup, use the lighter launcher:
 - PowerShell: `.\run.ps1`
 - Command Prompt: `run.bat`
 
-### 3. Manual environment setup
+### 4. Manual environment setup
 
 If you prefer not to use the launchers, create the environment manually:
 
@@ -240,7 +308,7 @@ This single environment is enough for:
 - the API client
 - the benchmark dashboard
 
-### 4. Make sure a checkpoint exists
+### 5. Make sure a checkpoint exists
 
 The runtime expects checkpoints under:
 
@@ -836,6 +904,40 @@ If you want a specific file, either:
 
 - rename it to the expected pattern
 - or select it explicitly in the web UI / CLI
+
+### Docker: `Cannot connect to the Docker daemon`
+
+Cause:
+
+- Docker Desktop is not running
+
+Fix:
+
+- open Docker Desktop from your Applications folder and wait for the engine to start
+- then re-run `docker compose up --build`
+
+### Docker: container starts but `localhost:8000` is unreachable
+
+Cause:
+
+- the Flask app inside the container is binding to `127.0.0.1` instead of `0.0.0.0`
+
+Fix:
+
+- make sure you use `docker compose up` (which sets `DPR_HOST=0.0.0.0` automatically)
+- if running `docker run` manually, pass `-e DPR_HOST=0.0.0.0`
+
+### Docker: `Checkpoint not found` inside the container
+
+Cause:
+
+- the checkpoint volume is not mounted, or the `runs/` directory is empty on the host
+
+Fix:
+
+- make sure `DPR_MedFusionNet/runs/<run_name>/checkpoints/` contains at least one `.pth` file on the host
+- if using `docker compose`, the volume mount is configured automatically
+- if using `docker run`, add: `-v ./DPR_MedFusionNet/runs:/app/DPR_MedFusionNet/runs:ro`
 
 ## License
 
