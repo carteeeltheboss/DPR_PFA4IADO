@@ -1,5 +1,5 @@
-\mychapter{}{Acronymes et terminologie}
-\section{Glossaire initial}
+\chapter{Contexte du projet}
+\section{Terminologie et conventions de lecture}
 
 \begin{frame}{Acronymes — Domaine et modèles}
 \slidepurpose{Donner les sigles du domaine avant les slides techniques}{Référence documentaire}
@@ -123,7 +123,7 @@ Chaque slide technique indique explicitement :
 \end{columns}
 \end{frame}
 
-\mychapter{}{Problématique et Méthodologie}
+\section{Contexte général, étude du besoin et méthodologie}
 
 \begin{frame}{Problématique}
 \slidepurpose{Poser le besoin clinique, la question de recherche et la contrainte d'explicabilité}{Cadrage scientifique}
@@ -178,6 +178,8 @@ Chaque slide technique indique explicitement :
         \textbf{M} & Finalisation rapport, slides et démonstration & 5 j & L (0FD), D (0FD) \\ \hline
     \end{tabular}
     \end{adjustbox}
+    \captionsetup{type=table}
+    \captionof{table}{Planification détaillée des tâches du projet et dépendances PERT}
 
     \vspace{0.15cm}
     \tiny
@@ -331,6 +333,8 @@ Chaque slide technique indique explicitement :
         \textbf{MT} & 0 & 2 & 1 & 30 & 0 & 1 & 0 & 0 & 0 & 21 & 0 & 0 & 0 \\ \hline
     \end{tabular}
     \end{adjustbox}
+    \captionsetup{type=table}
+    \captionof{table}{Marges libres et marges totales calculées sur le planning du projet}
 
     \vspace{0.2cm}
     \tiny
@@ -469,7 +473,7 @@ Chaque slide technique indique explicitement :
 
 \end{frame}
 
-\mychapter{}{Analyse SOTA}
+\section{Étude de l'existant}
 \section{Phase 1 — DenseNet / CheXNet}
 
 \begin{frame}{SOTA : Architecture DenseNet-121}
@@ -1224,7 +1228,169 @@ Sensibilité à la couche choisie, au prétraitement et au bruit.\\
 \end{columns}
 \end{frame}
 
-\mychapter{}{Solution proposée}
+
+\section{Objectifs du projet}
+
+\begin{frame}{Objectifs du projet}
+\slidepurpose{Synthétiser les objectifs fonctionnels, scientifiques et logiciels avant la conception détaillée}{Cadrage du projet}
+\small
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\begin{block}{Objectifs fonctionnels}
+\begin{itemize}
+\item détecter la pneumonie sur radiographie thoracique ;
+\item fournir une probabilité exploitable pour le triage ;
+\item visualiser les zones les plus contributives via Grad-CAM.
+\end{itemize}
+\end{block}
+\begin{block}{Objectifs scientifiques}
+\begin{itemize}
+\item comparer les familles CNN et Transformers ;
+\item justifier une architecture hybride ;
+\item relier performance et interprétabilité.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{Objectifs techniques}
+\begin{itemize}
+\item construire un pipeline complet d'entraînement et d'inférence ;
+\item exposer le modèle via scripts, API et interface web ;
+\item conserver une solution reproductible et documentée.
+\end{itemize}
+\end{block}
+\begin{alertblock}{Critère de réussite}
+Le projet est considéré comme réussi si le modèle atteint une bonne sensibilité aux cas \texttt{PNEUMONIA}, reste lisible par ses sorties explicatives, et peut être utilisé localement dans une démonstration complète.
+\end{alertblock}
+\end{column}
+\end{columns}
+\end{frame}
+
+\chapter{Conception fonctionnelle et modélisation}
+
+\section{Diagrammes fonctionnels et structure logique}
+
+\begin{frame}[t]{Conception fonctionnelle --- Diagramme de cas d'utilisation}
+\slidepurpose{Décrire les interactions principales entre les utilisateurs et la solution}{Conception fonctionnelle}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.42\textwidth}
+\small
+\begin{block}{Lecture fonctionnelle}
+Le système répond à deux profils d'usage :
+\begin{itemize}
+\item le \textbf{clinicien} ou démonstrateur, qui charge une radiographie, lance l'analyse et lit le résultat ;
+\item l'\textbf{ingénieur IA}, qui entraîne, évalue et met à jour le modèle.
+\end{itemize}
+\end{block}
+\begin{alertblock}{Intérêt du diagramme}
+Ce schéma clarifie ce que la solution doit réellement fournir : prédiction, explicabilité, benchmark et maintenance des modèles.
+\end{alertblock}
+\end{column}
+\begin{column}{0.54\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize,
+    actor/.style={draw, ellipse, minimum width=1.9cm, minimum height=0.9cm, align=center, fill=gray!10},
+    use/.style={draw, rounded corners=8pt, minimum width=3.2cm, minimum height=0.8cm, align=center, fill=blue!8},
+    rel/.style={-{Latex[length=2.4mm]}, thick}]
+\node[actor] (clin) at (0,3.0) {Clinicien\\/ Utilisateur};
+\node[actor] (eng) at (0,0.2) {Ingénieur IA};
+\node[draw, rounded corners=10pt, thick, minimum width=6.8cm, minimum height=4.2cm] (sys) at (4.8,1.6) {};
+\node[anchor=north west, font=\bfseries] at (1.7,3.55) {MedFusionNet};
+\node[use] (u1) at (4.8,3.0) {Charger une radiographie};
+\node[use] (u2) at (4.8,2.2) {Lancer la prédiction};
+\node[use] (u3) at (4.8,1.4) {Visualiser score + Grad-CAM};
+\node[use] (u4) at (4.8,0.6) {Exécuter un benchmark};
+\node[use] (u5) at (4.8,-0.2) {Entraîner / charger un modèle};
+\draw[rel] (clin.east) -- (u1.west);
+\draw[rel] (clin.east) -- (u2.west);
+\draw[rel] (clin.east) -- (u3.west);
+\draw[rel] (eng.east) -- (u4.west);
+\draw[rel] (eng.east) -- (u5.west);
+\end{tikzpicture}%
+}{Diagramme de cas d'utilisation simplifié du système}
+\end{column}
+\end{columns}
+\end{frame}
+
+\begin{frame}[t]{Conception fonctionnelle --- Diagramme de classes logiques}
+\slidepurpose{Montrer les principaux objets logiciels et leurs dépendances}{Conception fonctionnelle / modélisation logicielle}
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.42\textwidth}
+\small
+\begin{block}{Classes / composants principaux}
+\begin{itemize}
+\item \texttt{ImagePreprocessor} : normalise et redimensionne l'image ;
+\item \texttt{ChestXRayDataset} : prépare les couples $(X,y)$ ;
+\item \texttt{MedFusionNet} : réalise l'extraction locale, globale et la fusion ;
+\item \texttt{GradCAM} : produit la carte explicative ;
+\item \texttt{MedFusionInference} : orchestre chargement, prédiction et sorties ;
+\item \texttt{API/WebApp} : expose le moteur à l'utilisateur.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.54\textwidth}
+\tikzsolutionfigure{%
+\begin{tikzpicture}[>=Latex, font=\scriptsize,
+    classbox/.style={draw, rounded corners=4pt, align=left, text width=3.0cm, minimum height=1.05cm, fill=white},
+    rel/.style={-{Latex[length=2.3mm]}, thick, draw=gray!70}]
+\node[classbox, fill=blue!8] (prep) at (0,3.2) {\textbf{ImagePreprocessor}\\resize, normalisation, CLAHE};
+\node[classbox, fill=green!8] (data) at (0,1.8) {\textbf{ChestXRayDataset}\\lecture disque, labels, batchs};
+\node[classbox, fill=orange!10] (model) at (4.0,3.2) {\textbf{MedFusionNet}\\DenseNet + Swin + Gate};
+\node[classbox, fill=yellow!10] (cam) at (4.0,1.8) {\textbf{GradCAM}\\poids de gradients, heatmap};
+\node[classbox, fill=purple!10] (infer) at (4.0,0.4) {\textbf{MedFusionInference}\\prédiction, incertitude, overlay};
+\node[classbox, fill=red!8] (api) at (0,0.4) {\textbf{API / WebApp}\\routes Flask, affichage, client};
+\draw[rel] (prep.east) -- (model.west);
+\draw[rel] (data.east) -- (model.west);
+\draw[rel] (model.south) -- (cam.north);
+\draw[rel] (model.south) -- (infer.north);
+\draw[rel] (cam.south) -- (infer.north);
+\draw[rel] (api.east) -- (infer.west);
+\end{tikzpicture}%
+}{Vue logique simplifiée des classes et composants du projet}
+\end{column}
+\end{columns}
+\end{frame}
+
+\section{Données, nettoyage et protocole d'apprentissage}
+
+\begin{frame}[t]{Conception des données --- Dataset et nettoyage}
+\slidepurpose{Présenter le corpus de données et la logique de préparation avant l'entraînement}{Conception fonctionnelle / données}
+\small
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.5\textwidth}
+\begin{block}{Présentation du dataset}
+Le corpus retenu est le dataset Kaggle \textit{Chest X-Ray Pneumonia} de Paul Mooney, organisé en deux classes : \texttt{NORMAL} et \texttt{PNEUMONIA}. Il fournit un cadre de travail adapté à une première évaluation comparative des architectures profondes sur radiographies thoraciques.
+\end{block}
+\begin{block}{Nettoyage et homogénéisation}
+Avant l'apprentissage, les images sont :
+\begin{itemize}
+\item redimensionnées à une taille cible commune ;
+\item normalisées pour stabiliser les intensités ;
+\item éventuellement améliorées localement pour le contraste ;
+\item converties en tenseurs compatibles avec le pipeline PyTorch.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.46\textwidth}
+\begin{block}{Formulation}
+En notant $X$ l'image brute, la transformation appliquée s'écrit :
+\[
+\tilde X = T(X)=A\big(R(N(X))\big)
+\]
+où :
+\begin{itemize}
+\item $N$ normalise les intensités,
+\item $R$ redimensionne l'image,
+\item $A$ améliore éventuellement le contraste.
+\end{itemize}
+\end{block}
+\begin{alertblock}{Pourquoi cette étape est critique}
+Un modèle médical ne doit pas apprendre les artefacts de capture ou les écarts de contraste ; il doit apprendre les indices pathologiques. La préparation des données réduit ce risque.
+\end{alertblock}
+\end{column}
+\end{columns}
+\end{frame}
+
 \section{Architecture et conception}
 
 \begin{frame}[t]{Solution proposée — Étape 0 : vue d'ensemble}
@@ -1706,7 +1872,40 @@ soit un score de pneumonie, une heatmap explicative et une estimation d'incertit
 \end{columns}
 \end{frame}
 
-\section{Implémentation et Outils techniques}
+
+\begin{frame}[t]{Modélisation --- Protocole d'entraînement et d'évaluation}
+\slidepurpose{Expliquer comment le modèle apprend puis comment sa précision est calculée}{Conception fonctionnelle / apprentissage}
+\small
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\begin{block}{Entraînement du modèle}
+Le modèle apprend en minimisant une fonction de coût combinée :
+\[
+\mathcal{L}=\lambda_{cls}\,\mathcal{L}_{cls}+\lambda_{cal}\,\mathcal{L}_{cal}+\lambda_{reg}\,\mathcal{L}_{reg}
+\]
+La composante principale $\mathcal{L}_{cls}$ pousse le réseau à distinguer les classes \texttt{NORMAL} et \texttt{PNEUMONIA}. Les autres termes servent à améliorer la calibration et la stabilité.
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{Test et calcul de précision}
+Une fois entraîné, le modèle est évalué sur un jeu de test indépendant. Les indicateurs calculés sont notamment :
+\[
+\mathrm{Accuracy}=\frac{TP+TN}{TP+TN+FP+FN}
+\]
+\[
+\mathrm{Recall}=\frac{TP}{TP+FN}
+\]
+\[
+\mathrm{Precision}=\frac{TP}{TP+FP}
+\]
+Ces mesures permettent de quantifier à la fois la justesse globale et la capacité à détecter les cas malades.
+\end{block}
+\end{column}
+\end{columns}
+\end{frame}
+
+\chapter{Conception technique et réalisation}
+\section{Technologies, architecture et mise en œuvre}
 
 \begin{frame}[t]{Implémentation — Dataset Chest X-Ray}
 \slidepurpose{Justifier la sélection et les caractéristiques des données d'apprentissage}{Préparation des données}
@@ -1993,7 +2192,7 @@ L'exécution de l'entraînement a été finement calibrée sur l'environnement C
 \end{columns}
 \end{frame}
 
-\mychapter{}{Résultats et Finalisation}
+\section{Tests, résultats et validation}
 
 \begin{frame}{Résultats obtenus — synthèse quantitative}
 \slidepurpose{Donner les performances finales du modèle sur le jeu de test et les interpréter}{Évaluation finale}
@@ -2054,6 +2253,8 @@ L'exécution de l'entraînement a été finement calibrée sur l'environnement C
 \hline
 \end{tabular}
 }
+\captionsetup{type=table}
+\captionof{table}{Matrice de confusion finale sur le jeu de test}
 \end{block}
 \begin{block}{Bilan chiffré}
 \begin{itemize}
@@ -2178,6 +2379,128 @@ L'exécution de l'entraînement a été finement calibrée sur l'environnement C
         \vspace{0.5cm}
         \fbox{Transfer Learning} \quad \fbox{Interprétabilité (Grad-CAM)}
     \end{center}
+\end{frame}
+
+
+\section{Valorisation entrepreneuriale}
+
+\begin{frame}[t]{Entrepreneuriat --- Vision de valorisation}
+\slidepurpose{Introduire simplement comment une idée technique peut devenir un projet entrepreneurial}{Ouverture business / entrepreneuriat}
+\scriptsize
+\begin{block}{Le point de départ}
+\begin{itemize}
+\setlength{\itemsep}{0.22em}
+\item Les hôpitaux et centres d'imagerie doivent traiter beaucoup d'examens en peu de temps.
+\item Une radiographie thoracique peut être difficile à interpréter rapidement.
+\item Un outil d'aide peut donc avoir une vraie utilité pratique.
+\end{itemize}
+\end{block}
+
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.48\textwidth}
+\begin{block}{Notre idée}
+\begin{itemize}
+\setlength{\itemsep}{0.18em}
+\item signaler les cas suspects,
+\item aider à prioriser les urgences,
+\item montrer une explication visuelle.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.48\textwidth}
+\begin{block}{Ce que l'on vend}
+\begin{itemize}
+\setlength{\itemsep}{0.18em}
+\item une aide au triage,
+\item une aide à la lecture,
+\item un service utile pour les structures médicales.
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+
+\begin{alertblock}{Idée clé}
+On ne vend pas un ``médecin automatique'', mais une \textbf{solution d'assistance} qui aide les professionnels à travailler plus vite et plus sereinement.
+\end{alertblock}
+\end{frame}
+
+\begin{frame}[t]{Entrepreneuriat --- Clients cibles et vente}
+\slidepurpose{Présenter simplement le marché visé et la logique commerciale du projet}{Valorisation du projet}
+\scriptsize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.47\textwidth}
+\begin{block}{Clients potentiels}
+\begin{itemize}
+\setlength{\itemsep}{0.22em}
+\item hôpitaux publics et privés,
+\item cliniques,
+\item centres de radiologie,
+\item plateformes de téléradiologie.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.47\textwidth}
+\begin{block}{Démarche simple de vente}
+\begin{enumerate}
+\setlength{\itemsep}{0.22em}
+\item montrer le besoin,
+\item faire une démonstration,
+\item proposer un pilote,
+\item recueillir les retours,
+\item transformer le test en offre.
+\end{enumerate}
+\end{block}
+\end{column}
+\end{columns}
+
+\begin{alertblock}{Positionnement}
+Le projet se vend en \textbf{B2B} : il s'adresse à des établissements de santé et non directement au grand public.
+\end{alertblock}
+\end{frame}
+
+\begin{frame}[t]{Entrepreneuriat --- Budget simple et modalités de vente}
+\slidepurpose{Donner une vision accessible du budget de départ et des revenus possibles}{Faisabilité économique}
+\scriptsize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.54\textwidth}
+\renewcommand{\arraystretch}{1.08}
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{|p{4.1cm}|c|}
+\hline
+\textbf{Poste} & \textbf{Estimation} \\ \hline
+Hébergement / cloud / GPU & 30\,000 MAD \\ \hline
+Développement / amélioration & 50\,000 MAD \\ \hline
+Tests / pilote / documentation & 25\,000 MAD \\ \hline
+Communication / déplacement & 20\,000 MAD \\ \hline
+\textbf{Total simplifié} & \textbf{125\,000 MAD} \\ \hline
+\end{tabular}
+\end{adjustbox}
+\captionsetup{type=table}
+\captionof{table}{Budget simplifié de lancement de la solution MedFusionNet}
+\end{column}
+\begin{column}{0.42\textwidth}
+\begin{block}{Modes de vente}
+\begin{itemize}
+\setlength{\itemsep}{0.24em}
+\item pilote payant,
+\item abonnement mensuel,
+\item licence annuelle.
+\end{itemize}
+\end{block}
+
+\begin{block}{Exemple simple}
+\begin{itemize}
+\setlength{\itemsep}{0.2em}
+\item Pilote : 10\,000 à 20\,000 MAD
+\item Abonnement : 3\,000 à 6\,000 MAD / mois
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+
+\begin{alertblock}{Lecture entrepreneuriale}
+Pour notre niveau, l'essentiel est de montrer qu'il existe un \textbf{marché possible}, un \textbf{mode de vente simple} et un \textbf{budget de départ raisonnable}.
+\end{alertblock}
 \end{frame}
 
 \appendix

@@ -1,9 +1,4 @@
-\documentclass[a4paper,12pt]{report} % changed from beamer
-
-\usepackage[most]{tcolorbox}
-
-\newtcolorbox{block}[1][]{enhanced,breakable,colback=blue!5!white, colframe=blue!75!black, title=#1}
-\newtcolorbox{alertblock}[1][]{enhanced,breakable,colback=red!5!white, colframe=red!75!black, title=#1}
+\documentclass[a4paper,11pt,oneside]{report}
 
 \usepackage[utf8]{inputenc}
 \usepackage[T1]{fontenc}
@@ -11,11 +6,19 @@
 \usepackage[french]{babel}
 \usepackage{xcolor,graphicx}
 \usepackage{geometry}
-\geometry{a4paper, top=2.5cm, bottom=2.5cm, left=2.5cm, right=2.5cm}
+\geometry{a4paper, top=2.2cm, bottom=2.5cm, left=2.4cm, right=2.4cm, headsep=0.7cm}
 \usepackage{amsmath,amssymb}
 \usepackage{array}
 \usepackage{caption}
 \usepackage{lmodern}
+\usepackage{booktabs}
+\usepackage{microtype}
+\usepackage{setspace}
+\usepackage{enumitem}
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{needspace}
+\usepackage[most]{tcolorbox}
 \usepackage{pgfgantt} % Ensure you have this package
 \usepackage{pgf-umlsd}
 
@@ -24,8 +27,11 @@
   {\end{quote}}
 
 \newcommand{\mychapter}[2]{%
+  \clearpage
   \chapter*{#2}%
+  \markboth{#2}{#2}%
   \addcontentsline{toc}{chapter}{#2}%
+  \vspace{-0.35em}
 }
 
 \usepackage{wrapfig}
@@ -37,21 +43,119 @@
 \graphicspath{{./}{DPR_tex/}}
 \hfuzz=3pt
 
+\definecolor{Primary}{HTML}{184E77}
+\definecolor{Secondary}{HTML}{1D7874}
+\definecolor{Accent}{HTML}{C97012}
+\definecolor{SoftBg}{HTML}{F7FAFC}
+\definecolor{Alert}{HTML}{B02A37}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=Primary,
+  citecolor=Primary,
+  urlcolor=Primary,
+  hypertexnames=false,
+  pdftitle={Détection de la pneumonie sur radiographie thoracique via MedFusionNet},
+  pdfauthor={Karim Hanfaoui et Imane Kafif}
+}
+\urlstyle{same}
+\raggedbottom
+\setstretch{1.08}
 \setcounter{tocdepth}{1}
 \setcounter{secnumdepth}{0}
-\setlength{\parskip}{0.45em}
-\setlength{\parindent}{1.2em}
+\setlength{\parskip}{0.35em}
+\setlength{\parindent}{1.1em}
+\setlength{\headheight}{15pt}
+\emergencystretch=1em
+
+\setlist[itemize]{topsep=0.35em,itemsep=0.2em,leftmargin=1.6em}
+\setlist[enumerate]{topsep=0.35em,itemsep=0.2em,leftmargin=1.8em}
+
+\titleformat{name=\chapter,numberless}[display]
+  {\normalfont\huge\bfseries\color{Primary}}
+  {}
+  {0pt}
+  {}
+  [\vspace{0.45em}\color{Primary}\titlerule]
+\titleformat{\section}
+  {\normalfont\Large\bfseries\color{Primary}}
+  {}
+  {0pt}
+  {}
+\titleformat{\subsection}
+  {\normalfont\large\bfseries\color{Secondary}}
+  {}
+  {0pt}
+  {}
+\titlespacing*{\chapter}{0pt}{0pt}{1.0em}
+\titlespacing*{\section}{0pt}{1.1em}{0.5em}
+\titlespacing*{\subsection}{0pt}{0.9em}{0.35em}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\nouppercase{\leftmark}}
+\fancyhead[R]{\nouppercase{\rightmark}}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+
+\captionsetup{
+  font=small,
+  labelfont=bf,
+  labelsep=period,
+  skip=6pt
+}
+
+\newtcolorbox{block}[2][]{%
+  enhanced,
+  breakable,
+  colback=Primary!4!white,
+  colframe=Primary!50!black,
+  colbacktitle=Primary!10!white,
+  coltitle=black,
+  fonttitle=\bfseries,
+  sharp corners,
+  boxrule=0.6pt,
+  left=6pt,right=6pt,top=5pt,bottom=5pt,
+  before skip=7pt,after skip=7pt,
+  title={#2},
+  #1
+}
+\newtcolorbox{alertblock}[2][]{%
+  enhanced,
+  breakable,
+  colback=Alert!4!white,
+  colframe=Alert!60!black,
+  colbacktitle=Alert!10!white,
+  coltitle=black,
+  fonttitle=\bfseries,
+  sharp corners,
+  boxrule=0.6pt,
+  left=6pt,right=6pt,top=5pt,bottom=5pt,
+  before skip=7pt,after skip=7pt,
+  title={#2},
+  #1
+}
 
 \newcommand{\slidepurpose}[2]{%
-\noindent{\footnotesize\textcolor{black!70}{\textbf{Rôle :} #1 \hfill \textbf{Étape du projet :} #2}}\par
-\vspace{0.18cm}
+\begin{tcolorbox}[
+  enhanced,
+  boxrule=0.4pt,
+  sharp corners,
+  colback=SoftBg,
+  colframe=Primary!25,
+  left=5pt,right=5pt,top=3pt,bottom=3pt,
+  before skip=3pt,after skip=8pt
+]
+\footnotesize\textbf{Rôle :} #1 \hfill \textbf{Étape du projet :} #2
+\end{tcolorbox}
 }
 
 \newcommand{\defitem}[2]{\textbf{#1} : #2\par\vspace{0.32em}}
 
 \newcommand{\solutionfigure}[2]{%
 \begin{center}
-\includegraphics[width=0.96\linewidth,height=0.70\textheight,keepaspectratio]{#1}
+\includegraphics[width=0.96\linewidth,height=0.52\textheight,keepaspectratio]{#1}
 \captionsetup{type=figure}
 \captionof{figure}{#2}
 \end{center}
@@ -59,7 +163,7 @@
 
 \newcommand{\tikzsolutionfigure}[2]{%
 \begin{center}
-\begin{adjustbox}{max width=0.96\linewidth, max totalheight=0.70\textheight}
+\begin{adjustbox}{max width=0.96\linewidth, max totalheight=0.52\textheight}
 #1
 \end{adjustbox}
 \captionsetup{type=figure}
@@ -69,22 +173,24 @@
 
 \newif\ifreportfirstcolumn
 \NewDocumentEnvironment{columns}{ O{} }{%
-\par\medskip\noindent\ignorespaces
+\par\medskip\noindent\reportfirstcolumntrue\ignorespaces
 }{%
 \par\medskip
 }
 
 \NewDocumentEnvironment{column}{ m }{%
-\par\noindent\begin{minipage}[t]{\linewidth}\vspace{0pt}
+  \ifreportfirstcolumn\reportfirstcolumnfalse\else\hfill\fi
+  \begin{minipage}[t]{#1}\vspace{0pt}\raggedright
 }{%
-\end{minipage}\par\medskip
+\end{minipage}\ignorespacesafterend
 }
 
 \RenewDocumentEnvironment{frame}{ O{} m }{%
+\Needspace{8\baselineskip}%
 \subsection{#2}
-\vspace{0.1cm}
+\noindent
 }{%
-\par\vspace{0.3cm}
+\par\vspace{0.45cm}
 }
 
 \begin{document}
@@ -107,9 +213,11 @@
 \end{flushright}
 \end{minipage}\hfill\\
 \vspace{20mm}
-{\large \bfseries Mémoire du projet de fin d’année}\\[0.5cm]
-{\large Pour la validation du module PFA Semestre S1}\\[0.5cm]
-{\large \bfseries{Option : 4IADO G2} \\ }
+{\large \bfseries Mémoire du projet de fin d’année}\\[0.35cm]
+{\large Pour la validation du module PFA Semestre S1}\\[0.35cm]
+{\large \bfseries Filière : 4IADO G2}\\[0.15cm]
+{\normalsize Période : année universitaire 2025--2026}\\[0.15cm]
+{\normalsize Thème : Intelligence artificielle appliquée à l'imagerie médicale}
 \vspace{10mm}
 \rule{\linewidth}{0.3mm} \\[0.4cm]
 { \huge \bfseries Détection de la pneumonie sur radiographie thoracique via MedFusionNet\\[0.4cm] }
@@ -121,14 +229,14 @@
 \vspace{-7mm}
 \begin{flushleft} \large
 \emph{Réalisé par :}\\
-M. \textsc{HANFAOUI} Karim \\
-Mme. \textsc{KAFIF} Imane \\
+M. HANFAOUI Karim \\
+Mme. KAFIF Imane \\
 \end{flushleft}
 \end{minipage}
 \begin{minipage}{0.4\textwidth}
 \begin{flushright} \large
-\emph{Encadré par :} \\
-Pr. \textsc{Mdarbi} Fatimaezzahra \\
+\emph{Maître pédagogique :} \\
+Pr. Mdarbi Fatimaezzahra \\
 \end{flushright}
 \end{minipage}\\[1cm]
 
@@ -136,15 +244,16 @@ Pr. \textsc{Mdarbi} Fatimaezzahra \\
 
 \centering
 \begin{tabular}{lll}
-\large M. x \textsc{y} : & \large EMSI & \large - Président(e) \\[0.1cm]
-\large M. x \textsc{y} : & \large EMSI & \large - Examinateur(trice) \\[0.1cm]
-\large M. x \textsc{y} : & \large EMSI & \large - Rapporteur
+\large M. X Y : & \large EMSI & \large - Président(e) \\[0.1cm]
+\large M. X Y : & \large EMSI & \large - Examinateur(trice) \\[0.1cm]
+\large M. X Y : & \large EMSI & \large - Rapporteur
 \end{tabular}
 
 \vspace{20mm}
 {\large Promotion : 2025/2026}
 \end{titlepage}
 
+\pagenumbering{roman}
 \chapter*{Remerciements}
 \addcontentsline{toc}{chapter}{Remerciements}
 \thispagestyle{empty}
@@ -153,9 +262,9 @@ Pr. \textsc{Mdarbi} Fatimaezzahra \\
 
 Je tiens à exprimer ma profonde gratitude à toutes les personnes qui ont contribué, de près ou de loin, à la réalisation de ce projet de détection de la pneumonie sur radiographie thoracique.\\[0.5cm]
 
-Je remercie tout particulièrement \textbf{Pr. Mdarbi Fatimaezzahra} pour son encadrement, ses conseils avisés et son soutien tout au long de cette aventure.\\[0.5cm]
+Je remercie tout particulièrement \textbf{Pr. Mdarbi Fatimaezzahra} pour son encadrement, ses conseils avisés et son soutien tout au long de cette aventure.
 
-Je souhaite également remercier \textbf{l'EMSI Les Orangers} pour l'accompagnement pédagogique, l'environnement de travail et les ressources mises à disposition durant ce projet.\\[0.5cm]
+Je souhaite également remercier \textbf{l'EMSI Les Orangers} pour l'accompagnement pédagogique, l'environnement de travail et les ressources mises à disposition durant ce projet.
 
 Enfin, une pensée sincère à nos familles et à nos proches pour leur soutien moral et leurs encouragements constants.
 
@@ -167,41 +276,148 @@ Enfin, une pensée sincère à nos familles et à nos proches pour leur soutien 
 \end{flushright}
 
 \clearpage
-\pagenumbering{roman}
 \tableofcontents
+\clearpage
+\listoftables
 \clearpage
 \listoffigures
 \clearpage
-\pagenumbering{arabic}
 
 \chapter*{Résumé}
 \addcontentsline{toc}{chapter}{Résumé}
-Ce mémoire présente \textbf{MedFusionNet}, un système de détection binaire de la pneumonie sur radiographie thoracique conçu dans le cadre du projet de fin d'année. L'objectif principal est de proposer une solution de vision par ordinateur à la fois performante, interprétable et exploitable localement pour l'inférence, tout en conservant une logique de développement cohérente avec les contraintes académiques et expérimentales du projet. Le travail s'inscrit dans un contexte où la radiographie thoracique constitue un examen de première ligne, mais où l'interprétation peut rester difficile lorsque les signes sont discrets, diffus ou hétérogènes.
+Ce mémoire présente \textbf{MedFusionNet}, un système d’aide à la détection binaire de la pneumonie sur radiographie thoracique. La problématique traitée est celle de l’identification rapide et fiable de signes pathologiques dans un contexte où l’interprétation humaine peut être rendue difficile par la charge de travail, la variabilité des images et la subtilité de certains foyers pulmonaires. L’objectif du projet est de proposer une solution à la fois performante, explicable et exploitable dans un environnement local.
 
-L'approche retenue repose sur une \textbf{architecture hybride} combinant une branche \textbf{DenseNet} pour l'extraction d'indices locaux et une branche \textbf{Swin Transformer} pour la capture du contexte global. Les deux représentations sont ensuite agrégées par un mécanisme de \textbf{gated fusion} afin d'adapter dynamiquement la contribution de chaque branche à chaque image. Le système ne se limite pas à une simple probabilité de classe : il intègre aussi une couche d'\textbf{explicabilité visuelle} via Grad-CAM, ainsi qu'une chaîne logicielle complète comprenant un moteur d'inférence modulaire, une API locale et une interface web de démonstration.
+La méthodologie suivie combine une étude de l’existant, une conduite de projet de type agile et une conception progressive d’une architecture hybride. Le modèle retenu associe une branche \textbf{DenseNet}, chargée de capter les motifs radiographiques locaux, à une branche \textbf{Swin Transformer}, destinée à intégrer le contexte global de l’image. Ces deux représentations sont fusionnées par un mécanisme de \textbf{gated fusion}. L’ensemble est complété par un module \textbf{Grad-CAM} pour l’explicabilité, puis intégré dans une chaîne logicielle comprenant entraînement, inférence locale, API et interface web.
 
-Les résultats obtenus sur le jeu de test final montrent qu'il est possible d'obtenir un \textbf{niveau de performance élevé} tout en conservant une interprétation technique lisible du fonctionnement du modèle. Le projet aboutit ainsi à un livrable complet, couvrant à la fois l'étude bibliographique, la conception, l'implémentation, l'évaluation et la mise à disposition d'un environnement local d'utilisation.
+Les résultats obtenus sur le jeu de test final montrent une \textbf{accuracy de 92.79\%}, une \textbf{AUC-ROC de 0.976} et une bonne capacité de détection des cas positifs, avec une sensibilité élevée. Le rapport couvre ainsi le contexte du projet, la modélisation, la réalisation technique, l’évaluation expérimentale et la valorisation du système.
+
+\vspace{0.35cm}
+\noindent\textbf{Mots-clés :} pneumonie, radiographie thoracique, Deep Learning, DenseNet, Swin Transformer, Grad-CAM, fusion multimodèle.
+
+\chapter*{Abstract}
+\addcontentsline{toc}{chapter}{Abstract}
+This report presents \textbf{MedFusionNet}, a decision-support system for binary pneumonia detection from chest X-ray images. The project addresses the difficulty of obtaining fast and reliable interpretation in a setting where radiographs may contain subtle findings, acquisition variability, and clinically ambiguous patterns. The main objective is to design a solution that is accurate, explainable, and usable beyond a simple experimental notebook.
+
+The adopted methodology combines state-of-the-art review, agile project management, and progressive model design. The final architecture is a hybrid network that merges a \textbf{DenseNet} branch for local texture and opacity analysis with a \textbf{Swin Transformer} branch for global anatomical context. Both feature streams are combined through a \textbf{gated fusion} mechanism that adapts their relative contribution for each image. The system is further extended with \textbf{Grad-CAM} to provide visual explanations, and packaged into a full software pipeline including training scripts, local inference, a REST API, and a web demonstration interface.
+
+Experimental evaluation on the final test set shows strong performance, with \textbf{92.79\% accuracy}, \textbf{0.976 AUC-ROC}, and high sensitivity to pneumonia cases. The report therefore covers the project context, the modelling choices, the technical implementation, the test protocol, the obtained results, and the practical value of the proposed system.
+
+\vspace{0.35cm}
+\noindent\textbf{Keywords:} pneumonia, chest X-ray, deep learning, DenseNet, Swin Transformer, Grad-CAM, hybrid fusion.
+
+\chapter*{Liste des acronymes}
+\addcontentsline{toc}{chapter}{Liste des acronymes}
+\renewcommand{\arraystretch}{1.15}
+\begin{center}
+\begin{tabular}{p{0.17\linewidth} p{0.75\linewidth}}
+\toprule
+\textbf{Acronyme} & \textbf{Définition} \\
+\midrule
+IA & Intelligence Artificielle. \\
+DL & Deep Learning. \\
+CXR & Chest X-Ray, radiographie thoracique. \\
+SOTA & State Of The Art, meilleur niveau de performance connu au moment de l'étude. \\
+CNN & Convolutional Neural Network. \\
+ViT & Vision Transformer. \\
+Swin & Shifted Window Transformer. \\
+Grad-CAM & Gradient-weighted Class Activation Mapping. \\
+BN & Batch Normalization. \\
+ReLU & Rectified Linear Unit. \\
+GAP & Global Average Pooling. \\
+FC & Fully Connected. \\
+MBConv & Mobile Inverted Bottleneck Convolution. \\
+SE & Squeeze-and-Excitation. \\
+FLOPs & Floating Point Operations. \\
+ECE & Expected Calibration Error. \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\clearpage
+\pagenumbering{arabic}
 
 \chapter*{Introduction générale}
 \addcontentsline{toc}{chapter}{Introduction générale}
-La détection assistée de la pneumonie constitue un cas d'usage particulièrement pertinent pour l'intelligence artificielle appliquée à l'imagerie médicale. D'un point de vue clinique, une pneumonie non détectée assez tôt peut dégrader rapidement l'état du patient, tandis qu'un excès d'alertes peut saturer les circuits de triage. Le problème n'est donc pas uniquement de classer des images, mais de proposer un système dont le comportement reste cohérent avec une logique de priorisation médicale.
+\section{Contexte}
+La détection assistée de la pneumonie constitue un cas d'usage pertinent pour l'intelligence artificielle appliquée à l'imagerie médicale. La radiographie thoracique est un examen de première ligne, rapide et peu coûteux, mais son interprétation peut être difficile lorsque les signes sont diffus, subtils ou masqués par des artefacts d’acquisition.
 
-Dans ce contexte, l'objectif de ce projet est de construire un modèle capable d'exploiter à la fois les \textbf{motifs radiographiques fins} et la \textbf{structure thoracique globale}. Cette double exigence justifie l'étude d'une architecture hybride : les CNN restent très efficaces pour capturer des textures locales, alors que les Transformers apportent une meilleure lecture des dépendances spatiales plus larges. La question centrale du mémoire devient alors la suivante : \textit{comment combiner ces deux familles de modèles dans une même architecture afin d'améliorer la détection de la pneumonie tout en gardant un système explicable et réellement utilisable ?}
+\section{Problématique}
+Le problème traité par ce projet est donc le suivant : \textit{comment concevoir un système capable de détecter la pneumonie avec un bon niveau de fiabilité tout en fournissant des indices explicables sur les zones qui ont guidé la décision ?} La difficulté n’est pas seulement de classer une image, mais aussi de produire un comportement compatible avec une logique de triage clinique.
 
-Le travail réalisé ne s'arrête pas à la phase d'entraînement. Une attention particulière a aussi été portée à la \textbf{valorisation du modèle}, c'est-à-dire à la manière dont il peut être utilisé hors du notebook expérimental. Cette orientation a conduit à la mise en place d'un runtime local en Python, d'une API REST, d'un client en ligne de commande et d'une interface web Flask permettant d'exécuter des prédictions, de visualiser les probabilités, d'afficher des cartes Grad-CAM et de lancer des benchmarks.
+\section{Objectifs}
+Les objectifs du projet sont de :
+\begin{itemize}
+\item concevoir un modèle de classification binaire \texttt{NORMAL} / \texttt{PNEUMONIA} ;
+\item exploiter à la fois les motifs locaux et le contexte global de l’image ;
+\item intégrer un mécanisme d’explicabilité visuelle avec Grad-CAM ;
+\item rendre le système exploitable via scripts d’entraînement, inférence locale, API et interface web.
+\end{itemize}
 
-Le présent rapport reprend donc l'ensemble du cheminement du projet. Il commence par les acronymes, la problématique et la méthodologie, puis développe l'analyse de l'état de l'art. Il présente ensuite la solution proposée, le pipeline technique détaillé, les outils d'implémentation retenus, les résultats quantitatifs et qualitatifs, avant de conclure sur les apports effectifs du projet ainsi que sur ses limites et ses perspectives d'évolution.
+\section{Méthodologie}
+La démarche adoptée combine une étude bibliographique des approches SOTA, une conduite de projet inspirée d’une logique agile, une phase de conception d’architecture hybride, puis une phase de réalisation et d’évaluation expérimentale. Cette méthodologie permet de relier les choix théoriques aux contraintes concrètes de données, de calcul et de validation.
+
+\section{Plan du document}
+Le rapport est structuré en quatre grandes parties : le contexte du projet et l’étude de l’existant, la conception fonctionnelle et la modélisation, la conception technique et la réalisation, puis la conclusion avec les perspectives et la valorisation possible du projet.
 
 \input{rapport_body.tex}
 
-\chapter*{Conclusion générale}
-\addcontentsline{toc}{chapter}{Conclusion générale}
+\chapter{Conclusion et perspectives}
 Ce projet a permis de concevoir, d'implémenter et de valider une chaîne complète de détection de la pneumonie sur radiographie thoracique, depuis l'étude de l'état de l'art jusqu'à l'usage local du modèle final. L'apport majeur du travail réside dans l'intégration cohérente d'une \textbf{architecture hybride DenseNet + Swin Transformer}, d'un mécanisme de fusion adaptative, d'une couche d'explicabilité par Grad-CAM et d'un ensemble d'outils logiciels rendant le modèle réellement exploitable en dehors d'un simple environnement d'expérimentation.
 
 Au-delà des performances obtenues, le projet montre surtout qu'une démarche rigoureuse en vision médicale ne peut pas se limiter à un score global. Il faut également considérer la nature des erreurs, la sensibilité aux cas positifs, la lisibilité des activations et la facilité d'usage du système par un utilisateur final. Sous cet angle, MedFusionNet représente une base technique sérieuse : le modèle produit des résultats solides, les cas de pneumonie sont majoritairement détectés, et l'environnement logiciel développé autour du modèle permet une démonstration claire et reproductible.
 
 Certaines limites demeurent toutefois importantes. Le jeu de validation reste très réduit, ce qui impose de fonder l'analyse finale sur le jeu de test complet. La généralisation à d'autres centres, d'autres distributions d'images ou d'autres conditions d'acquisition n'a pas encore été vérifiée. De même, la calibration probabiliste et la spécificité pourraient être encore améliorées pour réduire les faux positifs sans sacrifier la détection des cas réellement pathologiques.
 
-En perspective, plusieurs prolongements sont donc possibles : enrichissement de la validation, test sur des jeux de données externes, amélioration de la calibration, optimisation de la robustesse et éventuelle évolution vers un déploiement plus structuré. Malgré ces pistes d'amélioration, le mémoire montre que les objectifs du PFA ont été atteints : le projet aboutit à un système complet, techniquement justifié, expérimentalement validé et suffisamment mûr pour servir de base à des développements futurs.
+Sur le plan personnel, ce projet a renforcé la confiance dans la conduite d’un travail long, la capacité à structurer une démarche expérimentale et la rigueur nécessaire à la communication scientifique. Sur le plan professionnel, il a permis de consolider un intérêt concret pour la vision par ordinateur, les architectures hybrides et les outils d’aide à la décision médicale.
+
+En perspective, plusieurs prolongements sont possibles : enrichissement de la validation, test sur des jeux de données externes, amélioration de la calibration, optimisation de la robustesse et éventuelle évolution vers un déploiement plus structuré. Malgré ces pistes d'amélioration, le mémoire montre que les objectifs du PFA ont été atteints : le projet aboutit à un système complet, techniquement justifié, expérimentalement validé et suffisamment mûr pour servir de base à des développements futurs.
+
+\chapter*{Bibliographie et webographie}
+\addcontentsline{toc}{chapter}{Bibliographie et webographie}
+\begin{thebibliography}{99}
+\bibitem{huang2017densenet}
+G. Huang, Z. Liu, L. van der Maaten, and K. Weinberger,
+\textit{Densely Connected Convolutional Networks},
+CVPR, 2017.
+
+\bibitem{rajpurkar2017chexnet}
+A. Rajpurkar et al.,
+\textit{CheXNet: Radiologist-Level Pneumonia Detection on Chest X-Rays with Deep Learning},
+arXiv preprint arXiv:1711.05225, 2017.
+
+\bibitem{tan2019efficientnet}
+M. Tan and Q. Le,
+\textit{EfficientNet: Rethinking Model Scaling for Convolutional Neural Networks},
+ICML, 2019.
+
+\bibitem{tan2021efficientnetv2}
+M. Tan and Q. Le,
+\textit{EfficientNetV2: Smaller Models and Faster Training},
+ICML, 2021.
+
+\bibitem{dosovitskiy2021vit}
+A. Dosovitskiy et al.,
+\textit{An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale},
+ICLR, 2021.
+
+\bibitem{liu2021swin}
+Z. Liu et al.,
+\textit{Swin Transformer: Hierarchical Vision Transformer using Shifted Windows},
+ICCV, 2021.
+
+\bibitem{selvaraju2017gradcam}
+R. Selvaraju et al.,
+\textit{Grad-CAM: Visual Explanations from Deep Networks via Gradient-based Localization},
+ICCV, 2017.
+\end{thebibliography}
+
+\section*{Webographie}
+\addcontentsline{toc}{section}{Webographie}
+\begin{itemize}
+\item Kaggle, \textit{Chest X-Ray Images (Pneumonia)} : \url{https://www.kaggle.com/paultimothymooney/chest-xray-pneumonia}
+\item PyTorch Documentation : \url{https://pytorch.org/docs/stable/}
+\item timm Documentation and model zoo : \url{https://huggingface.co/docs/timm/index}
+\item Google Colab Documentation : \url{https://colab.research.google.com/}
+\end{itemize}
 
 \end{document}
