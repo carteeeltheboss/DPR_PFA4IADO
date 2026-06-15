@@ -1,0 +1,465 @@
+% ============================================================
+%  CAHIER DES CHARGES — MedFusionNet
+%  Détection de pneumonie sur radiographie thoracique
+%  EMSI — 4ème Année IADO
+% ============================================================
+\documentclass[a4paper,12pt]{article}
+
+% ── Encodage et langue ──
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[french]{babel}
+
+% ── Police ──
+\usepackage{lmodern}
+\usepackage{microtype}
+
+% ── Mise en page ──
+\usepackage[
+  top=2.2cm, bottom=2.2cm,
+  left=2.4cm, right=2.4cm,
+  headheight=15pt
+]{geometry}
+
+% ── Couleurs (minimal) ──
+\usepackage[table,dvipsnames]{xcolor}
+\definecolor{bleu}{HTML}{184E77}       % bleu foncé (même que rapport.tex)
+\definecolor{grisClair}{HTML}{F5F5F5}   % gris très léger pour alternance
+\definecolor{grisMoyen}{HTML}{888888}
+
+% ── Graphiques ──
+\usepackage{graphicx}
+\graphicspath{{./}{DPR_tex/}}
+
+% ── Math ──
+\usepackage{amsmath}
+\usepackage{amssymb}
+
+% ── Tableaux ──
+\usepackage{array}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{multirow}
+
+% ── Titres ──
+\usepackage{titlesec}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+
+% ── Liens ──
+\usepackage[
+  colorlinks=true,
+  linkcolor=bleu,
+  urlcolor=bleu,
+  citecolor=bleu
+]{hyperref}
+
+% ── Divers ──
+\usepackage{enumitem}
+\usepackage{setspace}
+\usepackage{float}
+
+% ════════════════════════════════════════════════════════════
+%  STYLES
+% ════════════════════════════════════════════════════════════
+
+% ── En-tête / pied de page ──
+\pagestyle{fancy}
+\fancyhf{}
+\renewcommand{\headrulewidth}{0.4pt}
+\fancyhead[L]{\small\textit{Cahier des Charges — MedFusionNet}}
+\fancyhead[R]{\small\textit{EMSI 2025–2026}}
+\fancyfoot[C]{\small Page \thepage\ / \pageref{LastPage}}
+
+% ── Sections ──
+\titleformat{\section}
+  {\Large\bfseries\color{bleu}}{\thesection.}{0.5em}{}
+  [\vspace{2pt}{\color{bleu!30}\rule{\linewidth}{0.4pt}}]
+\titlespacing*{\section}{0pt}{1.2em}{0.6em}
+\titlespacing*{\subsection}{0pt}{0.9em}{0.4em}
+
+\titleformat{\subsection}
+  {\large\bfseries\color{bleu!85}}{\thesubsection}{0.5em}{}
+
+\titleformat{\subsubsection}
+  {\normalsize\bfseries}{\thesubsubsection}{0.5em}{}
+
+% ════════════════════════════════════════════════════════════
+%  DOCUMENT
+% ════════════════════════════════════════════════════════════
+\begin{document}
+
+% ────────────────────────────────────────────────────────────
+%  PAGE DE GARDE — simple et blanche
+% ────────────────────────────────────────────────────────────
+\thispagestyle{empty}
+
+\begin{center}
+
+\vspace*{2cm}
+
+% Logo
+\includegraphics[height=2.5cm]{logo.png}
+
+\vspace{1.5cm}
+
+{\color{bleu}\rule{0.5\linewidth}{0.5pt}}
+
+\vspace{1cm}
+
+{\LARGE\bfseries CAHIER DES CHARGES}
+
+\vspace{0.4cm}
+
+{\large Projet de Fin d'Année (PFA)}
+
+\vspace{1.2cm}
+
+{\Large\bfseries\color{bleu} MedFusionNet}
+
+\vspace{0.3cm}
+
+{\large Détection de Pneumonie sur Radiographie Thoracique\\[4pt]
+par Fusion CNN–Swin Transformer avec Explicabilité Grad-CAM}
+
+\vspace{2cm}
+
+{\color{bleu}\rule{0.3\linewidth}{0.3pt}}
+
+\vspace{1cm}
+
+\renewcommand{\arraystretch}{1.6}
+\begin{tabular}{r l}
+  \textbf{Réalisé par :} & HANFAOUI Karim \\
+                          & KAFIF Imane \\[6pt]
+  \textbf{Encadré par :}  & Pr. Mdarbi Fatimaezzahra \\[6pt]
+  \textbf{Formation :}    & 4\textsuperscript{ème} Année IADO — G2 \\[6pt]
+  \textbf{Établissement :} & EMSI Les Orangers \\
+\end{tabular}
+
+\vfill
+
+{\large\bfseries Année Universitaire 2025 – 2026}
+
+\vspace{0.5cm}
+
+{\small Mars 2026}
+
+\vspace{1cm}
+\end{center}
+
+\newpage
+
+% ────────────────────────────────────────────────────────────
+%  TABLE DES MATIÈRES
+% ────────────────────────────────────────────────────────────
+\tableofcontents
+\newpage
+
+% ════════════════════════════════════════════════════════════
+%  1. CONTEXTE GÉNÉRAL DU PROJET
+% ════════════════════════════════════════════════════════════
+\section{Contexte Général du Projet}
+
+\subsection{Présentation du projet}
+
+\renewcommand{\arraystretch}{1.35}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l X@{}}
+  \toprule
+  Intitulé        & MedFusionNet — Détection de Pneumonie sur Radiographie Thoracique \\
+  Domaine         & Intelligence Artificielle appliquée à l'Imagerie Médicale \\
+  Formation       & 4\textsuperscript{ème} Année IADO — EMSI Les Orangers \\
+  Type            & Projet de Fin d'Année (PFA) \\
+  Durée estimée   & 42 jours (6 semaines) \\
+  Année           & 2025 – 2026 \\
+  \bottomrule
+\end{tabularx}
+
+\subsection{Problématique}
+
+Face à la complexité visuelle des pathologies pulmonaires et à la pénurie mondiale de radiologues experts, le projet vise à concevoir un système automatisé basé sur le \textit{Deep Learning} capable de :
+
+\begin{itemize}[leftmargin=1.5em, itemsep=4pt]
+  \item \textbf{Détecter} la pneumonie avec une précision clinique élevée ;
+  \item \textbf{Fournir} une justification visuelle explicable via Grad-CAM ;
+  \item \textbf{Garantir} une intégration sécurisée et fiable dans le flux de travail médical.
+\end{itemize}
+
+\subsection{Objectifs}
+
+\begin{enumerate}[leftmargin=1.5em, itemsep=3pt]
+  \item Développer une architecture hybride CNN + Swin Transformer pour capturer simultanément les motifs locaux et les relations spatiales globales.
+  \item Implémenter un mécanisme de \textbf{fusion guidée} (gated fusion) qui adapte dynamiquement la contribution de chaque branche.
+  \item Intégrer un module d'\textbf{explicabilité} (Grad-CAM) pour produire des heatmaps justifiant la décision.
+  \item Évaluer rigoureusement le système sur des métriques cliniques reconnues.
+\end{enumerate}
+
+% ════════════════════════════════════════════════════════════
+%  2. PÉRIMÈTRE FONCTIONNEL
+% ════════════════════════════════════════════════════════════
+\newpage
+\section{Périmètre Fonctionnel}
+
+\subsection{Fonctionnalités principales}
+
+\renewcommand{\arraystretch}{1.35}
+\begin{tabularx}{\linewidth}{@{}c X c@{}}
+  \toprule
+  \textbf{ID} & \textbf{Fonctionnalité} & \textbf{Priorité} \\
+  \midrule
+  F1 & Chargement et prétraitement des radiographies (normalisation, redimensionnement $384\times384$, augmentation de données) & Haute \\
+  \rowcolor{grisClair}
+  F2 & Extraction de caractéristiques locales via la branche CNN (DenseNet / EfficientNet) & Haute \\
+  F3 & Extraction de caractéristiques globales via la branche Swin Transformer & Haute \\
+  \rowcolor{grisClair}
+  F4 & Fusion adaptative guidée par porte apprenante (gated fusion) & Haute \\
+  F5 & Classification binaire (pneumonie / normal) avec seuil ajustable $\tau$ & Haute \\
+  \rowcolor{grisClair}
+  F6 & Génération de heatmaps Grad-CAM pour l'explicabilité & Moyenne \\
+  F7 & Estimation d'un score de confiance / incertitude & Moyenne \\
+  \rowcolor{grisClair}
+  F8 & Benchmarking comparatif avec les modèles SOTA & Basse \\
+  \bottomrule
+\end{tabularx}
+
+\subsection{Fonctionnalités exclues (hors périmètre)}
+
+\begin{itemize}[leftmargin=1.5em, itemsep=3pt]
+  \item Déploiement en production dans un environnement hospitalier réel.
+  \item Gestion multi-pathologies (seul le binaire pneumonie / normal est traité).
+  \item Interface utilisateur front-end complète (le livrable est le modèle + notebook).
+  \item Certification médicale réglementaire.
+\end{itemize}
+
+% ════════════════════════════════════════════════════════════
+%  3. SPÉCIFICATIONS TECHNIQUES
+% ════════════════════════════════════════════════════════════
+\newpage
+\section{Spécifications Techniques}
+
+\subsection{Architecture logicielle}
+
+L'architecture de \textbf{MedFusionNet} repose sur un pipeline en \textbf{6 étapes} :
+
+\begin{enumerate}[leftmargin=1.5em, itemsep=2pt]
+  \item \textbf{Entrée} — Image brute $X \in \mathbb{R}^{H \times W}$.
+  \item \textbf{Prétraitement} — Normalisation et redimensionnement : $\tilde{X} = T(X)$.
+  \item \textbf{Branche CNN} — Extraction de caractéristiques locales : $F_c = \Phi_c(\tilde{X})$.
+  \item \textbf{Branche Swin Transformer} — Extraction de caractéristiques globales : $F_s = \Phi_s(\tilde{X})$.
+  \item \textbf{Fusion guidée} — Combinaison adaptative : $F = g \odot F_c + (1-g) \odot F_s$.
+  \item \textbf{Classification} — Score, probabilité et Grad-CAM : $\hat{y}, p(y|X)$.
+\end{enumerate}
+
+\subsection{Environnement technique}
+
+\renewcommand{\arraystretch}{1.35}
+\begin{tabularx}{\linewidth}{@{}>{\bfseries}l X@{}}
+  \toprule
+  \textbf{Composant} & \textbf{Choix technologique} \\
+  \midrule
+  Langage & Python 3.10+ \\
+  \rowcolor{grisClair}
+  Framework DL & PyTorch / TensorFlow \\
+  Modèle CNN & DenseNet-121 / EfficientNetV2 (branche locale) \\
+  \rowcolor{grisClair}
+  Modèle Transformer & Swin Transformer (branche globale) \\
+  Explicabilité & Grad-CAM (Gradient-weighted Class Activation Mapping) \\
+  \rowcolor{grisClair}
+  Environnement GPU & Google Colab Pro / Kaggle Notebooks \\
+  Dataset & Chest X-Ray Dataset (Kaggle) — radiographies thoraciques \\
+  \rowcolor{grisClair}
+  Versioning & Git / GitHub \\
+  Documentation & \LaTeX\ (Beamer + rapport) \\
+  \bottomrule
+\end{tabularx}
+
+\subsection{Contraintes techniques}
+
+\begin{itemize}[leftmargin=1.5em, itemsep=4pt]
+  \item \textbf{Ressources GPU limitées} : l'entraînement doit être compatible avec les quotas Google Colab / Kaggle.
+  \item \textbf{Taille des images} : redimensionnement à $384 \times 384$ pour équilibrer qualité et coût mémoire.
+  \item \textbf{Données médicales} : utilisation exclusive de datasets publics (pas de données privées de patients).
+  \item \textbf{Reproductibilité} : fixation des seeds aléatoires et documentation complète des hyperparamètres.
+\end{itemize}
+
+% ════════════════════════════════════════════════════════════
+%  4. ACTEURS ET RÔLES
+% ════════════════════════════════════════════════════════════
+\newpage
+\section{Acteurs et Rôles}
+
+\renewcommand{\arraystretch}{1.5}
+\begin{tabularx}{\linewidth}{@{}l l X@{}}
+  \toprule
+  \textbf{Acteur} & \textbf{Rôle} & \textbf{Responsabilités} \\
+  \midrule
+  HANFAOUI Karim & Développeur &
+    Architecture du modèle, entraînement, évaluation des métriques, rédaction du rapport technique, intégration Grad-CAM. \\
+  \rowcolor{grisClair}
+  KAFIF Imane & Développeuse &
+    Prétraitement des données, analyse SOTA, développement des branches (CNN / Swin), benchmarking, rédaction et slides. \\
+  Pr. Mdarbi Fatimaezzahra & Encadrante &
+    Suivi de l'avancement, validation des choix techniques, relecture et évaluation finale du PFA. \\
+  \bottomrule
+\end{tabularx}
+
+% ════════════════════════════════════════════════════════════
+%  5. PLANNING ET LIVRABLES
+% ════════════════════════════════════════════════════════════
+\section{Planning et Livrables}
+
+\subsection{Découpage en sprints (Scrum)}
+
+Le projet suit une méthodologie \textbf{Agile (Scrum)} organisée en 3 sprints :
+
+\vspace{0.3cm}
+
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\linewidth}{@{}c c X c@{}}
+  \toprule
+  \textbf{Sprint} & \textbf{Durée} & \textbf{Contenu} & \textbf{Livrable} \\
+  \midrule
+  1 & S1–S2 &
+    Cadrage, problématique, analyse SOTA (DenseNet, Swin, EfficientNet), collecte et exploration du dataset, configuration de l'environnement GPU. &
+    Rapport SOTA \\
+  \rowcolor{grisClair}
+  2 & S3–S4 &
+    Prétraitement $T(X)$, développement des branches CNN et Swin, module de fusion guidée, sortie clinique $\Psi$. &
+    Prototype v1 \\
+  3 & S5–S6 &
+    Entraînement, calibration, Grad-CAM, évaluation finale, benchmarking, rédaction du rapport et préparation de la soutenance. &
+    Produit final \\
+  \bottomrule
+\end{tabularx}
+
+\subsection{Tableau des tâches détaillé}
+
+\renewcommand{\arraystretch}{1.25}
+\begin{tabularx}{\linewidth}{@{}c X c c@{}}
+  \toprule
+  \textbf{ID} & \textbf{Tâche} & \textbf{Durée} & \textbf{Dépendances} \\
+  \midrule
+  A & Cadrage et problématique clinique & 3 j & — \\
+  \rowcolor{grisClair}
+  B & Analyse SOTA CNN (DenseNet / CheXNet) & 4 j & A \\
+  C & Analyse SOTA Swin Transformer / ViT & 4 j & A \\
+  \rowcolor{grisClair}
+  D & Étude d'explicabilité XAI et Grad-CAM & 2 j & B, C \\
+  E & Prétraitement (resize, normalisation, augmentation) & 5 j & A \\
+  \rowcolor{grisClair}
+  F & Développement branche locale CNN & 6 j & B, E \\
+  G & Développement branche globale Swin & 7 j & C, E \\
+  \rowcolor{grisClair}
+  H & Intégration du module de gated fusion & 5 j & F, G \\
+  I & Sortie clinique : score + incertitude & 4 j & H \\
+  \rowcolor{grisClair}
+  J & Configuration GPU / Colab / environnement & 2 j & A \\
+  K & Entraînement, calibration et optimisation & 10 j & I, J \\
+  \rowcolor{grisClair}
+  L & Évaluation finale, benchmark et métriques & 3 j & K \\
+  M & Rapport, slides et démonstration & 5 j & L, D \\
+  \bottomrule
+\end{tabularx}
+
+\vspace{0.4cm}
+
+\noindent\fbox{\parbox{\dimexpr\linewidth-2\fboxsep-2\fboxrule}{%
+\textbf{Chemin critique :}
+A $\rightarrow$ E $\rightarrow$ G $\rightarrow$ H $\rightarrow$ I $\rightarrow$ K $\rightarrow$ L $\rightarrow$ M
+\hfill \textbf{Durée totale : 42 jours}
+}}
+
+\subsection{Livrables attendus}
+
+\renewcommand{\arraystretch}{1.35}
+\begin{tabularx}{\linewidth}{@{}c X c c@{}}
+  \toprule
+  \textbf{N°} & \textbf{Livrable} & \textbf{Format} & \textbf{Échéance} \\
+  \midrule
+  L1 & Cahier des charges (ce document) & PDF (\LaTeX) & Semaine 1 \\
+  \rowcolor{grisClair}
+  L2 & Rapport d'analyse SOTA & PDF (\LaTeX) & Semaine 2 \\
+  L3 & Code source du modèle MedFusionNet & Notebooks + .py & Semaine 5 \\
+  \rowcolor{grisClair}
+  L4 & Modèle entraîné (meilleur checkpoint) & .pth / .h5 & Semaine 5 \\
+  L5 & Rapport final du PFA & PDF (\LaTeX) & Semaine 6 \\
+  \rowcolor{grisClair}
+  L6 & Présentation Beamer (soutenance) & PDF (Beamer) & Semaine 6 \\
+  \bottomrule
+\end{tabularx}
+
+% ════════════════════════════════════════════════════════════
+%  6. CRITÈRES DE VALIDATION
+% ════════════════════════════════════════════════════════════
+\newpage
+\section{Critères de Validation et Métriques}
+
+\subsection{Métriques de performance}
+
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\linewidth}{@{}l X c@{}}
+  \toprule
+  \textbf{Métrique} & \textbf{Description} & \textbf{Seuil visé} \\
+  \midrule
+  Accuracy & Pourcentage de prédictions correctes sur l'ensemble de test & $\geq 92\%$ \\
+  \rowcolor{grisClair}
+  Precision & Proportion de vrais positifs parmi les prédictions positives & $\geq 90\%$ \\
+  Recall & Proportion de vrais positifs détectés parmi les cas réels & $\geq 93\%$ \\
+  \rowcolor{grisClair}
+  F1-Score & Moyenne harmonique de la précision et du rappel & $\geq 91\%$ \\
+  AUC-ROC & Aire sous la courbe ROC — pouvoir de discrimination global & $\geq 0.95$ \\
+  \rowcolor{grisClair}
+  ECE & Expected Calibration Error — qualité de la calibration & $\leq 0.05$ \\
+  \bottomrule
+\end{tabularx}
+
+\subsection{Critères de recette}
+
+Le projet est considéré comme validé si :
+
+\begin{enumerate}[leftmargin=1.5em, itemsep=4pt]
+  \item Le modèle atteint les seuils de performance définis ci-dessus sur le jeu de test.
+  \item Les heatmaps Grad-CAM sont générées et cohérentes visuellement avec les zones pathologiques.
+  \item Le code est documenté, reproductible et versionné sur GitHub.
+  \item Le rapport et la présentation Beamer sont complets et validés par l'encadrant(e).
+  \item Le chemin critique du planning est respecté avec un écart maximal de 5 jours.
+\end{enumerate}
+
+% ════════════════════════════════════════════════════════════
+%  7. GESTION DES RISQUES
+% ════════════════════════════════════════════════════════════
+\section{Gestion des Risques}
+
+\renewcommand{\arraystretch}{1.4}
+\begin{tabularx}{\linewidth}{@{}c X c c X@{}}
+  \toprule
+  & \textbf{Risque} & \textbf{Prob.} & \textbf{Impact} & \textbf{Mitigation} \\
+  \midrule
+  R1 & Quota GPU insuffisant sur Colab/Kaggle &
+    Moyenne & Élevé &
+    Optimiser la taille des batchs, utiliser mixed precision (FP16), planifier les sessions. \\
+  \rowcolor{grisClair}
+  R2 & Surapprentissage sur le dataset limité &
+    Moyenne & Moyen &
+    Augmentation de données, dropout, early stopping, régularisation L2. \\
+  R3 & Déséquilibre des classes &
+    Élevée & Moyen &
+    Pondération de la loss, oversampling ciblé, monitoring du recall. \\
+  \rowcolor{grisClair}
+  R4 & Retard sur le chemin critique &
+    Faible & Élevé &
+    Suivi Scrum hebdomadaire, priorisation des tâches à marge nulle. \\
+  R5 & Incompatibilité dimensions entre branches &
+    Faible & Moyen &
+    Alignement des dimensions en amont, tests unitaires d'intégration. \\
+  \bottomrule
+\end{tabularx}
+
+
+\vspace{1cm}
+\begin{center}
+  {\small\color{grisMoyen}%
+    Document rédigé dans le cadre du PFA — EMSI Les Orangers — Année 2025–2026}
+\end{center}
+
+\end{document}
