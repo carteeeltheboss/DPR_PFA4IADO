@@ -26,27 +26,21 @@
 \tikzstyle{usecase} = [draw, ellipse, minimum height=2.5em, text centered]
 
 % --- PRÉAMBULE TIKZ PERT ---
-\tikzset{
-    pert_node/.style n args={3}{
-        ellipse, draw, 
-        line width=1.5pt, % Bordure épaisse
-        minimum width=3.5cm, 
-        minimum height=2.2cm, 
-        fill=white,
-        align=center, 
-        inner sep=2pt, 
-        font=\small\bfseries, % GRAS ET PLUS GRAND
-        execute at begin node={
-            \renewcommand{\arraystretch}{1.4}
-            \begin{tabular}{c|c}
-                \multicolumn{2}{c}{\textbf{\large #1}} \\ \hline % ID en plus grand
-                \rule{0pt}{4mm} \textbf{EST: #2} & \textbf{LST: #3}
-            \end{tabular}
-        }
-    },
-    critical/.style={draw=red, line width=3pt, fill=red!10}, % Bordure rouge très épaisse
-    arrow/.style={-{Latex[length=3mm]}, line width=1.5pt, gray!80},
-    critarrow/.style={-{Latex[length=5mm]}, line width=3pt, red} % Flèches critiques massives
+% Noeud PERT standard : boîte 3 compartiments
+%   Haut  : ID + durée
+%   Bas-G : date au plus tôt    Bas-D : date au plus tard
+% Usage : \pertnode{nom}{style}{(x,y)}{ID --- durée}{tôt}{tard}
+\newcommand{\pertnode}[6]{%
+    \node[draw, thick, minimum width=2cm, minimum height=1.15cm,
+          fill=white, inner sep=0pt, outer sep=2pt, #2] (#1) at #3 {};%
+    \node[font=\scriptsize\bfseries, anchor=center]
+          at ([yshift=0.18cm]#1.center) {#4};%
+    \draw[thick] ([yshift=-0.08cm]#1.west) -- ([yshift=-0.08cm]#1.east);%
+    \draw[thick] ([yshift=-0.08cm]#1.center) -- (#1.south);%
+    \node[font=\tiny, anchor=center]
+          at ([xshift=-0.5cm, yshift=-0.36cm]#1.center) {#5};%
+    \node[font=\tiny, anchor=center]
+          at ([xshift=0.5cm, yshift=-0.36cm]#1.center) {#6};%
 }
 \setbeamertemplate{caption}[numbered]
 \renewcommand{\listfigurename}{Table des figures}
@@ -369,33 +363,36 @@
 
 % --- FRAME PERT : LE SCHÉMA ---
 \begin{frame}{Méthodologie --- Schéma du Réseau de PERT}
-    \slidepurpose{Visualiser le réseau PERT avec les décalages, les convergences et le chemin critique}{Organisation / planification}
+    \slidepurpose{Visualiser le réseau PERT avec les dates au plus tôt/tard et le chemin critique}{Organisation / planification}
     \tikzsolutionfigure{
     \begin{tikzpicture}[
         x=0.95cm,
         y=0.95cm,
-        task/.style={draw, rounded corners=3pt, minimum width=1.95cm, minimum height=1.1cm, align=center, fill=white, font=\scriptsize},
-        crit/.style={task, draw=red!80!black, very thick, fill=red!8},
         link/.style={-{Latex[length=2.6mm]}, line width=0.95pt, draw=gray!75},
         clink/.style={-{Latex[length=3mm]}, line width=2pt, draw=red!80!black},
         rel/.style={font=\tiny, fill=white, inner sep=1.2pt}
     ]
-        % Noeuds
-        \node[crit] (A) at (0,0) {\textbf{A}\\3 j};
-        \node[task] (B) at (3.2,2.0) {\textbf{B}\\4 j};
-        \node[task] (C) at (3.2,-2.0) {\textbf{C}\\4 j};
-        \node[crit] (E) at (3.2,0) {\textbf{E}\\5 j};
-        \node[task] (D) at (6.6,3.0) {\textbf{D}\\2 j};
-        \node[task] (F) at (6.6,1.1) {\textbf{F}\\6 j};
-        \node[crit] (G) at (6.6,-1.1) {\textbf{G}\\7 j};
-        \node[task] (J) at (6.6,-3.2) {\textbf{J}\\2 j};
-        \node[crit] (H) at (10.0,0) {\textbf{H}\\5 j};
-        \node[crit] (I) at (13.0,0) {\textbf{I}\\4 j};
-        \node[crit] (K) at (16.0,0) {\textbf{K}\\10 j};
-        \node[crit] (L) at (19.0,0) {\textbf{L}\\3 j};
-        \node[crit] (M) at (22.0,0) {\textbf{M}\\5 j};
+        % === NOEUDS PERT (boîtes 3 compartiments) ===
+        % \pertnode{nom}{style}{(x,y)}{ID --- durée}{tôt}{tard}
+        % Colonne 1
+        \pertnode{A}{draw=red!80!black, very thick, fill=red!8}{(0,0)}{A --- 3\,j}{1}{1}
+        % Colonne 2
+        \pertnode{B}{}{(3.5,2.2)}{B --- 4\,j}{4}{6}
+        \pertnode{E}{draw=red!80!black, very thick, fill=red!8}{(3.5,0)}{E --- 5\,j}{4}{4}
+        \pertnode{C}{}{(3.5,-2.2)}{C --- 4\,j}{4}{5}
+        % Colonne 3
+        \pertnode{D}{}{(7.2,3.3)}{D --- 2\,j}{6}{36}
+        \pertnode{F}{}{(7.2,1.2)}{F --- 6\,j}{9}{10}
+        \pertnode{G}{draw=red!80!black, very thick, fill=red!8}{(7.2,-1.2)}{G --- 7\,j}{9}{9}
+        \pertnode{J}{}{(7.2,-3.5)}{J --- 2\,j}{2}{23}
+        % Colonne 4--7 (chemin linéaire)
+        \pertnode{H}{draw=red!80!black, very thick, fill=red!8}{(11,0)}{H --- 5\,j}{16}{16}
+        \pertnode{I}{draw=red!80!black, very thick, fill=red!8}{(14.2,0)}{I --- 4\,j}{21}{21}
+        \pertnode{K}{draw=red!80!black, very thick, fill=red!8}{(17.4,0)}{K --- 10\,j}{25}{25}
+        \pertnode{L}{draw=red!80!black, very thick, fill=red!8}{(20.6,0)}{L --- 3\,j}{35}{35}
+        \pertnode{M}{draw=red!80!black, very thick, fill=red!8}{(23.8,0)}{M --- 5\,j}{38}{38}
 
-        % Liaisons critiques
+        % === LIAISONS CRITIQUES (rouge épais) ===
         \draw[clink] (A) -- node[rel, above] {\texttt{0FD}} (E);
         \draw[clink] (E) -- node[rel, below] {\texttt{0FD}} (G);
         \draw[clink] (G) -- node[rel, below] {\texttt{0FD}} (H);
@@ -404,7 +401,7 @@
         \draw[clink] (K) -- node[rel, above] {\texttt{0FD}} (L);
         \draw[clink] (L) -- node[rel, above] {\texttt{0FD}} (M);
 
-        % Liaisons secondaires
+        % === LIAISONS SECONDAIRES (gris) ===
         \draw[link] (A) -- node[rel, above] {\texttt{0FD}} (B);
         \draw[link] (A) -- node[rel, below] {\texttt{0FD}} (C);
         \draw[link] (A.south east) |- node[rel, pos=0.32, right] {\texttt{1DD}} (J.west);
@@ -417,16 +414,15 @@
         \draw[link] (J.east) -| node[rel, pos=0.22, below] {\texttt{0FD}} (K.south);
         \draw[link] (D.east) -| node[rel, pos=0.28, above] {\texttt{0FD}} (M.north);
 
-        % Légende
-        \node[draw, rounded corners=3pt, fill=white, align=left, font=\tiny] at (11.1,-4.6) {
+        % === LÉGENDE ===
+        \node[draw, rounded corners=3pt, fill=white, align=left, font=\tiny] at (12,-5) {
             \textbf{Lecture du schéma}\\
-            Rouge = chemin critique\\
-            Noeud = identifiant + durée\\
-            \texttt{1DD} = décalage de 1 jour en Début-Début\\
-            \texttt{0FF} = fin synchronisée sans décalage
+            \textcolor{red!80!black}{\rule{0.6cm}{2pt}} Chemin critique\\
+            Chaque bo\^ite : \textbf{ID --- Durée} (haut)\\
+            \phantom{Chaque bo\^ite : }\textbf{T\^ot} (bas-gauche) \textbar{} \textbf{Tard} (bas-droite)
         };
     \end{tikzpicture}
-    }{Réseau PERT de MedFusionNet avec liaisons temporelles annotées et chemin critique mis en évidence.}
+    }{Réseau PERT de MedFusionNet avec chemin critique et dates au plus tôt / au plus tard.}
 \end{frame}
 
 \begin{frame}{Gestion de Projet --- Diagramme de Gantt}
@@ -499,164 +495,326 @@
 
 \end{frame}
 
-\subsection{Entrepreneuriat et valorisation}
+% ====================================================================
+% PARTIE II --- FAISABILITÉ ENTREPRENEURIALE ET COMMERCIALE
+% ====================================================================
+\section{Faisabilité Entrepreneuriale}
+\subsection{Étude de marché et stratégie}
 
-\begin{frame}[t]{Entrepreneuriat --- Vision de valorisation}
-\slidepurpose{Introduire simplement comment une idee technique peut devenir un projet entrepreneurial}{Ouverture business / entrepreneuriat}
-\scriptsize
-\begin{block}{Le point de depart}
-\begin{itemize}
-\setlength{\itemsep}{0.22em}
-\item Les hopitaux et centres d'imagerie doivent traiter beaucoup d'examens en peu de temps.
-\item Une radiographie thoracique peut etre difficile a interpreter rapidement.
-\item Un outil d'aide peut donc avoir une vraie utilite pratique.
-\end{itemize}
-\end{block}
-
-\begin{columns}[T,onlytextwidth]
-\begin{column}{0.48\textwidth}
-\begin{block}{Notre idee}
-\begin{itemize}
-\setlength{\itemsep}{0.18em}
-\item signaler les cas suspects,
-\item aider a prioriser les urgences,
-\item montrer une explication visuelle.
-\end{itemize}
-\end{block}
-\end{column}
-\begin{column}{0.48\textwidth}
-\begin{block}{Ce que l'on vend}
-\begin{itemize}
-\setlength{\itemsep}{0.18em}
-\item une aide au triage,
-\item une aide a la lecture,
-\item un service utile pour les structures medicales.
-\end{itemize}
-\end{block}
-\end{column}
-\end{columns}
-
-\begin{alertblock}{Idee cle}
-On ne vend pas un ``medecin automatique'', mais une \textbf{solution d'assistance} qui aide les professionnels a travailler plus vite et plus sereinement.
-\end{alertblock}
-\end{frame}
-
-\begin{frame}[t]{Entrepreneuriat --- A qui vendre le projet ?}
-\slidepurpose{Identifier les clients potentiels avec un vocabulaire simple}{Etude de marche / premiers concepts}
-\scriptsize
-\begin{columns}[T,onlytextwidth]
-\begin{column}{0.47\textwidth}
-\begin{block}{Clients potentiels}
-\begin{itemize}
-\setlength{\itemsep}{0.22em}
-\item hopitaux publics et prives,
-\item cliniques,
-\item centres de radiologie,
-\item plateformes de teleradiologie.
-\end{itemize}
-\end{block}
-\end{column}
-\begin{column}{0.47\textwidth}
-\begin{block}{Leur besoin}
-\begin{itemize}
-\setlength{\itemsep}{0.22em}
-\item gagner du temps,
-\item mieux organiser les priorites,
-\item reduire le risque d'oubli,
-\item utiliser un outil simple.
-\end{itemize}
-\end{block}
-\end{column}
-\end{columns}
-
-\begin{block}{Comment presenter le projet ?}
-Comme une \textbf{aide au triage}, une \textbf{seconde lecture} et un \textbf{outil explicable} pour la radiographie thoracique.
-\end{block}
-
-\begin{alertblock}{Positionnement}
-Le projet se vend en \textbf{B2B} : a des etablissements de sante, et non directement au grand public.
-\end{alertblock}
-\end{frame}
-
-\begin{frame}[t]{Entrepreneuriat --- Comment vendre concretement le projet ?}
-\slidepurpose{Montrer simplement les etapes commerciales possibles}{Demarche commerciale / entrepreneuriat debutant}
-\scriptsize
-\begin{block}{Etapes simples}
-\begin{enumerate}
-\setlength{\itemsep}{0.34em}
-\item \textbf{Presenter le probleme} du client
-\item \textbf{Montrer une demonstration} du systeme
-\item \textbf{Proposer un petit pilote}
-\item \textbf{Recueillir les retours}
-\item \textbf{Transformer le test en offre}
-\end{enumerate}
-\end{block}
-
+% --- SLIDE 1 : TITRE DE SECTION ---
+\begin{frame}{}
+\vfill
 \begin{center}
-\begin{adjustbox}{max width=0.92\textwidth}
-\begin{tikzpicture}[
-    x=0.95cm, y=0.95cm,
-    box/.style={draw, rounded corners=4pt, align=center, minimum width=2cm, minimum height=0.85cm, fill=blue!10, font=\scriptsize},
-    arr/.style={-{Latex[length=2.5mm]}, thick, draw=blue!70!black}
-]
-    \node[box] (a) at (0,0) {Besoin};
-    \node[box] (b) at (2.6,0) {Demo};
-    \node[box] (c) at (5.2,0) {Pilote};
-    \node[box] (d) at (7.8,0) {Retours};
-    \node[box] (e) at (10.4,0) {Offre};
-    \draw[arr] (a) -- (b);
-    \draw[arr] (b) -- (c);
-    \draw[arr] (c) -- (d);
-    \draw[arr] (d) -- (e);
-\end{tikzpicture}
-\end{adjustbox}
+{\Large\bfseries Partie II}\\[0.6em]
+{\large Faisabilité Entrepreneuriale et Commerciale}\\[1.2em]
+\begin{block}{}
+\centering\scriptsize
+Démontrer la viabilité économique, le potentiel de marché et la transformation de la solution technique \textbf{MedFusionNet} en un projet d'entreprise viable.
+\end{block}
 \end{center}
+\vfill
+\end{frame}
 
-\begin{alertblock}{A retenir}
-Pour un premier cours d'entrepreneuriat, il suffit deja de montrer \textbf{qui peut acheter}, \textbf{comment tester} et \textbf{comment vendre}.
+% --- SLIDE 2 : CONTEXTE ET IDENTIFICATION DU PROBLÈME ---
+\begin{frame}[t]{Contexte et Identification du Problème}
+\slidepurpose{Poser le besoin terrain, l'origine de l'idée et l'avantage concurrentiel de la solution}{Cadrage entrepreneurial}
+\scriptsize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.47\textwidth}
+\begin{block}{Le Problème}
+\begin{itemize}
+\setlength{\itemsep}{0.18em}
+\item \textbf{Complexité visuelle} des pathologies pulmonaires sur CXR.
+\item \textbf{Pénurie mondiale} de radiologues experts (OMS : 1 radiologue / 100\,000 hab. en Afrique).
+\item \textbf{Temps d'attente} critiques aux services d'urgence.
+\item Les solutions SOTA actuelles restent des \textbf{boîtes noires} non explicables, freinant l'adoption clinique.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.47\textwidth}
+\begin{block}{Origine \& Solution}
+\begin{itemize}
+\setlength{\itemsep}{0.18em}
+\item Observation terrain en \textbf{milieu hospitalier} : besoin réel et non couvert.
+\item \textbf{MedFusionNet} apporte un avantage concurrentiel unique :
+\begin{itemize}
+\setlength{\itemsep}{0.1em}
+\item[\textbullet] Double lecture \textbf{locale/globale} (CNN + Swin).
+\item[\textbullet] \textbf{Explicabilité} Grad-CAM intégrée.
+\item[\textbullet] \textbf{Quantification d'incertitude} (MC-Dropout) pour sécuriser le diagnostic.
+\end{itemize}
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\begin{alertblock}{Proposition de valeur}
+Là où les concurrents fournissent un score opaque, MedFusionNet livre un \textbf{triplet $(p, L^c, u)$} : probabilité, carte explicative et niveau de confiance.
 \end{alertblock}
 \end{frame}
 
-\begin{frame}[t]{Entrepreneuriat --- Budget simple et modalites de vente}
-\slidepurpose{Donner une vision accessible du budget et des revenus possibles}{Faisabilite economique / modele simple}
+% --- SLIDE 3 : ÉTUDE DE MARCHÉ & ANALYSES STRATÉGIQUES ---
+\begin{frame}[t]{Étude de Faisabilité Commerciale}
+\slidepurpose{Synthétiser l'environnement externe et les outils stratégiques SWOT / PESTEL / Porter}{Analyse de marché}
 \scriptsize
 \begin{columns}[T,onlytextwidth]
-\begin{column}{0.54\textwidth}
-\renewcommand{\arraystretch}{1.08}
+\begin{column}{0.47\textwidth}
+\begin{block}{Demande identifiée}
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item \textbf{Hôpitaux publics} : réduire les erreurs de diagnostic et optimiser le triage.
+\item \textbf{Cliniques privées} : accélérer le flux patients et se différencier.
+\item \textbf{Centres de radiologie d'urgence} : aide à la décision 24h/24.
+\end{itemize}
+\end{block}
+\begin{block}{Analyse SWOT (synthèse)}
+\renewcommand{\arraystretch}{1.05}
 \begin{adjustbox}{max width=\linewidth}
-\begin{tabular}{|p{4.1cm}|c|}
+\begin{tabular}{|p{2cm}|p{3.5cm}|}
 \hline
-\textbf{Poste} & \textbf{Estimation} \\ \hline
-Hebergement / cloud / GPU & 30\,000 MAD \\ \hline
-Developpement / amelioration & 50\,000 MAD \\ \hline
-Tests / pilote / documentation & 25\,000 MAD \\ \hline
-Communication / deplacement & 20\,000 MAD \\ \hline
-\textbf{Total simplifie} & \textbf{125\,000 MAD} \\ \hline
+\textbf{Forces} & Technologie propriétaire, explicable et quantifiée \\ \hline
+\textbf{Faiblesses} & Startup, peu de données cliniques validées \\ \hline
+\textbf{Opportunités} & Digitalisation de la santé au Maroc, plan Santé 2025 \\ \hline
+\textbf{Menaces} & Réglementation stricte, concurrents internationaux \\ \hline
 \end{tabular}
 \end{adjustbox}
+\end{block}
 \end{column}
-\begin{column}{0.42\textwidth}
-\begin{block}{Modes de vente}
+\begin{column}{0.47\textwidth}
+\begin{block}{PESTEL --- Facteurs clés}
 \begin{itemize}
-\setlength{\itemsep}{0.24em}
-\item pilote payant,
-\item abonnement mensuel,
-\item licence annuelle.
+\setlength{\itemsep}{0.12em}
+\item \textbf{P} : Soutien étatique à l'innovation e-santé.
+\item \textbf{E} : Marché IA santé mondial $>$ 45 Mds \$ d'ici 2030.
+\item \textbf{S} : Acceptation croissante de l'IA par les praticiens.
+\item \textbf{T} : GPU cloud accessibles, frameworks open-source matures.
+\item \textbf{E} : Faible empreinte (calcul sur demande).
+\item \textbf{L} : Conformité RGPD / Loi 09-08 (protection des données patients).
 \end{itemize}
 \end{block}
-
-\begin{block}{Exemple simple}
+\begin{block}{Porter --- Forces concurrentielles}
 \begin{itemize}
-\setlength{\itemsep}{0.2em}
-\item Pilote : 10\,000 a 20\,000 MAD
-\item Abonnement : 3\,000 a 6\,000 MAD / mois
+\setlength{\itemsep}{0.12em}
+\item Barrière à l'entrée élevée (expertise IA + médical).
+\item Pouvoir de négociation des hôpitaux : fort $\Rightarrow$ modèle SaaS flexible.
+\item Substituts limités : pas d'outil explicable équivalent au Maroc.
 \end{itemize}
 \end{block}
 \end{column}
 \end{columns}
+\end{frame}
 
-\begin{alertblock}{Lecture entrepreneuriale}
-Pour notre niveau, l'essentiel est de montrer qu'il existe un \textbf{marche possible}, un \textbf{mode de vente simple} et un \textbf{budget de depart raisonnable}.
+% --- SLIDE 4 : MARKETING STRATÉGIQUE ET MARKETING MIX ---
+\begin{frame}[t]{Marketing Stratégique et Marketing Mix}
+\slidepurpose{Définir le positionnement STP et le mix marketing 4P pour la commercialisation}{Stratégie marketing}
+\scriptsize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.47\textwidth}
+\begin{block}{Segmentation \& Positionnement (STP)}
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item \textbf{Segment principal} : Services d'urgence et centres de radiologie à fort flux ($>$50 CXR/jour).
+\item \textbf{Segment secondaire} : Plateformes de téléradiologie.
+\item \textbf{Ciblage} : B2B, établissements de santé au Maroc puis Afrique francophone.
+\item \textbf{Positionnement} : Solution IA \textbf{innovante}, hautement \textbf{fiable} (incertitude quantifiée) et \textbf{transparente} (explicable par Grad-CAM).
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.47\textwidth}
+\begin{block}{Marketing Mix --- 4P}
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item \textbf{Produit} : API MedFusionNet + Interface Web intuitive (Streamlit / Gradio). Sortie : $(p, L^c, u)$.
+\item \textbf{Prix} : Stratégie de pénétration puis abonnement SaaS par volume de scans (3 paliers).
+\item \textbf{Place} : Déploiement Cloud sécurisé (AWS/GCP) ou conteneurisé sur serveur local via Docker.
+\item \textbf{Promotion} : Salons technologiques médicaux (GITEX Africa), publications scientifiques, partenariats pilotes avec des CHU.
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\begin{alertblock}{Avantage clé}
+MedFusionNet se différencie par la \textbf{triple sortie explicable} $(p, L^c, u)$ là où les concurrents ne fournissent qu'un score binaire opaque.
+\end{alertblock}
+\end{frame}
+
+% --- SLIDE 5 : FAISABILITÉ TECHNIQUE ---
+\begin{frame}[t]{Étude de Faisabilité Technique}
+\slidepurpose{Valider la viabilité opérationnelle : ressources matérielles et profils humains requis}{Faisabilité technique}
+\scriptsize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.47\textwidth}
+\begin{block}{Besoins Matériels}
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item \textbf{Calcul} : Serveurs GPU (NVIDIA A100 ou T4) pour l'entraînement et l'inférence temps réel.
+\item \textbf{Cloud} : Infrastructure sécurisée (AWS / GCP / Azure) avec chiffrement des données médicales.
+\item \textbf{Stockage} : Compatibilité PACS/DICOM pour l'intégration hospitalière native.
+\item \textbf{Réseau} : Connexion sécurisée (VPN / TLS) pour la transmission des images.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.47\textwidth}
+\begin{block}{Profils Requis}
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item \textbf{Ingénieur IA / Deep Learning} : Maintenance et amélioration du modèle hybride.
+\item \textbf{Développeur Full-Stack} : FastAPI / Streamlit, interface utilisateur et API REST.
+\item \textbf{Expert DevOps} : Docker, CI/CD, monitoring et déploiement continu.
+\item \textbf{Consultant Radiologue} : Validation clinique, annotation experte et conformité médicale.
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\begin{alertblock}{Stack technologique validée}
+L'ensemble du pipeline (PyTorch, Flask, Docker) a été \textbf{prototypé et testé} durant le PFA, réduisant significativement le risque technique.
+\end{alertblock}
+\end{frame}
+
+\subsection{Faisabilité financière et juridique}
+
+% --- SLIDE 6 : ÉTUDE FINANCIÈRE --- BUDGET ET PRÉVISIONS ---
+\begin{frame}[t]{Étude Financière --- Budget et Prévisions}
+\slidepurpose{Chiffrer l'investissement initial et projeter les revenus sur 12 mois}{Faisabilité financière}
+\scriptsize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.52\textwidth}
+\begin{block}{Investissement Initial}
+\renewcommand{\arraystretch}{1.08}
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{|p{4.2cm}|r|}
+\hline
+\textbf{Poste d'investissement} & \textbf{Montant (MAD)} \\ \hline
+Développement logiciel (6 mois) & 180\,000 \\ \hline
+Infrastructure Cloud / GPU (an 1) & 60\,000 \\ \hline
+Licences outils IA \& données & 25\,000 \\ \hline
+Marketing de lancement & 35\,000 \\ \hline
+Création juridique (SARL) & 8\,000 \\ \hline
+Fonds de roulement initial & 42\,000 \\ \hline
+\textbf{Total Investissement} & \textbf{350\,000} \\ \hline
+\end{tabular}
+\end{adjustbox}
+\end{block}
+\end{column}
+\begin{column}{0.44\textwidth}
+\begin{block}{Prévisions de Ventes (mois 7--12)}
+\renewcommand{\arraystretch}{1.08}
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{|p{2.6cm}|r|r|}
+\hline
+\textbf{Segment} & \textbf{Clients} & \textbf{CA/mois} \\ \hline
+Cliniques (SaaS) & 5 & 30\,000 \\ \hline
+Hôpitaux (licence) & 2 & 40\,000 \\ \hline
+Pilotes payants & 3 & 15\,000 \\ \hline
+\textbf{Total mensuel} & \textbf{10} & \textbf{85\,000} \\ \hline
+\end{tabular}
+\end{adjustbox}
+\vspace{0.15cm}
+\begin{itemize}
+\setlength{\itemsep}{0.12em}
+\item CA annuel projeté (an 1) : $\sim$510\,000 MAD
+\item Objectif an 2 : 20 clients, CA $>$ 1.2M MAD
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\begin{alertblock}{Modèle économique}
+Revenus récurrents par \textbf{abonnement SaaS} (cliniques) et \textbf{licences annuelles} (hôpitaux), assurant une visibilité financière à moyen terme.
+\end{alertblock}
+\end{frame}
+
+% --- SLIDE 7 : INDICATEURS DE RENTABILITÉ ---
+\begin{frame}[t]{Étude Financière --- Indicateurs de Rentabilité}
+\slidepurpose{Calculer les seuils de rentabilité et le BFR pour valider la viabilité économique}{Analyse financière}
+\scriptsize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.47\textwidth}
+\begin{block}{Charges mensuelles estimées}
+\renewcommand{\arraystretch}{1.05}
+\begin{adjustbox}{max width=\linewidth}
+\begin{tabular}{|p{3.2cm}|r|}
+\hline
+\textbf{Charges fixes (CF)} & \textbf{MAD/mois} \\ \hline
+Salaires (3 ETP) & 36\,000 \\ \hline
+Cloud / serveurs GPU & 5\,000 \\ \hline
+Locaux / divers & 4\,000 \\ \hline
+\textbf{Total CF} & \textbf{45\,000} \\ \hline
+\end{tabular}
+\end{adjustbox}
+\vspace{0.12cm}
+\textbf{Charges variables (CV)} : coût API Cloud par scan $\approx$ 0.50 MAD/scan. Pour 10\,000 scans/mois $\Rightarrow$ CV = 5\,000 MAD.
+\end{block}
+\end{column}
+\begin{column}{0.47\textwidth}
+\begin{block}{Indicateurs clés}
+\begin{itemize}
+\setlength{\itemsep}{0.12em}
+\item \textbf{Marge brute} :
+\[
+MB = CA - CV = 85\,000 - 5\,000 = 80\,000
+\]
+\item \textbf{Taux de marge sur coût variable} :
+\[
+TMCV = \frac{MB}{CA} = \frac{80\,000}{85\,000} \approx 94,1\%
+\]
+\item \textbf{Seuil de rentabilité (Point mort)} :
+\[
+SR = \frac{CF}{TMCV} = \frac{45\,000}{0{,}941} \approx 47\,822~\text{MAD/mois}
+\]
+\item \textbf{BFR maîtrisé} : paiement SaaS d'avance $\Rightarrow$ BFR faible ($<$ 1 mois de CA).
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\begin{alertblock}{Conclusion financière}
+Avec un CA mensuel de 85\,000 MAD et un seuil de rentabilité à $\sim$48\,000 MAD, le projet atteint l'\textbf{équilibre dès le 8\textsuperscript{e} mois} d'activité commerciale.
+\end{alertblock}
+\end{frame}
+
+% --- SLIDE 8 : CADRE JURIDIQUE ET PERSPECTIVES ---
+\begin{frame}[t]{Cadre Juridique et Stratégie de Développement}
+\slidepurpose{Définir la forme juridique et tracer les axes d'évolution du projet}{Aspects juridiques / perspectives}
+\scriptsize
+\begin{columns}[T,onlytextwidth]
+\begin{column}{0.47\textwidth}
+\begin{block}{Forme Juridique --- SARL}
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item \textbf{Choix} : Société à Responsabilité Limitée (SARL).
+\item \textbf{Justification} :
+\begin{itemize}
+\setlength{\itemsep}{0.08em}
+\item[\textbullet] Protection du patrimoine des associés fondateurs.
+\item[\textbullet] Souplesse de gestion adaptée à une startup tech.
+\item[\textbullet] Capital social minimum flexible (1 MAD).
+\item[\textbullet] Cadre juridique marocain bien établi pour les SARL.
+\end{itemize}
+\item \textbf{Conformité} : Loi 09-08 (données personnelles), anonymisation des images médicales, consentement patient.
+\end{itemize}
+\end{block}
+\end{column}
+\begin{column}{0.47\textwidth}
+\begin{block}{Perspectives de Développement}
+\begin{itemize}
+\setlength{\itemsep}{0.15em}
+\item \textbf{Court terme} : Déploiement pilote dans 2--3 CHU partenaires au Maroc.
+\item \textbf{Moyen terme} :
+\begin{itemize}
+\setlength{\itemsep}{0.08em}
+\item[\textbullet] Détection \textbf{multi-pathologies} (Tuberculose, tumeurs, épanchements).
+\item[\textbullet] Certification \textbf{dispositif médical} (marquage CE / FDA 510(k)).
+\end{itemize}
+\item \textbf{Long terme} :
+\begin{itemize}
+\setlength{\itemsep}{0.08em}
+\item[\textbullet] Intégration native dans les logiciels PACS/RIS (compatibilité DICOM universelle).
+\item[\textbullet] Expansion vers l'Afrique francophone.
+\item[\textbullet] Levée de fonds Série A.
+\end{itemize}
+\end{itemize}
+\end{block}
+\end{column}
+\end{columns}
+\begin{alertblock}{Vision}
+De projet académique à \textbf{startup e-health} certifiée : MedFusionNet a le potentiel de devenir un outil de référence pour le diagnostic assisté par IA au Maroc et en Afrique.
 \end{alertblock}
 \end{frame}
 \subsection{Phase 4 — Confiance et explicabilité}
