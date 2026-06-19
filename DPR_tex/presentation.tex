@@ -211,135 +211,7 @@
     \end{block}
 \end{frame}
 
-\begin{frame}{Gestion de Projet --- Typologie des Dépendances PERT}
-    \slidepurpose{Préciser les quatre types de relations temporelles utilisés dans un ordonnancement PERT}{Organisation / planification}
-    \scriptsize
-    \setlength{\columnsep}{0.7cm}
-    \begin{columns}[T,onlytextwidth]
-        \begin{column}{0.465\textwidth}
-            \begin{block}{FD --- Fin à Début}
-                La tâche successeure démarre après la fin de la tâche précédente.\\
-                \textbf{Exemple projet :} A $\rightarrow$ B = \texttt{0FD}.
-            \end{block}
-            \vspace{0.18cm}
-            \begin{block}{DD --- Début à Début}
-                La tâche successeure peut commencer après le début du précédent, avec un éventuel décalage.\\
-                \textbf{Exemple projet :} A $\rightarrow$ J = \texttt{1DD}.
-            \end{block}
-        \end{column}
-        \begin{column}{0.465\textwidth}
-            \begin{block}{FF --- Fin à Fin}
-                La fin de la tâche successeure est contrainte par la fin d'une autre tâche.\\
-                \textbf{Exemple projet :} C $\rightarrow$ D = \texttt{0FF}.
-            \end{block}
-            \vspace{0.18cm}
-            \begin{block}{DF --- Début à Fin}
-                Relation plus rare : la fin d'une tâche dépend du début d'une autre.\\
-                \textbf{Exemple de notation :} \texttt{2DF}. Elle est documentée dans la méthode, mais non structurante ici.
-            \end{block}
-        \end{column}
-    \end{columns}
-
-    \vspace{0.12cm}
-    \begin{alertblock}{Lecture managériale}
-        Dans MedFusionNet, la planification repose surtout sur des relations \textbf{FD} pour sécuriser les jalons de validation, avec des liaisons \textbf{DD} et \textbf{FF} pour modéliser les travaux menés en parallèle sans perdre la cohérence globale.
-    \end{alertblock}
-\end{frame}
-
 % --- FRAME PERT : EXPLICATION ---
-\begin{frame}{Méthodologie --- Analyse du Réseau de PERT}
-    \slidepurpose{Interpréter les dates, les marges et les zones critiques du planning}{Organisation / planification}
-    \scriptsize
-    \setlength{\columnsep}{0.75cm}
-    \begin{columns}[T,onlytextwidth]
-        \begin{column}{0.465\textwidth}
-            \begin{block}{Principes de lecture}
-                \begin{itemize}
-                    \item Le réseau PERT calcule des dates au plus tôt et au plus tard pour chaque activité.
-                    \item L'écart entre ces deux positions donne la flexibilité réelle de la tâche.
-                    \item Une activité sans marge devient immédiatement sensible à tout retard.
-                    \item Les relations \textbf{FD}, \textbf{DD} et \textbf{FF} modifient directement les dates admissibles.
-                \end{itemize}
-            \end{block}
-        \end{column}
-        \begin{column}{0.465\textwidth}
-            \begin{block}{Lecture des dépendances}
-                \begin{itemize}
-                    \item \textbf{B} et \textbf{C} sont lancées en parallèle après \textbf{A}.
-                    \item \textbf{J} démarre en \textbf{1DD} pour préparer l'infrastructure sans attendre la fin complète du cadrage.
-                    \item \textbf{D} démarre tôt, mais se ferme en même temps que \textbf{C} via la contrainte \textbf{0FF}.
-                \end{itemize}
-            \end{block}
-        \end{column}
-    \end{columns}
-\end{frame}
-
-\begin{frame}{Méthodologie --- Lecture du Chemin Critique}
-    \slidepurpose{Mettre en avant les tâches à marge nulle et les points de pilotage du projet}{Organisation / planification}
-    \tiny
-    \setlength{\columnsep}{0.8cm}
-    \begin{columns}[T,onlytextwidth]
-        \begin{column}{0.46\textwidth}
-            \begin{block}{Interprétation projet}
-                \begin{itemize}
-                    \item \textbf{H} concentre la convergence des deux branches \textbf{F} et \textbf{G}.
-                    \item \textbf{K} attend simultanément la sortie clinique \textbf{I} et l'environnement \textbf{J}.
-                    \item \textbf{D} et \textbf{J} restent importantes, mais elles ne pilotent pas la date finale.
-                \end{itemize}
-            \end{block}
-        \end{column}
-        \begin{column}{0.46\textwidth}
-            \begin{block}{Lecture managériale}
-                \begin{itemize}
-                    \item Les n{\oe}uds critiques pilotent directement la livraison finale.
-                    \item Les tâches quasi critiques, comme \textbf{C} et \textbf{F}, doivent rester sous surveillance.
-                    \item Les activités très flexibles, comme \textbf{D} et \textbf{J}, absorbent les aléas sans casser le planning.
-                \end{itemize}
-            \end{block}
-            \vspace{0.16cm}
-            \begin{alertblock}{Conséquence managériale}
-                Priorité de pilotage : toute dérive sur une tâche à marge nulle décale immédiatement la démonstration finale.
-            \end{alertblock}
-        \end{column}
-    \end{columns}
-
-    \vspace{0.18cm}
-    \begin{alertblock}{Chemin critique}
-        \textbf{A $\rightarrow$ E $\rightarrow$ G $\rightarrow$ H $\rightarrow$ I $\rightarrow$ K $\rightarrow$ L $\rightarrow$ M}
-        \hfill \textbf{Durée totale estimée : 42 jours}
-    \end{alertblock}
-\end{frame}
-
-\begin{frame}{Gestion de Projet --- Interprétation Opérationnelle}
-    \slidepurpose{Transformer le planning théorique en lecture de pilotage concrète pour le projet}{Organisation / planification}
-    \scriptsize
-    \setlength{\columnsep}{0.8cm}
-    \begin{columns}[T,onlytextwidth]
-        \begin{column}{0.46\textwidth}
-            \begin{block}{Hypothèses de conduite}
-                \begin{itemize}
-                    \item Le cadrage \textbf{A} alimente rapidement l'état de l'art et le prétraitement pour éviter un démarrage séquentiel trop long.
-                    \item Les branches \textbf{F} et \textbf{G} sont parallélisées afin de réduire la durée totale avant l'étape de fusion.
-                    \item L'environnement \textbf{J} démarre tôt et l'entraînement \textbf{K} reste le lot le plus long, car il concentre essais, calibration et choix du meilleur checkpoint.
-                \end{itemize}
-            \end{block}
-        \end{column}
-        \begin{column}{0.46\textwidth}
-            \begin{block}{Lecture de risque}
-                \begin{itemize}
-                    \item Le verrou principal est la séquence \textbf{E-G-H-I-K}, car elle relie directement données, architecture et validation du modèle.
-                    \item Un retard sur \textbf{D} ou \textbf{J} reste absorbable grâce aux marges, alors qu'un retard sur \textbf{H} ou \textbf{K} décale toute la démonstration.
-                    \item Les tâches à faible marge, comme \textbf{C} et \textbf{F}, restent à surveiller, tandis que \textbf{L} et \textbf{M} sécurisent la transformation du travail technique en livrables académiques.
-                \end{itemize}
-            \end{block}
-        \end{column}
-    \end{columns}
-
-    \vspace{0.16cm}
-    \begin{alertblock}{Message clé}
-        Le planning montre que la réussite du PFA dépend moins du nombre de tâches que de la bonne maîtrise des quelques étapes critiques qui structurent tout le projet.
-    \end{alertblock}
-\end{frame}
 
 \begin{frame}{Gestion de Projet --- Tableau des Marges}
     \slidepurpose{Quantifier la flexibilité de chaque tâche à travers la marge libre et la marge totale}{Organisation / planification}
@@ -359,6 +231,10 @@
     \vspace{0.2cm}
     \tiny
     \textbf{ML} = marge libre ; \textbf{MT} = marge totale. Les tâches critiques vérifient \textbf{ML = MT = 0}, tandis que \textbf{D} et \textbf{J} concentrent l'essentiel de la souplesse du planning.
+    \begin{alertblock}{Chemin critique}
+        \textbf{A $\rightarrow$ E $\rightarrow$ G $\rightarrow$ H $\rightarrow$ I $\rightarrow$ K $\rightarrow$ L $\rightarrow$ M}
+        \hfill \textbf{Durée totale estimée : 42 jours}
+    \end{alertblock}
 \end{frame}
 
 % --- FRAME PERT : LE SCHÉMA ---
@@ -516,37 +392,45 @@ Démontrer la viabilité économique, le potentiel de marché et la transformati
 \end{frame}
 
 % --- SLIDE 2 : CONTEXTE ET IDENTIFICATION DU PROBLÈME ---
+% --- SLIDE 2 : CONTEXTE ET IDENTIFICATION DU PROBLÈME ---
 \begin{frame}[t]{Contexte et Identification du Problème}
 \slidepurpose{Poser le besoin terrain, l'origine de l'idée et l'avantage concurrentiel de la solution}{Cadrage entrepreneurial}
 \scriptsize
+
 \begin{columns}[T,onlytextwidth]
-\begin{column}{0.47\textwidth}
+\begin{column}{0.46\textwidth}
 \begin{block}{Le Problème}
 \begin{itemize}
-\setlength{\itemsep}{0.18em}
+\setlength{\itemsep}{0.05em} % Tightened item separation
 \item \textbf{Complexité visuelle} des pathologies pulmonaires sur CXR.
-\item \textbf{Pénurie mondiale} de radiologues experts (OMS : 1 radiologue / 100\,000 hab. en Afrique).
-\item \textbf{Temps d'attente} critiques aux services d'urgence.
-\item Les solutions SOTA actuelles restent des \textbf{boîtes noires} non explicables, freinant l'adoption clinique.
+\item \textbf{Pénurie mondiale} de radiologues (OMS : 1/100\,000 hab. en Afrique).
+\item \textbf{Temps d'attente} critiques aux urgences.
+\item IA SOTA actuelles = \textbf{boîtes noires} opaques, freinant l'adoption clinique.
 \end{itemize}
 \end{block}
 \end{column}
-\begin{column}{0.47\textwidth}
+
+\hfill % Evenly distributes space between columns
+
+\begin{column}{0.46\textwidth}
 \begin{block}{Origine \& Solution}
 \begin{itemize}
-\setlength{\itemsep}{0.18em}
-\item Observation terrain en \textbf{milieu hospitalier} : besoin réel et non couvert.
-\item \textbf{MedFusionNet} apporte un avantage concurrentiel unique :
+\setlength{\itemsep}{0.05em} % Tightened item separation
+\item Observation terrain en \textbf{milieu hospitalier}.
+\item \textbf{MedFusionNet} : avantage concurrentiel unique :
 \begin{itemize}
-\setlength{\itemsep}{0.1em}
+\setlength{\itemsep}{0.02em}
 \item[\textbullet] Double lecture \textbf{locale/globale} (CNN + Swin).
 \item[\textbullet] \textbf{Explicabilité} Grad-CAM intégrée.
-\item[\textbullet] \textbf{Quantification d'incertitude} (MC-Dropout) pour sécuriser le diagnostic.
+\item[\textbullet] \textbf{Incertitude} (MC-Dropout) pour sécuriser le diagnostic.
 \end{itemize}
 \end{itemize}
 \end{block}
 \end{column}
 \end{columns}
+
+\vspace{-0.3em} % Pulls the alert block up slightly to save space
+
 \begin{alertblock}{Proposition de valeur}
 Là où les concurrents fournissent un score opaque, MedFusionNet livre un \textbf{triplet $(p, L^c, u)$} : probabilité, carte explicative et niveau de confiance.
 \end{alertblock}
@@ -556,51 +440,56 @@ Là où les concurrents fournissent un score opaque, MedFusionNet livre un \text
 \begin{frame}[t]{Étude de Faisabilité Commerciale}
 \slidepurpose{Synthétiser l'environnement externe et les outils stratégiques SWOT / PESTEL / Porter}{Analyse de marché}
 \scriptsize
+
 \begin{columns}[T,onlytextwidth]
-\begin{column}{0.47\textwidth}
-\begin{block}{Demande identifiée}
+\begin{column}{0.46\textwidth}
+\begin{block}{Demande \& Cibles}
 \begin{itemize}
-\setlength{\itemsep}{0.15em}
-\item \textbf{Hôpitaux publics} : réduire les erreurs de diagnostic et optimiser le triage.
-\item \textbf{Cliniques privées} : accélérer le flux patients et se différencier.
-\item \textbf{Centres de radiologie d'urgence} : aide à la décision 24h/24.
+\setlength{\itemsep}{0.05em}
+\item \textbf{Hôpitaux publics} : optimiser le triage et réduire les erreurs.
+\item \textbf{Cliniques privées} : accélérer les flux et se différencier.
+\item \textbf{Centres d'urgence} : aide à la décision h24.
 \end{itemize}
 \end{block}
-\begin{block}{Analyse SWOT (synthèse)}
-\renewcommand{\arraystretch}{1.05}
-\begin{adjustbox}{max width=\linewidth}
-\begin{tabular}{|p{2cm}|p{3.5cm}|}
-\hline
-\textbf{Forces} & Technologie propriétaire, explicable et quantifiée \\ \hline
-\textbf{Faiblesses} & Startup, peu de données cliniques validées \\ \hline
-\textbf{Opportunités} & Digitalisation de la santé au Maroc, plan Santé 2025 \\ \hline
-\textbf{Menaces} & Réglementation stricte, concurrents internationaux \\ \hline
-\end{tabular}
-\end{adjustbox}
+
+\vspace{-0.2em}
+
+\begin{block}{Synthèse SWOT}
+\begin{itemize}
+\setlength{\itemsep}{0.02em}
+\item \textbf{F} : Technologie unique, explicable et quantifiée.
+\item \textbf{W} : Statut startup, volume de données cliniques initial.
+\item \textbf{O} : Digitalisation et réformes de la santé au Maroc.
+\item \textbf{M} : Réglementation stricte, acteurs mondiaux.
+\end{itemize}
 \end{block}
 \end{column}
-\begin{column}{0.47\textwidth}
-\begin{block}{PESTEL --- Facteurs clés}
+
+\hfill
+
+\begin{column}{0.48\textwidth}
+\begin{block}{Analyse PESTEL}
 \begin{itemize}
-\setlength{\itemsep}{0.12em}
-\item \textbf{P} : Soutien étatique à l'innovation e-santé.
-\item \textbf{E} : Marché IA santé mondial $>$ 45 Mds \$ d'ici 2030.
-\item \textbf{S} : Acceptation croissante de l'IA par les praticiens.
-\item \textbf{T} : GPU cloud accessibles, frameworks open-source matures.
-\item \textbf{E} : Faible empreinte (calcul sur demande).
-\item \textbf{L} : Conformité RGPD / Loi 09-08 (protection des données patients).
+\setlength{\itemsep}{0.02em}
+\item \textbf{P/E} : Soutien e-santé ; marché mondial $>$45Mds\$.
+\item \textbf{S/T} : Adoption médicale ; GPU cloud \& SOTA matures.
+\item \textbf{E/L} : Green IT ; Loi 09-08 / RGPD (données patients).
 \end{itemize}
 \end{block}
-\begin{block}{Porter --- Forces concurrentielles}
+
+\vspace{-0.2em}
+
+\begin{block}{Forces de Porter}
 \begin{itemize}
-\setlength{\itemsep}{0.12em}
-\item Barrière à l'entrée élevée (expertise IA + médical).
-\item Pouvoir de négociation des hôpitaux : fort $\Rightarrow$ modèle SaaS flexible.
-\item Substituts limités : pas d'outil explicable équivalent au Maroc.
+\setlength{\itemsep}{0.02em}
+\item \textbf{Entrants} : Barrière élevée (expertise IA + médicale).
+\item \textbf{Clients} : Pouvoir fort $\Rightarrow$ Modèle SaaS flexible.
+\item \textbf{Substituts} : Rares (pas d'outil explicable local).
 \end{itemize}
 \end{block}
 \end{column}
 \end{columns}
+
 \end{frame}
 
 % --- SLIDE 4 : MARKETING STRATÉGIQUE ET MARKETING MIX ---
@@ -725,12 +614,13 @@ Revenus récurrents par \textbf{abonnement SaaS} (cliniques) et \textbf{licences
 \begin{frame}[t]{Étude Financière --- Indicateurs de Rentabilité}
 \slidepurpose{Calculer les seuils de rentabilité et le BFR pour valider la viabilité économique}{Analyse financière}
 \scriptsize
+
 \begin{columns}[T,onlytextwidth]
-\begin{column}{0.47\textwidth}
+\begin{column}{0.46\textwidth}
 \begin{block}{Charges mensuelles estimées}
 \renewcommand{\arraystretch}{1.05}
 \begin{adjustbox}{max width=\linewidth}
-\begin{tabular}{|p{3.2cm}|r|}
+\begin{tabular}{|p{3.5cm}|r|}
 \hline
 \textbf{Charges fixes (CF)} & \textbf{MAD/mois} \\ \hline
 Salaires (3 ETP) & 36\,000 \\ \hline
@@ -739,118 +629,84 @@ Locaux / divers & 4\,000 \\ \hline
 \textbf{Total CF} & \textbf{45\,000} \\ \hline
 \end{tabular}
 \end{adjustbox}
-\vspace{0.12cm}
-\textbf{Charges variables (CV)} : coût API Cloud par scan $\approx$ 0.50 MAD/scan. Pour 10\,000 scans/mois $\Rightarrow$ CV = 5\,000 MAD.
+\end{block}
+\vspace{-0.2em}
+\begin{block}{Charges variables (CV)}
+\begin{itemize}
+\setlength{\itemsep}{0.02em}
+\item $\approx$ 0,50 MAD / scan d'API Cloud.
+\item Pour 10\,000 scans/mois $\Rightarrow$ \textbf{5\,000 MAD}.
+\end{itemize}
 \end{block}
 \end{column}
-\begin{column}{0.47\textwidth}
+
+\hfill
+
+\begin{column}{0.48\textwidth}
 \begin{block}{Indicateurs clés}
 \begin{itemize}
-\setlength{\itemsep}{0.12em}
-\item \textbf{Marge brute} :
-\[
-MB = CA - CV = 85\,000 - 5\,000 = 80\,000
-\]
-\item \textbf{Taux de marge sur coût variable} :
-\[
-TMCV = \frac{MB}{CA} = \frac{80\,000}{85\,000} \approx 94,1\%
-\]
-\item \textbf{Seuil de rentabilité (Point mort)} :
-\[
-SR = \frac{CF}{TMCV} = \frac{45\,000}{0{,}941} \approx 47\,822~\text{MAD/mois}
-\]
-\item \textbf{BFR maîtrisé} : paiement SaaS d'avance $\Rightarrow$ BFR faible ($<$ 1 mois de CA).
+\setlength{\itemsep}{0.15em}
+\item \textbf{Marge brute (MB)} :\\ 
+$MB = CA - CV = 85k - 5k = \mathbf{80\,000}$ MAD
+\item \textbf{Taux de MCV (TMCV)} :\\ 
+$TMCV = \frac{MB}{CA} = \frac{80\,000}{85\,000} \approx \mathbf{94,1\%}$
+\item \textbf{Seuil de rentabilité (SR)} :\\ 
+$SR = \frac{CF}{TMCV} = \frac{45\,000}{0,941} \approx \mathbf{47\,822}$ MAD/mois
+\item \textbf{BFR maîtrisé} : Paiement SaaS d'avance $\Rightarrow$ BFR proche de zéro.
 \end{itemize}
 \end{block}
 \end{column}
 \end{columns}
+
+\vspace{-0.1em}
+
 \begin{alertblock}{Conclusion financière}
-Avec un CA mensuel de 85\,000 MAD et un seuil de rentabilité à $\sim$48\,000 MAD, le projet atteint l'\textbf{équilibre dès le 8\textsuperscript{e} mois} d'activité commerciale.
+Avec un CA cible de 85\,000 MAD et un SR à $\sim$48\,000 MAD, le projet atteint son \textbf{équilibre dès le 8\textsuperscript{e} mois} d'activité commerciale.
 \end{alertblock}
+
 \end{frame}
 
+% --- SLIDE 8 : CADRE JURIDIQUE ET PERSPECTIVES ---
 % --- SLIDE 8 : CADRE JURIDIQUE ET PERSPECTIVES ---
 \begin{frame}[t]{Cadre Juridique et Stratégie de Développement}
 \slidepurpose{Définir la forme juridique et tracer les axes d'évolution du projet}{Aspects juridiques / perspectives}
 \scriptsize
+
 \begin{columns}[T,onlytextwidth]
-\begin{column}{0.47\textwidth}
-\begin{block}{Forme Juridique --- SARL}
+\begin{column}{0.46\textwidth}
+\begin{block}{Forme Juridique (SARL) \& Conformité}
 \begin{itemize}
-\setlength{\itemsep}{0.15em}
-\item \textbf{Choix} : Société à Responsabilité Limitée (SARL).
-\item \textbf{Justification} :
-\begin{itemize}
-\setlength{\itemsep}{0.08em}
-\item[\textbullet] Protection du patrimoine des associés fondateurs.
-\item[\textbullet] Souplesse de gestion adaptée à une startup tech.
-\item[\textbullet] Capital social minimum flexible (1 MAD).
-\item[\textbullet] Cadre juridique marocain bien établi pour les SARL.
-\end{itemize}
-\item \textbf{Conformité} : Loi 09-08 (données personnelles), anonymisation des images médicales, consentement patient.
+\setlength{\itemsep}{0.05em}
+\item \textbf{Choix} : Structure stable, capital social libre.
+\item \textbf{Avantages} : Protection du patrimoine des associés et souplesse adaptée à une startup tech au Maroc.
+\item \textbf{Conformité} : Respect strict de la \textbf{Loi 09-08} (anonymisation, hébergement sécurisé, consentement).
 \end{itemize}
 \end{block}
 \end{column}
-\begin{column}{0.47\textwidth}
+
+\hfill
+
+\begin{column}{0.48\textwidth}
 \begin{block}{Perspectives de Développement}
 \begin{itemize}
-\setlength{\itemsep}{0.15em}
+\setlength{\itemsep}{0.08em}
 \item \textbf{Court terme} : Déploiement pilote dans 2--3 CHU partenaires au Maroc.
-\item \textbf{Moyen terme} :
-\begin{itemize}
-\setlength{\itemsep}{0.08em}
-\item[\textbullet] Détection \textbf{multi-pathologies} (Tuberculose, tumeurs, épanchements).
-\item[\textbullet] Certification \textbf{dispositif médical} (marquage CE / FDA 510(k)).
-\end{itemize}
-\item \textbf{Long terme} :
-\begin{itemize}
-\setlength{\itemsep}{0.08em}
-\item[\textbullet] Intégration native dans les logiciels PACS/RIS (compatibilité DICOM universelle).
-\item[\textbullet] Expansion vers l'Afrique francophone.
-\item[\textbullet] Levée de fonds Série A.
-\end{itemize}
+\item \textbf{Moyen terme} : Extension multi-pathologies (tumeurs, tuberculose) \& Certification Dispositif Médical (\textbf{CE / FDA}).
+\item \textbf{Long terme} : Intégration PACS/RIS (\textbf{DICOM}), expansion en Afrique francophone, levée de fonds.
 \end{itemize}
 \end{block}
 \end{column}
 \end{columns}
+
+\vspace{-0.2em}
+
 \begin{alertblock}{Vision}
-De projet académique à \textbf{startup e-health} certifiée : MedFusionNet a le potentiel de devenir un outil de référence pour le diagnostic assisté par IA au Maroc et en Afrique.
+De projet de recherche à \textbf{startup e-health} certifiée : MedFusionNet vise à devenir une référence du diagnostic IA au Maroc et en Afrique.
 \end{alertblock}
-\end{frame}
-\subsection{Phase 4 — Confiance et explicabilité}
-\begin{frame}{Phase 4 — Grad-CAM : schéma de génération}
-\slidepurpose{Visualiser le pipeline complet de production d'une heatmap explicative}{Analyse SOTA / évaluation interprétable}
-\vspace*{-0.2cm}
-\centering
-\resizebox{\textwidth}{!}{%
-\begin{tikzpicture}[
-    >=Latex,
-    font=\scriptsize,
-    box/.style={draw, rounded corners=3pt, align=center, thick, minimum width=2.2cm, minimum height=0.9cm}
-]
-\node[box, fill=gray!10] (img) {Image\\d’entrée};
-\node[box, fill=blue!10, right=0.9cm of img] (cnn) {CNN};
-\node[box, fill=yellow!15, right=0.9cm of cnn] (feat) {Cartes $A^k$};
-\node[box, fill=orange!15, below=0.8cm of feat] (grad) {Gradients\\$\partial y^c/\partial A^k$};
-\node[box, fill=red!10, right=0.9cm of feat] (weights) {Poids\\$\alpha_k^c$};
-\node[box, fill=green!15, right=0.9cm of weights] (heat) {Heatmap\\$L_{\text{Grad-CAM}}^c$};
-\node[box, fill=violet!15, right=0.9cm of heat] (overlay) {Overlay\\Image + Heatmap};
 
-\draw[->, thick] (img) -- (cnn);
-\draw[->, thick] (cnn) -- (feat);
-\draw[->, thick] (feat) -- (weights);
-\draw[->, thick] (weights) -- (heat);
-\draw[->, thick] (heat) -- (overlay);
-\draw[->, thick] (feat) -- (grad);
-\draw[->, thick] (grad) -- (weights);
-\end{tikzpicture}
-}
-
-\vspace{0.12cm}
-{\scriptsize
-\textbf{Lecture :} l’overlay montre les régions activées associées à la classe prédite.
-}
 \end{frame}
+
+
 \section{Solution proposée}
 \subsection{Architecture et conception}
 
@@ -1243,6 +1099,41 @@ u=\mathrm{Var}_t(p_t)
 }{Heatmap explicative et estimation d'incertitude}
 \end{column}
 \end{columns}
+\end{frame}
+
+\subsection{Confiance et explicabilité}
+\begin{frame}{Grad-CAM : schéma de génération}
+\slidepurpose{Visualiser le pipeline complet de production d'une heatmap explicative}{Analyse SOTA / évaluation interprétable}
+\vspace*{-0.2cm}
+\centering
+\resizebox{\textwidth}{!}{%
+\begin{tikzpicture}[
+    >=Latex,
+    font=\scriptsize,
+    box/.style={draw, rounded corners=3pt, align=center, thick, minimum width=2.2cm, minimum height=0.9cm}
+]
+\node[box, fill=gray!10] (img) {Image\\d’entrée};
+\node[box, fill=blue!10, right=0.9cm of img] (cnn) {CNN};
+\node[box, fill=yellow!15, right=0.9cm of cnn] (feat) {Cartes $A^k$};
+\node[box, fill=orange!15, below=0.8cm of feat] (grad) {Gradients\\$\partial y^c/\partial A^k$};
+\node[box, fill=red!10, right=0.9cm of feat] (weights) {Poids\\$\alpha_k^c$};
+\node[box, fill=green!15, right=0.9cm of weights] (heat) {Heatmap\\$L_{\text{Grad-CAM}}^c$};
+\node[box, fill=violet!15, right=0.9cm of heat] (overlay) {Overlay\\Image + Heatmap};
+
+\draw[->, thick] (img) -- (cnn);
+\draw[->, thick] (cnn) -- (feat);
+\draw[->, thick] (feat) -- (weights);
+\draw[->, thick] (weights) -- (heat);
+\draw[->, thick] (heat) -- (overlay);
+\draw[->, thick] (feat) -- (grad);
+\draw[->, thick] (grad) -- (weights);
+\end{tikzpicture}
+}
+
+\vspace{0.12cm}
+{\scriptsize
+\textbf{Lecture :} l’overlay montre les régions activées associées à la classe prédite.
+}
 \end{frame}
 
 \begin{frame}[t]{Solution proposée — Étape 8 : apprentissage}
